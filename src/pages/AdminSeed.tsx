@@ -18,7 +18,7 @@ const AdminSeed = () => {
 
       toast({
         title: "Success!",
-        description: `Rulebook data seeded: ${data.stats.classes} classes, ${data.stats.rules} rules`,
+        description: `Seeded: ${data.stats.classes} classes, ${data.stats.rules} rules, ${data.stats.equipment} equipment, ${data.stats.spells} spells`,
       });
     } catch (error: any) {
       console.error('Error seeding data:', error);
@@ -55,11 +55,14 @@ const AdminSeed = () => {
             <div className="mt-6 text-sm text-muted-foreground">
               <p className="mb-2"><strong>This will populate:</strong></p>
               <ul className="list-disc list-inside space-y-1">
-                <li>11 Character Classes (Berserker, Cheat, Commander, etc.)</li>
-                <li>Core Rules (Stats, Skills, Combat)</li>
-                <li>Equipment (Weapons, Armor, Items)</li>
-                <li>Spells (Fire, Ice, Lightning, etc.)</li>
+                <li>11 Character Classes from Nimble V2</li>
+                <li>Core Rules (Stats, Skills, Combat mechanics)</li>
+                <li>Equipment (Weapons, Armor, Gear)</li>
+                <li>Spells (Fire, Ice, Lightning, Divine, Shadow)</li>
               </ul>
+              <p className="mt-4 text-xs opacity-75">
+                All data is extracted from the Heroes 2.0 and Core Rules 2.0 PDFs.
+              </p>
             </div>
           </CardContent>
         </Card>

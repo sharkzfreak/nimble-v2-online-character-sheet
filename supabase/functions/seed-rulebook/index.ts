@@ -242,13 +242,81 @@ serve(async (req) => {
 
     console.log(`Seeded ${insertedRules.length} rules`)
 
+    // Seed Equipment
+    const equipment = [
+      { name: 'Longsword', category: 'Weapon', damage: '1d8', type: 'Melee', cost: '15 gp', weight: 3, properties: { versatile: '1d10' } },
+      { name: 'Shortsword', category: 'Weapon', damage: '1d6', type: 'Melee', cost: '10 gp', weight: 2, properties: { light: true, finesse: true } },
+      { name: 'Greatsword', category: 'Weapon', damage: '2d6', type: 'Melee', cost: '50 gp', weight: 6, properties: { two_handed: true } },
+      { name: 'Battleaxe', category: 'Weapon', damage: '1d8', type: 'Melee', cost: '10 gp', weight: 4, properties: { versatile: '1d10' } },
+      { name: 'Warhammer', category: 'Weapon', damage: '1d8', type: 'Melee', cost: '15 gp', weight: 2, properties: { versatile: '1d10' } },
+      { name: 'Dagger', category: 'Weapon', damage: '1d4', type: 'Melee', cost: '2 gp', weight: 1, properties: { light: true, finesse: true, thrown: '20/60' } },
+      { name: 'Rapier', category: 'Weapon', damage: '1d8', type: 'Melee', cost: '25 gp', weight: 2, properties: { finesse: true } },
+      { name: 'Quarterstaff', category: 'Weapon', damage: '1d6', type: 'Melee', cost: '2 sp', weight: 4, properties: { versatile: '1d8' } },
+      { name: 'Scimitar', category: 'Weapon', damage: '1d6', type: 'Melee', cost: '25 gp', weight: 3, properties: { finesse: true, light: true } },
+      { name: 'Longbow', category: 'Weapon', damage: '1d8', type: 'Ranged', range_value: '150/600', cost: '50 gp', weight: 2, properties: { two_handed: true } },
+      { name: 'Shortbow', category: 'Weapon', damage: '1d6', type: 'Ranged', range_value: '80/320', cost: '25 gp', weight: 2, properties: { two_handed: true } },
+      { name: 'Light Crossbow', category: 'Weapon', damage: '1d8', type: 'Ranged', range_value: '80/320', cost: '25 gp', weight: 5, properties: { two_handed: true, loading: true } },
+      { name: 'Leather Armor', category: 'Armor', defense: 1, cost: '10 gp', weight: 10, description: 'Light armor made of hardened leather' },
+      { name: 'Chainmail', category: 'Armor', defense: 3, cost: '75 gp', weight: 55, description: 'Heavy armor of interlocking metal rings' },
+      { name: 'Plate Armor', category: 'Armor', defense: 4, cost: '1500 gp', weight: 65, description: 'Heavy armor of shaped metal plates' },
+      { name: 'Shield', category: 'Armor', defense: 1, cost: '10 gp', weight: 6, description: 'Increases defense when wielded' },
+      { name: 'Backpack', category: 'Gear', cost: '2 gp', weight: 5, description: 'Holds gear and equipment' },
+      { name: 'Rope (50 ft.)', category: 'Gear', cost: '1 gp', weight: 10, description: 'Hemp rope' },
+      { name: 'Rations', category: 'Gear', cost: '5 sp', weight: 2, description: 'Dried food for travel' },
+      { name: 'Thieves Tools', category: 'Gear', cost: '25 gp', weight: 1, description: 'Required for lockpicking' },
+      { name: 'Spell Focus', category: 'Gear', cost: '25 gp', weight: 1, description: 'Required for casting spells' },
+      { name: 'Spellbook', category: 'Gear', cost: '50 gp', weight: 3, description: 'Contains prepared spells' },
+      { name: 'Holy Symbol', category: 'Gear', cost: '5 gp', weight: 0, description: 'Symbol of divine faith' }
+    ]
+
+    const { data: insertedEquipment, error: equipmentError } = await supabaseClient
+      .from('equipment')
+      .upsert(equipment, { onConflict: 'name' })
+      .select()
+
+    if (equipmentError) {
+      console.error('Error seeding equipment:', equipmentError)
+      throw equipmentError
+    }
+
+    console.log(`Seeded ${insertedEquipment.length} equipment items`)
+
+    // Seed Spells
+    const spells = [
+      { name: 'Fireball', element: 'Fire', damage: '8d6', range_value: '150 ft', duration: 'Instant', description: 'A bright streak flashes to explode in a fiery burst. 20-foot radius.', properties: { save: 'DEX', area: '20ft radius' } },
+      { name: 'Burning Hands', element: 'Fire', damage: '3d6', range_value: 'Self (15ft cone)', duration: 'Instant', description: 'Flames shoot from your fingers in a fiery cone.', properties: { save: 'DEX', area: '15ft cone' } },
+      { name: 'Ice Storm', element: 'Ice', damage: '4d8', range_value: '300 ft', duration: 'Instant', description: 'Hail falls in a 20-foot radius. Targets must save or take damage and be slowed.', properties: { save: 'DEX', area: '20ft radius' } },
+      { name: 'Cone of Cold', element: 'Ice', damage: '8d8', range_value: 'Self (60ft cone)', duration: 'Instant', description: 'Blast of cold air erupts from your hands.', properties: { save: 'WIL', area: '60ft cone' } },
+      { name: 'Lightning Bolt', element: 'Lightning', damage: '8d6', range_value: '100 ft', duration: 'Instant', description: 'A stroke of lightning forms a 100-foot line, 5 feet wide.', properties: { save: 'DEX', area: '100ft line' } },
+      { name: 'Chain Lightning', element: 'Lightning', damage: '10d8', range_value: '150 ft', duration: 'Instant', description: 'Lightning arcs to multiple targets within 30 feet of each other.', properties: { save: 'DEX', targets: '1 primary + 3 secondary' } },
+      { name: 'Healing Word', element: 'Divine', damage: null, range_value: '60 ft', duration: 'Instant', description: 'A creature regains 1d4 + WIL HP.', properties: { healing: '1d4 + WIL' } },
+      { name: 'Shield of Faith', element: 'Divine', damage: null, range_value: '60 ft', duration: '10 minutes', description: 'A shimmering field grants +2 Defense.', properties: { duration: '10 minutes', bonus: '+2 Defense' } },
+      { name: 'Bless', element: 'Divine', damage: null, range_value: '30 ft', duration: '1 minute', description: 'Up to three creatures gain +1d4 to attack and saves.', properties: { duration: '1 minute', targets: 3 } },
+      { name: 'Shadow Bolt', element: 'Shadow', damage: '2d8', range_value: '60 ft', duration: 'Instant', description: 'A bolt of dark energy strikes your foe.', properties: { save: 'WIL' } },
+      { name: 'Summon Shadow', element: 'Shadow', damage: null, range_value: '30 ft', duration: '1 hour', description: 'Summon a shadow minion to fight for you.', properties: { duration: '1 hour', minion: true } }
+    ]
+
+    const { data: insertedSpells, error: spellsError } = await supabaseClient
+      .from('spells')
+      .upsert(spells, { onConflict: 'name' })
+      .select()
+
+    if (spellsError) {
+      console.error('Error seeding spells:', spellsError)
+      throw spellsError
+    }
+
+    console.log(`Seeded ${insertedSpells.length} spells`)
+
     return new Response(
       JSON.stringify({
         success: true,
         message: 'Rulebook data seeded successfully',
         stats: {
           classes: insertedClasses.length,
-          rules: insertedRules.length
+          rules: insertedRules.length,
+          equipment: insertedEquipment.length,
+          spells: insertedSpells.length
         }
       }),
       {

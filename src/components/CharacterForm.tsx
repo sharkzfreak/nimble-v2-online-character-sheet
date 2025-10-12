@@ -8,7 +8,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/hooks/use-toast";
-import { Loader2, Save, ArrowLeft } from "lucide-react";
+import { Loader2, Save, ArrowLeft, BookOpen } from "lucide-react";
+import { ClassSelector } from "@/components/ClassSelector";
+import { RuleTooltip } from "@/components/RuleTooltip";
 
 interface CharacterFormProps {
   characterId?: string;
@@ -22,6 +24,7 @@ const CharacterForm = ({ characterId }: CharacterFormProps) => {
     player: "",
     campaign: "",
     description: "",
+    level: 1,
     strength: 10,
     dexterity: 10,
     intelligence: 10,
@@ -39,11 +42,21 @@ const CharacterForm = ({ characterId }: CharacterFormProps) => {
     background: "",
     race: "",
     class: "",
+    class_id: null as string | null,
+    subclass_id: null as string | null,
     abilities: "",
     spells: "",
     powers: "",
     notes: "",
   });
+
+  const handleClassChange = (classId: string, classData: any) => {
+    setFormData({
+      ...formData,
+      class_id: classId,
+      class: classData.name,
+    });
+  };
 
   useEffect(() => {
     if (characterId) {
@@ -199,7 +212,10 @@ const CharacterForm = ({ characterId }: CharacterFormProps) => {
 
                 <TabsContent value="stats" className="space-y-6">
                   <div>
-                    <h3 className="text-lg font-semibold mb-4 text-primary">Core Stats</h3>
+                    <h3 className="text-lg font-semibold mb-4 text-primary flex items-center">
+                      Core Stats
+                      <RuleTooltip ruleName="Core Stats" category="character_creation" />
+                    </h3>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                       {["strength", "dexterity", "intelligence", "will"].map((stat) => (
                         <div key={stat} className="space-y-2">
@@ -220,26 +236,41 @@ const CharacterForm = ({ characterId }: CharacterFormProps) => {
                     <h3 className="text-lg font-semibold mb-4 text-accent">Derived Stats</h3>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                       <div>
-                        <div className="text-sm text-muted-foreground">Health</div>
+                        <div className="text-sm text-muted-foreground flex items-center">
+                          Health
+                          <RuleTooltip ruleName="Health Points" category="combat" />
+                        </div>
                         <div className="text-2xl font-bold text-foreground">{calculateHealth()}</div>
                       </div>
                       <div>
-                        <div className="text-sm text-muted-foreground">Defense</div>
+                        <div className="text-sm text-muted-foreground flex items-center">
+                          Defense
+                          <RuleTooltip ruleName="Defense" category="combat" />
+                        </div>
                         <div className="text-2xl font-bold text-foreground">{calculateDefense()}</div>
                       </div>
                       <div>
-                        <div className="text-sm text-muted-foreground">Initiative</div>
+                        <div className="text-sm text-muted-foreground flex items-center">
+                          Initiative
+                          <RuleTooltip ruleName="Initiative" category="combat" />
+                        </div>
                         <div className="text-2xl font-bold text-foreground">{calculateInitiative()}</div>
                       </div>
                       <div>
-                        <div className="text-sm text-muted-foreground">Carry Weight</div>
+                        <div className="text-sm text-muted-foreground flex items-center">
+                          Carry Weight
+                          <RuleTooltip ruleName="Carry Weight" category="equipment" />
+                        </div>
                         <div className="text-2xl font-bold text-foreground">{calculateCarryWeight()}</div>
                       </div>
                     </div>
                   </div>
 
                   <div>
-                    <h3 className="text-lg font-semibold mb-4 text-primary">Skills</h3>
+                    <h3 className="text-lg font-semibold mb-4 text-primary flex items-center">
+                      Skills
+                      <RuleTooltip ruleName="Skills" category="character_creation" />
+                    </h3>
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                       {[
                         "arcana", "examination", "finesse", "influence", "insight",
@@ -261,22 +292,33 @@ const CharacterForm = ({ characterId }: CharacterFormProps) => {
                 </TabsContent>
 
                 <TabsContent value="traits" className="space-y-4">
+                  <div className="mb-4">
+                    <ClassSelector
+                      selectedClassId={formData.class_id}
+                      onClassChange={handleClassChange}
+                    />
+                  </div>
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="race">Race</Label>
+                      <Label htmlFor="race">Ancestry</Label>
                       <Input
                         id="race"
                         value={formData.race}
                         onChange={(e) => setFormData({ ...formData, race: e.target.value })}
                         className="bg-input border-border"
+                        placeholder="e.g., Human, Elf, Dwarf"
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="class">Class</Label>
+                      <Label htmlFor="level">Level</Label>
                       <Input
-                        id="class"
-                        value={formData.class}
-                        onChange={(e) => setFormData({ ...formData, class: e.target.value })}
+                        id="level"
+                        type="number"
+                        min="1"
+                        max="20"
+                        value={formData.level}
+                        onChange={(e) => setFormData({ ...formData, level: parseInt(e.target.value) || 1 })}
                         className="bg-input border-border"
                       />
                     </div>
@@ -343,6 +385,15 @@ const CharacterForm = ({ characterId }: CharacterFormProps) => {
               </Tabs>
 
               <div className="flex gap-4 mt-6">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => navigate("/codex")}
+                  size="lg"
+                >
+                  <BookOpen className="mr-2 h-4 w-4" />
+                  Rules Codex
+                </Button>
                 <Button
                   type="submit"
                   disabled={loading}
