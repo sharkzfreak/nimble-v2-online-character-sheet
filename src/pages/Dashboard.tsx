@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { User, Session } from "@supabase/supabase-js";
-import { Plus, LogOut, Scroll, Sword, Shield } from "lucide-react";
+import { Plus, LogOut, Scroll, Sword, Shield, BookOpen } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
 interface Character {
@@ -96,7 +96,7 @@ const Dashboard = () => {
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(124,58,237,0.05),transparent_50%)]" />
       
       <div className="container mx-auto p-6 relative">
-        <div className="flex justify-between items-center mb-8">
+        <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-8 gap-4">
           <div>
             <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent flex items-center gap-2">
               <Scroll className="w-8 h-8 text-primary" />
@@ -106,10 +106,16 @@ const Dashboard = () => {
               Manage your Nimble V2 RPG characters
             </p>
           </div>
-          <Button onClick={handleSignOut} variant="outline" size="sm">
-            <LogOut className="mr-2 h-4 w-4" />
-            Sign Out
-          </Button>
+          <div className="flex gap-2">
+            <Button onClick={() => navigate("/codex")} variant="outline" size="sm" className="hover-scale">
+              <BookOpen className="mr-2 h-4 w-4" />
+              Rules Codex
+            </Button>
+            <Button onClick={handleSignOut} variant="outline" size="sm" className="hover-scale">
+              <LogOut className="mr-2 h-4 w-4" />
+              Sign Out
+            </Button>
+          </div>
         </div>
 
         {characters.length === 0 ? (
@@ -120,18 +126,18 @@ const Dashboard = () => {
               <p className="text-muted-foreground mb-6 text-center">
                 Start your adventure by creating your first character
               </p>
-              <Button onClick={() => navigate("/character/new")} variant="hero" size="lg">
+              <Button onClick={() => navigate("/character/new")} variant="hero" size="lg" className="hover-scale animate-scale-in">
                 <Plus className="mr-2 h-5 w-5" />
-                Create Character
+                Create Your First Character
               </Button>
             </CardContent>
           </Card>
         ) : (
           <>
             <div className="flex justify-end mb-6">
-              <Button onClick={() => navigate("/character/new")} variant="hero">
+              <Button onClick={() => navigate("/character/new")} variant="hero" className="hover-scale">
                 <Plus className="mr-2 h-4 w-4" />
-                New Character
+                Create New Character
               </Button>
             </div>
 
@@ -139,7 +145,7 @@ const Dashboard = () => {
               {characters.map((character) => (
                 <Card
                   key={character.id}
-                  className="bg-card border-border shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-glow)] transition-all duration-300 cursor-pointer hover:scale-105"
+                  className="bg-card border-border shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-glow)] transition-all duration-300 cursor-pointer hover-scale animate-fade-in"
                   onClick={() => navigate(`/character/${character.id}`)}
                 >
                   <CardHeader>

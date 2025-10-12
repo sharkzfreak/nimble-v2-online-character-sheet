@@ -8,9 +8,20 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/hooks/use-toast";
-import { Loader2, Save, ArrowLeft, BookOpen } from "lucide-react";
+import { Loader2, Save, ArrowLeft, BookOpen, Trash2 } from "lucide-react";
 import { ClassSelector } from "@/components/ClassSelector";
 import { RuleTooltip } from "@/components/RuleTooltip";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 interface CharacterFormProps {
   characterId?: string;
@@ -129,6 +140,35 @@ const CharacterForm = ({ characterId }: CharacterFormProps) => {
     }
   };
 
+  const handleDelete = async () => {
+    if (!characterId) return;
+    
+    setLoading(true);
+    try {
+      const { error } = await supabase
+        .from("characters")
+        .delete()
+        .eq("id", characterId);
+
+      if (error) throw error;
+      
+      toast({ 
+        title: "Success", 
+        description: "Character deleted successfully" 
+      });
+      navigate("/dashboard");
+    } catch (error) {
+      console.error("Error deleting character:", error);
+      toast({
+        title: "Error",
+        description: "Failed to delete character",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const calculateHealth = () => formData.strength * 5;
   const calculateDefense = () => Math.floor((formData.dexterity + formData.will) / 2);
   const calculateInitiative = () => formData.dexterity;
@@ -139,11 +179,40 @@ const CharacterForm = ({ characterId }: CharacterFormProps) => {
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(124,58,237,0.05),transparent_50%)]" />
       
       <div className="container mx-auto max-w-4xl relative">
-        <div className="mb-6">
-          <Button onClick={() => navigate("/dashboard")} variant="ghost" size="sm">
+        <div className="mb-6 flex justify-between items-center">
+          <Button onClick={() => navigate("/dashboard")} variant="ghost" size="sm" className="hover-scale">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Dashboard
           </Button>
+          
+          {characterId && (
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="destructive" size="sm" className="hover-scale">
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Delete Character
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent className="bg-card border-border">
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This action cannot be undone. This will permanently delete your character
+                    "{formData.name}" and remove all associated data from our servers.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction 
+                    onClick={handleDelete}
+                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  >
+                    Delete Character
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          )}
         </div>
 
         <form onSubmit={handleSubmit}>

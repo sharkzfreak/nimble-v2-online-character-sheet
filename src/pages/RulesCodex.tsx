@@ -1,12 +1,15 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2 } from "lucide-react";
+import { Loader2, ArrowLeft } from "lucide-react";
 
 const RulesCodex = () => {
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [classes, setClasses] = useState<any[]>([]);
   const [rules, setRules] = useState<any[]>([]);
@@ -59,7 +62,14 @@ const RulesCodex = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-background/80 p-6">
       <div className="max-w-7xl mx-auto">
-        <div className="mb-8">
+        <div className="mb-6">
+          <Button onClick={() => navigate("/dashboard")} variant="ghost" size="sm" className="hover-scale">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back to Dashboard
+          </Button>
+        </div>
+        
+        <div className="mb-8 animate-fade-in">
           <h1 className="text-4xl font-bold text-foreground mb-2">Nimble V2 Rules Codex</h1>
           <p className="text-muted-foreground">Comprehensive rulebook reference for Nimble V2</p>
         </div>

@@ -79,7 +79,7 @@ export const ClassSelector = ({ selectedClassId, onClassChange }: ClassSelectorP
     <div className="space-y-4">
       <div className="space-y-2">
         <Label htmlFor="class">Class (Archetype)</Label>
-        <Select value={selectedClassId || undefined} onValueChange={handleClassSelect}>
+        <Select value={selectedClassId || ""} onValueChange={handleClassSelect}>
           <SelectTrigger id="class" className="bg-input border-border">
             <SelectValue placeholder="Select a class..." />
           </SelectTrigger>

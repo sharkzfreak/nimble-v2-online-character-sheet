@@ -28,21 +28,23 @@ export const RuleTooltip = ({ ruleName, category }: RuleTooltipProps) => {
         query = query.eq("category", category);
       }
 
-      const { data, error } = await query.limit(1).single();
+      const { data, error } = await query.limit(1).maybeSingle();
 
       if (error) throw error;
       if (data) {
         setRuleText(data.description);
+      } else {
+        setRuleText("");
       }
     } catch (error) {
       console.error("Error fetching rule:", error);
-      setRuleText("Rule information not found");
+      setRuleText("");
     } finally {
       setLoading(false);
     }
   };
 
-  if (loading) return null;
+  if (loading || !ruleText) return null;
 
   return (
     <TooltipProvider>
