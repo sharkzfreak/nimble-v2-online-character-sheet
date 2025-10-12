@@ -1,1 +1,7 @@
 project_id = "lifqmqsbygkkzazwwikw"
+
+[functions]
+enabled = true
+
+[functions.seed-rulebook]
+verify_jwt = false

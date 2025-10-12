@@ -14,18 +14,143 @@ export type Database = {
   }
   public: {
     Tables: {
+      abilities: {
+        Row: {
+          category: string
+          class_id: string | null
+          created_at: string
+          description: string
+          id: string
+          level_requirement: number | null
+          name: string
+          source_page: number | null
+          subclass_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          category: string
+          class_id?: string | null
+          created_at?: string
+          description: string
+          id?: string
+          level_requirement?: number | null
+          name: string
+          source_page?: number | null
+          subclass_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          class_id?: string | null
+          created_at?: string
+          description?: string
+          id?: string
+          level_requirement?: number | null
+          name?: string
+          source_page?: number | null
+          subclass_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "abilities_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "classes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "abilities_subclass_id_fkey"
+            columns: ["subclass_id"]
+            isOneToOne: false
+            referencedRelation: "subclasses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ancestries: {
+        Row: {
+          created_at: string
+          description: string
+          id: string
+          name: string
+          source_page: number | null
+          stat_bonuses: Json | null
+          traits: Json
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          id?: string
+          name: string
+          source_page?: number | null
+          stat_bonuses?: Json | null
+          traits: Json
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          id?: string
+          name?: string
+          source_page?: number | null
+          stat_bonuses?: Json | null
+          traits?: Json
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      backgrounds: {
+        Row: {
+          created_at: string
+          description: string
+          id: string
+          name: string
+          skill_bonus: string | null
+          source_page: number | null
+          starting_equipment: string[] | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          id?: string
+          name: string
+          skill_bonus?: string | null
+          source_page?: number | null
+          starting_equipment?: string[] | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          id?: string
+          name?: string
+          skill_bonus?: string | null
+          source_page?: number | null
+          starting_equipment?: string[] | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       characters: {
         Row: {
           abilities: string | null
           background: string | null
           campaign: string | null
           class: string | null
+          class_id: string | null
           created_at: string | null
           description: string | null
           dexterity: number
           equipment: Json | null
           id: string
           intelligence: number
+          level: number
           name: string
           notes: string | null
           player: string | null
@@ -43,6 +168,7 @@ export type Database = {
           skill_stealth: number | null
           spells: string | null
           strength: number
+          subclass_id: string | null
           updated_at: string | null
           user_id: string
           will: number
@@ -52,12 +178,14 @@ export type Database = {
           background?: string | null
           campaign?: string | null
           class?: string | null
+          class_id?: string | null
           created_at?: string | null
           description?: string | null
           dexterity?: number
           equipment?: Json | null
           id?: string
           intelligence?: number
+          level?: number
           name: string
           notes?: string | null
           player?: string | null
@@ -75,6 +203,7 @@ export type Database = {
           skill_stealth?: number | null
           spells?: string | null
           strength?: number
+          subclass_id?: string | null
           updated_at?: string | null
           user_id: string
           will?: number
@@ -84,12 +213,14 @@ export type Database = {
           background?: string | null
           campaign?: string | null
           class?: string | null
+          class_id?: string | null
           created_at?: string | null
           description?: string | null
           dexterity?: number
           equipment?: Json | null
           id?: string
           intelligence?: number
+          level?: number
           name?: string
           notes?: string | null
           player?: string | null
@@ -107,11 +238,242 @@ export type Database = {
           skill_stealth?: number | null
           spells?: string | null
           strength?: number
+          subclass_id?: string | null
           updated_at?: string | null
           user_id?: string
           will?: number
         }
+        Relationships: [
+          {
+            foreignKeyName: "characters_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "classes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "characters_subclass_id_fkey"
+            columns: ["subclass_id"]
+            isOneToOne: false
+            referencedRelation: "subclasses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      classes: {
+        Row: {
+          armor: string | null
+          complexity: number
+          created_at: string
+          description: string
+          hit_die: string
+          id: string
+          key_stats: string[]
+          name: string
+          saves: string[]
+          source_page: number | null
+          starting_gear: string[]
+          starting_hp: number
+          updated_at: string
+          weapons: string | null
+        }
+        Insert: {
+          armor?: string | null
+          complexity?: number
+          created_at?: string
+          description: string
+          hit_die: string
+          id?: string
+          key_stats: string[]
+          name: string
+          saves: string[]
+          source_page?: number | null
+          starting_gear: string[]
+          starting_hp: number
+          updated_at?: string
+          weapons?: string | null
+        }
+        Update: {
+          armor?: string | null
+          complexity?: number
+          created_at?: string
+          description?: string
+          hit_die?: string
+          id?: string
+          key_stats?: string[]
+          name?: string
+          saves?: string[]
+          source_page?: number | null
+          starting_gear?: string[]
+          starting_hp?: number
+          updated_at?: string
+          weapons?: string | null
+        }
         Relationships: []
+      }
+      equipment: {
+        Row: {
+          category: string
+          cost: string | null
+          created_at: string
+          damage: string | null
+          defense: number | null
+          description: string | null
+          id: string
+          name: string
+          properties: Json | null
+          range_value: string | null
+          source_page: number | null
+          type: string | null
+          updated_at: string
+          weight: number | null
+        }
+        Insert: {
+          category: string
+          cost?: string | null
+          created_at?: string
+          damage?: string | null
+          defense?: number | null
+          description?: string | null
+          id?: string
+          name: string
+          properties?: Json | null
+          range_value?: string | null
+          source_page?: number | null
+          type?: string | null
+          updated_at?: string
+          weight?: number | null
+        }
+        Update: {
+          category?: string
+          cost?: string | null
+          created_at?: string
+          damage?: string | null
+          defense?: number | null
+          description?: string | null
+          id?: string
+          name?: string
+          properties?: Json | null
+          range_value?: string | null
+          source_page?: number | null
+          type?: string | null
+          updated_at?: string
+          weight?: number | null
+        }
+        Relationships: []
+      }
+      rules: {
+        Row: {
+          category: string
+          created_at: string
+          description: string
+          id: string
+          name: string
+          source_page: number | null
+          updated_at: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          description: string
+          id?: string
+          name: string
+          source_page?: number | null
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string
+          id?: string
+          name?: string
+          source_page?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      spells: {
+        Row: {
+          created_at: string
+          damage: string | null
+          description: string
+          duration: string | null
+          element: string
+          id: string
+          name: string
+          properties: Json | null
+          range_value: string | null
+          source_page: number | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          damage?: string | null
+          description: string
+          duration?: string | null
+          element: string
+          id?: string
+          name: string
+          properties?: Json | null
+          range_value?: string | null
+          source_page?: number | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          damage?: string | null
+          description?: string
+          duration?: string | null
+          element?: string
+          id?: string
+          name?: string
+          properties?: Json | null
+          range_value?: string | null
+          source_page?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      subclasses: {
+        Row: {
+          class_id: string
+          complexity: number
+          created_at: string
+          description: string
+          id: string
+          name: string
+          source_page: number | null
+          updated_at: string
+        }
+        Insert: {
+          class_id: string
+          complexity?: number
+          created_at?: string
+          description: string
+          id?: string
+          name: string
+          source_page?: number | null
+          updated_at?: string
+        }
+        Update: {
+          class_id?: string
+          complexity?: number
+          created_at?: string
+          description?: string
+          id?: string
+          name?: string
+          source_page?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subclasses_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "classes"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
