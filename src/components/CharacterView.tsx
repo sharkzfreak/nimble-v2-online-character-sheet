@@ -372,87 +372,147 @@ const CharacterView = ({
             boxShadow: `0 0 40px hsl(${classThemeColor} / 0.2)`
           }}
         >
-          <CardHeader className="pb-4">
-            <div className="flex flex-col gap-4">
-              <div>
-                <CardTitle 
-                  className="text-5xl font-bold font-cinzel mb-3"
+          <CardContent className="pt-6">
+            {/* ROW 1: Portrait (Left) + Character Identity (Right) */}
+            <div className="flex flex-col lg:flex-row gap-6 mb-8">
+              {/* Left Column: Portrait + Vertical Stat Containers */}
+              <div className="flex flex-col items-center gap-4">
+                {/* Portrait Square */}
+                <div 
+                  className="relative w-48 h-48 rounded-lg overflow-hidden border-4 transition-all duration-300"
                   style={{
-                    background: `linear-gradient(135deg, hsl(${classThemeColor}), hsl(var(--accent)))`,
-                    WebkitBackgroundClip: 'text',
-                    WebkitTextFillColor: 'transparent',
-                    backgroundClip: 'text',
-                    textShadow: `0 0 30px hsl(${classThemeColor} / 0.3)`
+                    backgroundColor: `hsl(${classThemeColor})`,
+                    borderColor: `hsl(${classThemeColor} / 0.8)`,
+                    boxShadow: `0 8px 32px hsl(${classThemeColor} / 0.4), inset 0 0 60px rgba(255,255,255,0.1)`
                   }}
                 >
-                  {formData.name || "Unnamed Character"}
-                </CardTitle>
-                <div className="flex flex-wrap gap-2">
-                  {formData.class && (
-                    <Badge 
-                      className="text-sm font-semibold px-3 py-1"
-                      style={{
-                        backgroundColor: `hsl(${classThemeColor} / 0.2)`,
-                        borderColor: `hsl(${classThemeColor})`,
-                        color: `hsl(${classThemeColor})`,
-                        border: '2px solid'
-                      }}
-                    >
-                      {formData.class}
-                    </Badge>
-                  )}
-                  {formData.race && <Badge variant="outline" className="text-sm font-semibold">{formData.race}</Badge>}
-                  <Badge variant="secondary" className="text-sm font-semibold">Level {formData.level}</Badge>
+                  {/* Gradient overlay for faded center */}
+                  <div 
+                    className="absolute inset-0"
+                    style={{
+                      background: `radial-gradient(circle, transparent 30%, hsl(${classThemeColor} / 0.3) 70%, hsl(${classThemeColor}) 100%)`
+                    }}
+                  />
+                  {/* Placeholder for portrait image */}
+                  <div className="absolute inset-0 flex items-center justify-center text-4xl font-bold font-cinzel opacity-40">
+                    {formData.name?.[0] || "?"}
+                  </div>
+                </div>
+
+                {/* Vertical Stat Containers */}
+                <div className="flex flex-col gap-4 w-full max-w-[12rem]">
+                  <AnimatedStatContainer
+                    type="armor"
+                    value={calculateDefense()}
+                    label="Armor"
+                    tooltip="Armor Class - Your defense against attacks"
+                    classColor={classThemeColor}
+                  />
+                  <AnimatedStatContainer
+                    type="health"
+                    value={calculateHealth()}
+                    maxValue={calculateHealth()}
+                    label="HP"
+                    tooltip="Hit Points - Your character's health"
+                    onIncrement={() => console.log("Heal")}
+                    onDecrement={() => console.log("Damage")}
+                    classColor={classThemeColor}
+                  />
+                  <AnimatedStatContainer
+                    type="speed"
+                    value="30"
+                    label="Speed"
+                    tooltip="Movement speed in feet per turn"
+                    classColor={classThemeColor}
+                  />
                 </div>
               </div>
-              
-              {(formData.player || formData.campaign) && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
-                  {formData.player && (
-                    <div>
-                      <span className="text-muted-foreground font-medium">Player:</span>
-                      <span className="ml-2 font-semibold">{formData.player}</span>
-                    </div>
-                  )}
-                  {formData.campaign && (
-                    <div>
-                      <span className="text-muted-foreground font-medium">Campaign:</span>
-                      <span className="ml-2 font-semibold">{formData.campaign}</span>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-          </CardHeader>
 
-          <CardContent className="pt-0">
-            {/* ROW 1: Character Identity (Left) + Stat Containers (Right) */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 px-2">
-              {/* Left: Character Identity - Keep original from CardHeader above */}
-              
-              {/* Right: Stat Icon Containers */}
-              <div className="flex items-center gap-4 md:gap-6 md:ml-auto">
-                <AnimatedStatContainer
-                  type="health"
-                  value={calculateHealth()}
-                  maxValue={calculateHealth()}
-                  label="HP"
-                  tooltip="Hit Points - Your character's health"
-                  onIncrement={() => console.log("Heal")}
-                  onDecrement={() => console.log("Damage")}
-                />
-                <AnimatedStatContainer
-                  type="defense"
-                  value={calculateDefense()}
-                  label="Defense"
-                  tooltip="Armor Class - Your defense against attacks"
-                />
-                <AnimatedStatContainer
-                  type="speed"
-                  value="30"
-                  label="Speed"
-                  tooltip="Movement speed in feet per turn"
-                />
+              {/* Right Column: Character Identity */}
+              <div className="flex-1 flex flex-col justify-start gap-4">
+                <div>
+                  <h1 
+                    className="text-4xl md:text-5xl lg:text-6xl font-bold font-cinzel mb-3"
+                    style={{
+                      background: `linear-gradient(135deg, hsl(${classThemeColor}), hsl(var(--accent)))`,
+                      WebkitBackgroundClip: 'text',
+                      WebkitTextFillColor: 'transparent',
+                      backgroundClip: 'text',
+                      filter: `drop-shadow(0 0 20px hsl(${classThemeColor} / 0.4))`
+                    }}
+                  >
+                    {formData.name || "Unnamed Character"}
+                  </h1>
+                  
+                  {/* Single Identity Line */}
+                  <div className="flex flex-wrap items-center gap-3 text-lg md:text-xl">
+                    <Badge 
+                      variant="secondary" 
+                      className="text-base font-semibold px-3 py-1"
+                      style={{
+                        backgroundColor: `hsl(${classThemeColor} / 0.15)`,
+                        borderColor: `hsl(${classThemeColor} / 0.4)`,
+                        color: `hsl(var(--foreground))`,
+                        border: '1px solid'
+                      }}
+                    >
+                      Level {formData.level}
+                    </Badge>
+                    
+                    {formData.class && (
+                      <>
+                        <span className="text-muted-foreground">•</span>
+                        <Badge 
+                          className="text-base font-semibold px-3 py-1"
+                          style={{
+                            backgroundColor: `hsl(${classThemeColor} / 0.2)`,
+                            borderColor: `hsl(${classThemeColor})`,
+                            color: `hsl(${classThemeColor})`,
+                            border: '2px solid'
+                          }}
+                        >
+                          {formData.class}
+                        </Badge>
+                      </>
+                    )}
+                    
+                    {formData.race && (
+                      <>
+                        <span className="text-muted-foreground">•</span>
+                        <Badge variant="outline" className="text-base font-semibold px-3 py-1">
+                          {formData.race}
+                        </Badge>
+                      </>
+                    )}
+                    
+                    {formData.background && (
+                      <>
+                        <span className="text-muted-foreground">•</span>
+                        <Badge variant="outline" className="text-base font-semibold px-3 py-1">
+                          {formData.background}
+                        </Badge>
+                      </>
+                    )}
+                  </div>
+                </div>
+                
+                {/* Player and Campaign Info */}
+                {(formData.player || formData.campaign) && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-base">
+                    {formData.player && (
+                      <div>
+                        <span className="text-muted-foreground font-medium">Player:</span>
+                        <span className="ml-2 font-semibold">{formData.player}</span>
+                      </div>
+                    )}
+                    {formData.campaign && (
+                      <div>
+                        <span className="text-muted-foreground font-medium">Campaign:</span>
+                        <span className="ml-2 font-semibold">{formData.campaign}</span>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
 

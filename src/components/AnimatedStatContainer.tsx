@@ -1,4 +1,4 @@
-import { Heart, Shield, Footprints, Plus, Minus } from "lucide-react";
+import { Heart, Shield, Plus, Minus, Footprints } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -7,13 +7,14 @@ import {
 } from "@/components/ui/tooltip";
 
 interface AnimatedStatContainerProps {
-  type: "health" | "defense" | "speed";
+  type: "health" | "armor" | "speed";
   value: number | string;
   maxValue?: number;
   label: string;
   tooltip?: string;
   onIncrement?: () => void;
   onDecrement?: () => void;
+  classColor?: string;
 }
 
 export const AnimatedStatContainer = ({
@@ -24,6 +25,7 @@ export const AnimatedStatContainer = ({
   tooltip,
   onIncrement,
   onDecrement,
+  classColor,
 }: AnimatedStatContainerProps) => {
   const getIconAndStyle = () => {
     switch (type) {
@@ -32,10 +34,10 @@ export const AnimatedStatContainer = ({
           Icon: Heart,
           color: "0 84% 60%", // Red for HP
         };
-      case "defense":
+      case "armor":
         return {
           Icon: Shield,
-          color: "217 91% 60%", // Blue for Defense
+          color: "217 91% 60%", // Blue for Armor
         };
       case "speed":
         return {
@@ -51,42 +53,43 @@ export const AnimatedStatContainer = ({
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger asChild>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-col items-center gap-2 w-full">
             {/* Icon Container (no box, icon IS the container) */}
             <div className="relative flex items-center justify-center">
               <Icon
-                className="w-10 h-10 md:w-12 md:h-12 transition-all duration-300 hover:scale-110 cursor-pointer"
+                className="w-16 h-16 md:w-20 md:h-20 transition-all duration-300 hover:scale-110 cursor-pointer"
                 style={{ color: `hsl(${color})`, fill: `hsl(${color} / 0.2)` }}
-                strokeWidth={2}
+                strokeWidth={2.5}
               />
               
               {/* Value centered inside icon */}
               <div
-                className="absolute text-sm md:text-base font-bold font-cinzel pointer-events-none"
+                className="absolute text-base md:text-lg font-bold font-cinzel pointer-events-none"
                 style={{
                   color: type === "health" ? "hsl(var(--background))" : `hsl(${color})`,
                   textShadow: type === "health" 
-                    ? "0 0 4px rgba(0,0,0,0.5)" 
-                    : `0 0 8px hsl(${color} / 0.5)`,
+                    ? "0 0 6px rgba(0,0,0,0.8)" 
+                    : `0 0 10px hsl(${color} / 0.6)`,
                 }}
               >
-                {typeof value === 'number' ? value : value.toString().split(' ')[0]}
+                {type === "health" && maxValue ? `${value}/${maxValue}` : value}
               </div>
             </div>
 
             {/* HP Controls */}
             {type === "health" && maxValue && (
-              <div className="flex items-center gap-1.5">
-                <span className="text-sm md:text-base font-medium text-muted-foreground">
-                  / {maxValue}
-                </span>
+              <div className="flex items-center gap-2">
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
                     onDecrement?.();
                   }}
-                  className="p-1 rounded hover:bg-muted transition-colors"
-                  style={{ color: `hsl(${color})` }}
+                  className="p-1.5 rounded-md transition-all hover:scale-110"
+                  style={{ 
+                    backgroundColor: `hsl(${color} / 0.2)`,
+                    color: `hsl(${color})`,
+                    border: `1px solid hsl(${color} / 0.4)`
+                  }}
                 >
                   <Minus className="w-4 h-4" />
                 </button>
@@ -95,13 +98,22 @@ export const AnimatedStatContainer = ({
                     e.stopPropagation();
                     onIncrement?.();
                   }}
-                  className="p-1 rounded hover:bg-muted transition-colors"
-                  style={{ color: `hsl(${color})` }}
+                  className="p-1.5 rounded-md transition-all hover:scale-110"
+                  style={{ 
+                    backgroundColor: `hsl(${color} / 0.2)`,
+                    color: `hsl(${color})`,
+                    border: `1px solid hsl(${color} / 0.4)`
+                  }}
                 >
                   <Plus className="w-4 h-4" />
                 </button>
               </div>
             )}
+            
+            {/* Label */}
+            <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              {label}
+            </div>
           </div>
         </TooltipTrigger>
         {tooltip && (
