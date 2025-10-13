@@ -44,12 +44,20 @@ All colors MUST be HSL.
     --parchment: 43 42% 85%;
     --parchment-dark: 43 30% 70%;
 
+    /* Ability Score Colors */
+    --ability-str: 0 70% 55%;
+    --ability-dex: 120 60% 50%;
+    --ability-int: 220 80% 60%;
+    --ability-will: 280 70% 65%;
+
     --gradient-primary: linear-gradient(135deg, hsl(262 83% 58%), hsl(282 80% 65%));
     --gradient-accent: linear-gradient(135deg, hsl(43 96% 56%), hsl(38 90% 60%));
     --gradient-card: linear-gradient(180deg, hsl(222 40% 18%), hsl(222 40% 15%));
+    --gradient-ability: linear-gradient(135deg, hsl(262 83% 58% / 0.1), hsl(282 80% 65% / 0.05));
 
     --shadow-glow: 0 0 30px hsl(262 83% 58% / 0.3);
     --shadow-card: 0 8px 32px hsl(222 47% 11% / 0.5);
+    --shadow-ability: 0 4px 16px hsl(262 83% 58% / 0.2);
 
     --sidebar-background: 222 47% 11%;
     --sidebar-foreground: 43 96% 89%;
