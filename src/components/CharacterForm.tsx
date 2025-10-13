@@ -444,6 +444,7 @@ const CharacterForm = ({ characterId }: CharacterFormProps) => {
         {/* View Mode */}
         {!isEditing && characterId && (
           <CharacterView
+            characterId={characterId}
             formData={formData}
             calculateHealth={calculateHealth}
             calculateDefense={calculateDefense}

@@ -311,6 +311,53 @@ export type Database = {
         }
         Relationships: []
       }
+      dice_logs: {
+        Row: {
+          character_id: string | null
+          character_name: string
+          created_at: string
+          formula: string
+          id: string
+          modifier: number
+          raw_result: number
+          roll_type: string
+          total: number
+          user_id: string
+        }
+        Insert: {
+          character_id?: string | null
+          character_name: string
+          created_at?: string
+          formula: string
+          id?: string
+          modifier?: number
+          raw_result: number
+          roll_type: string
+          total: number
+          user_id: string
+        }
+        Update: {
+          character_id?: string | null
+          character_name?: string
+          created_at?: string
+          formula?: string
+          id?: string
+          modifier?: number
+          raw_result?: number
+          roll_type?: string
+          total?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dice_logs_character_id_fkey"
+            columns: ["character_id"]
+            isOneToOne: false
+            referencedRelation: "characters"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       equipment: {
         Row: {
           category: string

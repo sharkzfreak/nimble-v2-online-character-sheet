@@ -22,8 +22,12 @@ import {
 } from "@/components/ui/tooltip";
 import { DiceRollToast } from "./DiceRollToast";
 import { useNimbleRuleset } from "@/hooks/useNimbleRuleset";
+import { useDiceLog } from "@/contexts/DiceLogContext";
+import { DiceLogPanel } from "./DiceLogPanel";
+import { ManualDiceRoller } from "./ManualDiceRoller";
 
 interface CharacterViewProps {
+  characterId?: string;
   formData: {
     name: string;
     player: string;
@@ -59,6 +63,7 @@ interface CharacterViewProps {
 }
 
 const CharacterView = ({
+  characterId,
   formData,
   calculateHealth,
   calculateDefense,
@@ -66,6 +71,7 @@ const CharacterView = ({
   calculateCarryWeight,
 }: CharacterViewProps) => {
   const { data: ruleset, isLoading: rulesetLoading } = useNimbleRuleset();
+  const { addLog } = useDiceLog();
   
   const [diceRoll, setDiceRoll] = useState<{
     statName: string;
@@ -92,6 +98,17 @@ const CharacterView = ({
     
     console.log(`Rolling ${statName}: ${roll} + ${modifier} = ${total} (${diceType})`);
     setDiceRoll({ statName, roll, modifier, total, diceType });
+
+    // Log to dice log
+    addLog({
+      character_name: formData.name || 'Unknown',
+      character_id: characterId,
+      formula: `${diceType}${modifier !== 0 ? ` ${modifier > 0 ? '+' : ''}${modifier}` : ''}`,
+      raw_result: roll,
+      modifier,
+      total,
+      roll_type: 'stat',
+    });
   };
 
   const rollSkillCheck = (skillName: string, skillValue: number) => {
@@ -100,6 +117,17 @@ const CharacterView = ({
     
     console.log(`Rolling ${skillName}: ${roll} + ${skillValue} = ${total} (d20 skill check)`);
     setDiceRoll({ statName: skillName, roll, modifier: skillValue, total, diceType: "d20" });
+
+    // Log to dice log
+    addLog({
+      character_name: formData.name || 'Unknown',
+      character_id: characterId,
+      formula: `d20${skillValue !== 0 ? ` ${skillValue > 0 ? '+' : ''}${skillValue}` : ''}`,
+      raw_result: roll,
+      modifier: skillValue,
+      total,
+      roll_type: 'skill',
+    });
   };
 
   // Get class theme color
@@ -676,6 +704,12 @@ const CharacterView = ({
           />
         )}
       </div>
+
+      <DiceLogPanel />
+      <ManualDiceRoller 
+        characterName={formData.name} 
+        characterId={characterId}
+      />
     </div>
   );
 };
