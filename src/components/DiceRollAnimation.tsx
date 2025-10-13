@@ -115,7 +115,7 @@ export const DiceRollAnimation = ({
       setCurrentNumbers(Array(results.length).fill(1));
     }
 
-    // Stage 1: Rolling animation (2.5 seconds)
+    // Stage 1: Rolling animation (1.3 seconds - faster!)
     const rollingInterval = setInterval(() => {
       if (isCleanedUp) return;
       
@@ -126,7 +126,7 @@ export const DiceRollAnimation = ({
       }
     }, 50);
 
-    // Stage 2: Stop rolling and show final numbers
+    // Stage 2: Stop rolling and show final numbers (after 1.3s)
     const rollingTimer = setTimeout(() => {
       if (isCleanedUp) return;
       clearInterval(rollingInterval);
@@ -137,28 +137,14 @@ export const DiceRollAnimation = ({
         setCurrentNumber(results[0]);
       }
       console.log("Dice stopped rolling, showing result...");
-    }, 2500);
+    }, 1300);
 
-    // Stage 3: Settle phase - transition to result display
+    // Stage 3: Settle phase - transition to result display (after 1.5s total)
     const settlingTimer = setTimeout(() => {
       if (isCleanedUp) return;
       setStage("result");
       console.log("Showing result display...");
-    }, 3000);
-
-    // Stage 4: Show result bar and mark complete
-    const resultTimer = setTimeout(() => {
-      if (isCleanedUp) return;
-      setStage("complete");
-      setShowResultBar(true);
-      console.log("Animation complete, showing result bar...");
-      
-      // Hide result bar after 3.5 seconds
-      setTimeout(() => {
-        if (isCleanedUp) return;
-        setShowResultBar(false);
-      }, 3500);
-    }, 3300);
+    }, 1500);
 
     // Failsafe: Force completion after maximum time
     const failsafeTimer = setTimeout(() => {
@@ -167,14 +153,7 @@ export const DiceRollAnimation = ({
       clearInterval(rollingInterval);
       setStage("complete");
       onComplete();
-    }, 4000);
-
-    // Final completion callback
-    const completionTimer = setTimeout(() => {
-      if (isCleanedUp) return;
-      console.log("Ending dice animation.");
-      onComplete();
-    }, 3600);
+    }, 6000);
 
     // Cleanup function
     return () => {
@@ -182,9 +161,7 @@ export const DiceRollAnimation = ({
       clearInterval(rollingInterval);
       clearTimeout(rollingTimer);
       clearTimeout(settlingTimer);
-      clearTimeout(resultTimer);
       clearTimeout(failsafeTimer);
-      clearTimeout(completionTimer);
     };
   }, [isVisible, diceType, onComplete]);
 
@@ -204,6 +181,22 @@ export const DiceRollAnimation = ({
   const hasCriticals = isMultiDice && results.some(r => r === 1 || r === maxSides);
   const critSuccessCount = isMultiDice ? results.filter(r => r === maxSides).length : 0;
   const critFailCount = isMultiDice ? results.filter(r => r === 1).length : 0;
+  
+  const handleContinue = () => {
+    console.log("Continue button clicked - ending animation");
+    setShowResultBar(true);
+    setStage("complete");
+    
+    // Hide result bar after 3.5 seconds
+    setTimeout(() => {
+      setShowResultBar(false);
+    }, 3500);
+    
+    // Complete the animation
+    setTimeout(() => {
+      onComplete();
+    }, 300);
+  };
 
   return (
     <>
@@ -281,9 +274,9 @@ export const DiceRollAnimation = ({
                       : isCriticalFail
                       ? "text-red-400"
                       : "text-primary-foreground"
-                  } ${stage === "rolling" ? "blur-sm" : "blur-0"}`}
+                  } transition-all duration-500 ${stage === "rolling" ? "blur-sm" : "blur-0"}`}
                 >
-                  {currentNumber}
+                  {isMultiDice ? (currentNumbers[0] || 1) : currentNumber}
                 </span>
               </div>
             </div>
@@ -375,6 +368,14 @@ export const DiceRollAnimation = ({
                   )}
                 </div>
               </div>
+              
+              {/* Continue Button */}
+              <button
+                onClick={handleContinue}
+                className="mt-4 px-8 py-3 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold rounded-lg shadow-lg transition-all duration-200 hover:scale-105 active:scale-95"
+              >
+                Continue
+              </button>
             </div>
           )}
         </div>
