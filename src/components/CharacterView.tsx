@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
@@ -102,6 +102,31 @@ const CharacterView = ({
     total: number;
     rollType: string;
   } | null>(null);
+
+  // Align profile card with main content
+  useEffect(() => {
+    const alignProfileCard = () => {
+      const card = document.getElementById('profileCard');
+      const sheet = document.getElementById('sheetContainer');
+      if (!card || !sheet) return;
+
+      // Align top edges
+      const sheetTop = sheet.getBoundingClientRect().top + window.scrollY;
+      card.style.top = `${sheetTop}px`;
+
+      // Push center container to the right so it never sits under the fixed card
+      const cardWidth = card.offsetWidth;
+      sheet.style.marginLeft = `${cardWidth + 24}px`; // 24px breathing room
+    };
+
+    // Initial alignment and on resize
+    alignProfileCard();
+    window.addEventListener('resize', alignProfileCard);
+    
+    return () => {
+      window.removeEventListener('resize', alignProfileCard);
+    };
+  }, []);
 
   const getModifier = (stat: number): number => {
     return Math.floor((stat - 10) / 2);
@@ -362,37 +387,35 @@ const CharacterView = ({
   return (
     <div className="min-h-screen bg-background relative">
       {/* Profile Card (Fixed Left - Flush) */}
-      <div className="hidden md:block">
-        <ProfileCard
-          characterName={formData.name}
-          classColor={classThemeColor}
-          hp_current={formData.hp_current}
-          hp_max={formData.hp_max}
-          hp_temp={formData.hp_temp}
-          armor={formData.armor}
-          hit_dice_remaining={formData.hit_dice_remaining}
-          hit_dice_total={formData.hit_dice_total}
-          onHPChange={(current, max, temp) => {
-            onFormDataChange?.({
-              hp_current: current,
-              hp_max: max,
-              hp_temp: temp,
-            });
-          }}
-          onArmorChange={(armor) => {
-            onFormDataChange?.({ armor });
-          }}
-          onHitDiceChange={(remaining, total) => {
-            onFormDataChange?.({
-              hit_dice_remaining: remaining,
-              hit_dice_total: total,
-            });
-          }}
-        />
-      </div>
+      <ProfileCard
+        characterName={formData.name}
+        classColor={classThemeColor}
+        hp_current={formData.hp_current}
+        hp_max={formData.hp_max}
+        hp_temp={formData.hp_temp}
+        armor={formData.armor}
+        hit_dice_remaining={formData.hit_dice_remaining}
+        hit_dice_total={formData.hit_dice_total}
+        onHPChange={(current, max, temp) => {
+          onFormDataChange?.({
+            hp_current: current,
+            hp_max: max,
+            hp_temp: temp,
+          });
+        }}
+        onArmorChange={(armor) => {
+          onFormDataChange?.({ armor });
+        }}
+        onHitDiceChange={(remaining, total) => {
+          onFormDataChange?.({
+            hit_dice_remaining: remaining,
+            hit_dice_total: total,
+          });
+        }}
+      />
       
       {/* Main Content Area (Centered with left margin) */}
-      <div className="max-w-[1100px] mx-auto px-4 sm:px-6 md:px-8 py-4 md:ml-[400px]">
+      <div id="sheetContainer" className="max-w-[1100px] mx-auto px-4 sm:px-6 md:px-8 py-4">
         <div 
           className="space-y-8 animate-fade-in"
           style={{
