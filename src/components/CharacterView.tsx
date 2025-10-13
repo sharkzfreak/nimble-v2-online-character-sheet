@@ -103,28 +103,53 @@ const CharacterView = ({
     rollType: string;
   } | null>(null);
 
-  // Align profile card with main content
+  // Layout main content between left card and chat panel
   useEffect(() => {
-    const alignProfileCard = () => {
+    const layoutBetweenLeftCardAndChat = () => {
       const card = document.getElementById('profileCard');
       const sheet = document.getElementById('sheetContainer');
-      if (!card || !sheet) return;
+      const chat = document.querySelector('.chat-panel') as HTMLElement;
+
+      if (!sheet || !card) return;
+
+      // Check if we're on mobile/tablet breakpoint
+      const isMobile = window.innerWidth < 900;
+      
+      if (isMobile) {
+        sheet.style.marginLeft = '0';
+        sheet.style.width = '100%';
+        sheet.style.maxWidth = '100%';
+        return;
+      }
+
+      const cardW = card.offsetWidth || 0;
+      const chatW = chat ? chat.offsetWidth || 0 : 0;
+      const gapLeft = 24;   // space between card and sheet
+      const gapRight = 24;  // space between sheet and chat
+      const maxW = 1100;    // max width for main content
 
       // Align top edges
       const sheetTop = sheet.getBoundingClientRect().top + window.scrollY;
       card.style.top = `${sheetTop}px`;
 
-      // Push center container to the right so it never sits under the fixed card
-      const cardWidth = card.offsetWidth;
-      sheet.style.marginLeft = `${cardWidth + 24}px`; // 24px breathing room
+      // Left align main container right next to the fixed card
+      sheet.style.marginLeft = `${cardW + gapLeft}px`;
+
+      // Calculate usable width between left card and chat
+      const usable = window.innerWidth - cardW - chatW - gapLeft - gapRight;
+
+      // Clamp width so it doesn't exceed maxW but never overflow available space
+      const finalW = Math.min(Math.max(usable, 600), maxW); // min 600 for readability
+      sheet.style.width = `${finalW}px`;
+      sheet.style.maxWidth = `${maxW}px`;
     };
 
     // Initial alignment and on resize
-    alignProfileCard();
-    window.addEventListener('resize', alignProfileCard);
+    layoutBetweenLeftCardAndChat();
+    window.addEventListener('resize', layoutBetweenLeftCardAndChat);
     
     return () => {
-      window.removeEventListener('resize', alignProfileCard);
+      window.removeEventListener('resize', layoutBetweenLeftCardAndChat);
     };
   }, []);
 
@@ -414,8 +439,8 @@ const CharacterView = ({
         }}
       />
       
-      {/* Main Content Area (Centered with left margin) */}
-      <div id="sheetContainer" className="max-w-[1100px] mx-auto px-4 sm:px-6 md:px-8 py-4">
+      {/* Main Content Area (Fills space between left card and chat) */}
+      <div id="sheetContainer" className="px-4 sm:px-6 md:px-8 py-4">
         <div 
           className="space-y-8 animate-fade-in"
           style={{
