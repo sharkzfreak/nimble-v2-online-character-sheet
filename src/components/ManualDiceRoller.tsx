@@ -1,9 +1,10 @@
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Dices, Plus, Minus, Settings2 } from "lucide-react";
+import { Dices, Plus, Minus } from "lucide-react";
 import { useDiceLog } from "@/contexts/DiceLogContext";
 import { DiceRollToast } from "./DiceRollToast";
 import { DiceRollAnimation } from "./DiceRollAnimation";
+import { toast } from "@/hooks/use-toast";
 
 interface ManualDiceRollerProps {
   characterName?: string;
@@ -26,7 +27,6 @@ const diceTypes: DiceType[] = [
 
 export const ManualDiceRoller = ({ characterName = "Manual Roll", characterId }: ManualDiceRollerProps) => {
   const [isDiceOpen, setIsDiceOpen] = useState(false);
-  const [isModifierOpen, setIsModifierOpen] = useState(false);
   const [modifier, setModifier] = useState(0);
   const [showToast, setShowToast] = useState(false);
   const [showAnimation, setShowAnimation] = useState(false);
@@ -48,26 +48,19 @@ export const ManualDiceRoller = ({ characterName = "Manual Roll", characterId }:
     const handleClickOutside = (event: MouseEvent) => {
       if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
         setIsDiceOpen(false);
-        setIsModifierOpen(false);
       }
     };
 
     const handleKeyPress = (event: KeyboardEvent) => {
       if (event.key === 'r' || event.key === 'R') {
         setIsDiceOpen(prev => !prev);
-        setIsModifierOpen(false);
-      }
-      if (event.key === 'm' || event.key === 'M') {
-        setIsModifierOpen(prev => !prev);
-        setIsDiceOpen(false);
       }
       if (event.key === 'Escape') {
         setIsDiceOpen(false);
-        setIsModifierOpen(false);
       }
     };
 
-    if (isDiceOpen || isModifierOpen) {
+    if (isDiceOpen) {
       document.addEventListener('mousedown', handleClickOutside);
       document.addEventListener('keydown', handleKeyPress);
     }
@@ -76,7 +69,7 @@ export const ManualDiceRoller = ({ characterName = "Manual Roll", characterId }:
       document.removeEventListener('mousedown', handleClickOutside);
       document.removeEventListener('keydown', handleKeyPress);
     };
-  }, [isDiceOpen, isModifierOpen]);
+  }, [isDiceOpen]);
 
   const addToPool = (diceLabel: string) => {
     setDicePool(prev => ({
@@ -100,6 +93,12 @@ export const ManualDiceRoller = ({ characterName = "Manual Roll", characterId }:
       d8: 0,
       d6: 0,
       d4: 0,
+    });
+    setModifier(0);
+    setIsDiceOpen(false);
+    toast({
+      title: "Dice pool cleared",
+      duration: 1500,
     });
   };
 
@@ -138,7 +137,6 @@ export const ManualDiceRoller = ({ characterName = "Manual Roll", characterId }:
       formula 
     });
     setIsDiceOpen(false);
-    setIsModifierOpen(false);
     setShowAnimation(true);
   };
 
@@ -170,12 +168,19 @@ export const ManualDiceRoller = ({ characterName = "Manual Roll", characterId }:
 
   const toggleDice = () => {
     setIsDiceOpen(!isDiceOpen);
-    setIsModifierOpen(false);
   };
 
-  const toggleModifier = () => {
-    setIsModifierOpen(!isModifierOpen);
-    setIsDiceOpen(false);
+  const handleMainButtonClick = () => {
+    if (totalDiceInPool > 0) {
+      rollPool();
+    } else {
+      toggleDice();
+    }
+  };
+
+  const handleMainButtonRightClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    clearPool();
   };
 
   const totalDiceInPool = Object.values(dicePool).reduce((sum, count) => sum + count, 0);
@@ -187,37 +192,66 @@ export const ManualDiceRoller = ({ characterName = "Manual Roll", characterId }:
         ref={containerRef}
         className="fixed bottom-6 left-6 z-50 flex flex-col items-center gap-3"
       >
-        {/* Modifier Controls - Expand Upward */}
-        {isModifierOpen && (
-          <div className="flex flex-col gap-2 items-center animate-scale-in">
-            <Button
-              size="icon"
-              variant="outline"
-              onClick={() => adjustModifier(1)}
-              className="h-12 w-12 rounded-full border-2 border-primary/40 bg-background/90 backdrop-blur-md hover:bg-primary/20 hover:border-primary transition-all shadow-lg"
-              aria-label="Increase modifier"
-            >
-              <Plus className="h-5 w-5" />
-            </Button>
-            
-            <div className="px-4 py-2 rounded-full bg-gradient-to-r from-primary to-accent text-primary-foreground font-bold text-lg shadow-[var(--shadow-glow)] min-w-[3rem] text-center">
-              {modifier > 0 ? '+' : ''}{modifier}
+        {/* Dice Options - Expand Upward */}
+        {isDiceOpen && (
+          <div className="flex flex-col gap-3 items-center">
+            {/* Modifier Controls at Top */}
+            <div className="flex items-center gap-2 bg-background/90 backdrop-blur-md border-2 border-primary/40 rounded-full px-3 py-2 shadow-lg animate-scale-in">
+              <Button
+                size="icon"
+                variant="ghost"
+                onClick={() => adjustModifier(-1)}
+                className="h-8 w-8 rounded-full hover:bg-primary/20"
+                aria-label="Decrease modifier"
+              >
+                <Minus className="h-4 w-4" />
+              </Button>
+              
+              <div className="px-3 py-1 rounded-full bg-gradient-to-r from-primary to-accent text-primary-foreground font-bold text-sm min-w-[2.5rem] text-center">
+                {modifier > 0 ? '+' : ''}{modifier}
+              </div>
+              
+              <Button
+                size="icon"
+                variant="ghost"
+                onClick={() => adjustModifier(1)}
+                className="h-8 w-8 rounded-full hover:bg-primary/20"
+                aria-label="Increase modifier"
+              >
+                <Plus className="h-4 w-4" />
+              </Button>
             </div>
-            
-            <Button
-              size="icon"
-              variant="outline"
-              onClick={() => adjustModifier(-1)}
-              className="h-12 w-12 rounded-full border-2 border-primary/40 bg-background/90 backdrop-blur-md hover:bg-primary/20 hover:border-primary transition-all shadow-lg"
-              aria-label="Decrease modifier"
-            >
-              <Minus className="h-5 w-5" />
-            </Button>
+
+            {/* Dice Icons */}
+            {diceTypes.map((dice, index) => (
+              <button
+                key={dice.label}
+                onClick={() => addToPool(dice.label)}
+                onContextMenu={(e) => {
+                  e.preventDefault();
+                  removeFromPool(dice.label);
+                }}
+                className="h-14 w-14 rounded-full bg-gradient-to-br from-primary/90 to-accent/90 backdrop-blur-md border-2 border-primary/50 shadow-[var(--shadow-glow)] hover:scale-110 transition-all duration-300 flex flex-col items-center justify-center group animate-scale-in relative"
+                style={{
+                  animationDelay: `${index * 0.05}s`,
+                }}
+                aria-label={`Left-click to add ${dice.label}, right-click to remove`}
+                title="Left-click to add, right-click to remove"
+              >
+                <Dices className="h-5 w-5 text-primary-foreground group-hover:rotate-12 transition-transform" />
+                <span className="text-xs font-bold text-primary-foreground mt-0.5">{dice.label}</span>
+                {dicePool[dice.label] > 0 && (
+                  <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-accent text-primary-foreground text-xs flex items-center justify-center font-bold border-2 border-background animate-scale-in">
+                    {dicePool[dice.label]}
+                  </span>
+                )}
+              </button>
+            ))}
           </div>
         )}
 
-        {/* Dice Pool Display - Expand Upward */}
-        {poolEntries.length > 0 && !isDiceOpen && !isModifierOpen && (
+        {/* Dice Pool Display - Show when pool has dice and menu is closed */}
+        {poolEntries.length > 0 && !isDiceOpen && (
           <div className="bg-background/90 backdrop-blur-md border-2 border-primary/40 rounded-2xl p-4 shadow-[var(--shadow-glow)] animate-scale-in min-w-[200px]">
             <div className="flex items-center justify-between mb-3">
               <span className="text-sm font-bold text-foreground">Dice Pool</span>
@@ -252,88 +286,36 @@ export const ManualDiceRoller = ({ characterName = "Manual Roll", characterId }:
                 </div>
               )}
             </div>
-            <Button
-              onClick={rollPool}
-              disabled={isRolling}
-              className="w-full mt-3 bg-gradient-to-r from-primary to-accent hover:scale-105 transition-all"
-            >
-              <Dices className="h-4 w-4 mr-2" />
-              ROLL
-            </Button>
           </div>
         )}
 
-        {/* Dice Options - Expand Upward */}
-        {isDiceOpen && (
-          <div className="flex flex-col gap-2 items-center">
-            {diceTypes.map((dice, index) => (
-              <button
-                key={dice.label}
-                onClick={() => addToPool(dice.label)}
-                className="h-14 w-14 rounded-full bg-gradient-to-br from-primary/90 to-accent/90 backdrop-blur-md border-2 border-primary/50 shadow-[var(--shadow-glow)] hover:scale-110 transition-all duration-300 flex flex-col items-center justify-center group animate-scale-in relative"
-                style={{
-                  animationDelay: `${index * 0.05}s`,
-                }}
-                aria-label={`Add ${dice.label} to pool`}
-              >
-                <Dices className="h-5 w-5 text-primary-foreground group-hover:rotate-12 transition-transform" />
-                <span className="text-xs font-bold text-primary-foreground mt-0.5">{dice.label}</span>
-                {dicePool[dice.label] > 0 && (
-                  <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-accent text-primary-foreground text-xs flex items-center justify-center font-bold border-2 border-background">
-                    {dicePool[dice.label]}
-                  </span>
-                )}
-              </button>
-            ))}
-          </div>
-        )}
-
-        {/* Button Row */}
-        <div className="flex gap-3 items-center">
-          {/* Modifier Button */}
-          <Button
-            size="icon"
-            onClick={toggleModifier}
-            disabled={isRolling}
-            className={`h-14 w-14 rounded-full shadow-lg bg-gradient-to-br from-accent/80 to-accent hover:scale-110 active:scale-95 transition-all duration-300 border-2 border-primary-foreground/20 ${
-              isModifierOpen ? 'ring-2 ring-primary' : ''
-            } ${isRolling ? 'opacity-50 cursor-not-allowed' : ''}`}
-            aria-label="Toggle modifier controls"
-          >
-            <Settings2 className={`h-5 w-5 text-primary-foreground transition-transform ${isModifierOpen ? 'rotate-90' : ''}`} />
-            {modifier !== 0 && (
-              <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center font-bold border-2 border-background">
-                {Math.abs(modifier)}
-              </span>
-            )}
-          </Button>
-
-          {/* Main Dice Button */}
-          <Button
-            size="icon"
-            onClick={toggleDice}
-            disabled={isRolling}
-            className={`h-20 w-20 rounded-full shadow-[var(--shadow-glow)] bg-gradient-to-br from-primary via-primary to-accent hover:scale-110 active:scale-95 transition-all duration-300 border-4 border-primary-foreground/20 ${
-              isDiceOpen ? 'ring-2 ring-accent' : ''
-            } ${isRolling ? 'opacity-50 cursor-not-allowed' : ''}`}
-            style={{
-              boxShadow: '0 0 40px hsl(var(--primary) / 0.6), 0 10px 30px hsl(var(--primary) / 0.4)',
-            }}
-            aria-label="Toggle dice menu"
-          >
-            <Dices className={`h-8 w-8 text-primary-foreground transition-transform ${isDiceOpen ? 'rotate-180' : ''}`} />
-            {totalDiceInPool > 0 && (
-              <span className="absolute -top-1 -right-1 h-6 w-6 rounded-full bg-accent text-primary-foreground text-sm flex items-center justify-center font-bold border-2 border-background">
-                {totalDiceInPool}
-              </span>
-            )}
-          </Button>
-        </div>
+        {/* Main Dice Button */}
+        <Button
+          size="icon"
+          onClick={handleMainButtonClick}
+          onContextMenu={handleMainButtonRightClick}
+          disabled={isRolling}
+          className={`h-20 w-20 rounded-full shadow-[var(--shadow-glow)] bg-gradient-to-br from-primary via-primary to-accent hover:scale-110 active:scale-95 transition-all duration-300 border-4 border-primary-foreground/20 ${
+            isDiceOpen ? 'ring-2 ring-accent' : ''
+          } ${isRolling ? 'opacity-50 cursor-not-allowed' : ''}`}
+          style={{
+            boxShadow: '0 0 40px hsl(var(--primary) / 0.6), 0 10px 30px hsl(var(--primary) / 0.4)',
+          }}
+          aria-label={totalDiceInPool > 0 ? "Left-click to roll, right-click to clear" : "Toggle dice menu"}
+          title={totalDiceInPool > 0 ? "Left-click: Roll | Right-click: Clear pool" : "Open dice menu"}
+        >
+          <Dices className={`h-8 w-8 text-primary-foreground transition-transform ${isDiceOpen ? 'rotate-180' : ''}`} />
+          {totalDiceInPool > 0 && (
+            <span className="absolute -top-1 -right-1 h-6 w-6 rounded-full bg-accent text-primary-foreground text-sm flex items-center justify-center font-bold border-2 border-background">
+              {totalDiceInPool}
+            </span>
+          )}
+        </Button>
 
         {/* Keyboard Hints */}
-        {!isDiceOpen && !isModifierOpen && !isRolling && (
+        {!isDiceOpen && !isRolling && (
           <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 text-xs text-muted-foreground whitespace-nowrap pointer-events-none">
-            Press <kbd className="px-1 py-0.5 bg-muted rounded">R</kbd> or <kbd className="px-1 py-0.5 bg-muted rounded">M</kbd>
+            Press <kbd className="px-1 py-0.5 bg-muted rounded">R</kbd>
           </div>
         )}
       </div>
