@@ -152,9 +152,135 @@ export const ProfileCard = ({
 
       {/* Vitals HUD */}
       <div className="px-5 pb-5">
-        {/* Armor Shield (Centered) */}
-        <div className="armor-wrap relative z-10 flex items-center justify-center mt-4">
-          <div className="flex flex-col items-center">
+        <div className="vitals-row relative flex items-center justify-center mt-4">
+          {/* HP Bar (Left) - overlaps under shield */}
+          <div className="hp-wrap absolute left-0 right-1/2 pr-2 flex flex-col items-end z-0 -mt-2">
+            <Popover open={editingHP} onOpenChange={setEditingHP}>
+              <PopoverTrigger asChild>
+                <div className="relative cursor-pointer w-full max-w-[140px] group">
+                  <div
+                    className="relative h-[18px] bg-muted/30 rounded-full overflow-hidden border-2"
+                    style={{ 
+                      borderColor: `hsl(${classColor} / 0.3)`,
+                    }}
+                    role="button"
+                    aria-label="HP bar"
+                  >
+                    {/* Base HP fill */}
+                    <div
+                      className="absolute left-0 top-0 h-full transition-all duration-300 rounded-full"
+                      style={{
+                        width: `${hpPercentage}%`,
+                        backgroundColor: isLowHP ? 'hsl(0 84% 60%)' : `hsl(${classColor})`,
+                      }}
+                    />
+                    {/* Temp HP overlay */}
+                    {hp_temp > 0 && (
+                      <div
+                        className="absolute top-0 h-full transition-all duration-300"
+                        style={{
+                          left: `${hpPercentage}%`,
+                          width: `${tempHPPercentage}%`,
+                          backgroundColor: 'hsl(45 93% 47%)',
+                        }}
+                      />
+                    )}
+                    {/* Hover numbers */}
+                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                      <span className="text-[10px] font-bold text-foreground drop-shadow-md">
+                        {hp_current}/{hp_max}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </PopoverTrigger>
+              <PopoverContent className="w-64">
+                <div className="space-y-4">
+                  <h3 className="font-semibold text-sm">Edit HP</h3>
+                  <div className="space-y-2">
+                    <label className="text-xs font-medium">Current HP</label>
+                    <Input
+                      type="number"
+                      value={tempHPCurrent}
+                      onChange={(e) => setTempHPCurrent(parseInt(e.target.value) || 0)}
+                      className="h-8"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-xs font-medium">Max HP</label>
+                    <Input
+                      type="number"
+                      value={tempHPMax}
+                      onChange={(e) => setTempHPMax(parseInt(e.target.value) || 0)}
+                      className="h-8"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-xs font-medium">Temp HP</label>
+                    <Input
+                      type="number"
+                      value={tempHPTemp}
+                      onChange={(e) => setTempHPTemp(parseInt(e.target.value) || 0)}
+                      className="h-8"
+                    />
+                  </div>
+                  <div className="flex gap-2">
+                    <Button onClick={handleHPSave} size="sm" className="flex-1">
+                      Save
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setEditingHP(false);
+                        setTempHPCurrent(hp_current);
+                        setTempHPMax(hp_max);
+                        setTempHPTemp(hp_temp);
+                      }}
+                      className="flex-1"
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                </div>
+              </PopoverContent>
+            </Popover>
+            
+            {/* HP +/- Buttons under bar */}
+            <div className="hp-buttons flex gap-1 mt-1">
+              <button
+                onClick={handleHPDecrement}
+                className="w-6 h-6 flex items-center justify-center rounded border transition-all hover:scale-110"
+                style={{
+                  borderColor: `hsl(${classColor} / 0.4)`,
+                  backgroundColor: `hsl(${classColor} / 0.1)`,
+                  color: `hsl(${classColor})`,
+                }}
+                aria-label="Decrease HP"
+              >
+                <Minus className="w-3 h-3" />
+              </button>
+              <button
+                onClick={handleHPIncrement}
+                className="w-6 h-6 flex items-center justify-center rounded border transition-all hover:scale-110"
+                style={{
+                  borderColor: `hsl(${classColor} / 0.4)`,
+                  backgroundColor: `hsl(${classColor} / 0.1)`,
+                  color: `hsl(${classColor})`,
+                }}
+                aria-label="Increase HP"
+              >
+                <Plus className="w-3 h-3" />
+              </button>
+            </div>
+            
+            <div className="text-xs font-bold text-center mt-1 uppercase tracking-wide text-muted-foreground">
+              HP
+            </div>
+          </div>
+
+          {/* Armor Shield (Center) */}
+          <div className="armor-wrap relative z-10 flex flex-col items-center">
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -188,180 +314,28 @@ export const ProfileCard = ({
               ARMOR
             </div>
           </div>
-        </div>
 
-        {/* HP and Hit Dice Bars Row */}
-        <div className="bars-row mt-3 grid grid-cols-2 gap-3 items-center">
-          {/* HP Bar (Left) */}
-          <div className="hp-wrap relative flex justify-end -mr-2 z-0">
-            <div className="flex flex-col items-end w-full">
-              <div className="flex items-center gap-2 w-full justify-end">
-                {/* HP +/- Buttons */}
-                <div className="hp-buttons flex flex-col gap-1">
-                  <button
-                    onClick={handleHPIncrement}
-                    className="w-6 h-6 flex items-center justify-center rounded border transition-all hover:scale-110"
-                    style={{
-                      borderColor: `hsl(${classColor} / 0.4)`,
-                      backgroundColor: `hsl(${classColor} / 0.1)`,
-                      color: `hsl(${classColor})`,
-                    }}
-                    aria-label="Increase HP"
-                  >
-                    <Plus className="w-3 h-3" />
-                  </button>
-                  <button
-                    onClick={handleHPDecrement}
-                    className="w-6 h-6 flex items-center justify-center rounded border transition-all hover:scale-110"
-                    style={{
-                      borderColor: `hsl(${classColor} / 0.4)`,
-                      backgroundColor: `hsl(${classColor} / 0.1)`,
-                      color: `hsl(${classColor})`,
-                    }}
-                    aria-label="Decrease HP"
-                  >
-                    <Minus className="w-3 h-3" />
-                  </button>
+          {/* Hit Dice Bar (Right) - overlaps under shield */}
+          <div className="hitdice-wrap absolute right-0 left-1/2 pl-2 flex flex-col items-start z-0 -mt-2">
+            <div className="w-full max-w-[140px] group">
+              <div
+                className="relative h-[18px] bg-muted/30 rounded-full overflow-hidden border-2 cursor-pointer"
+                style={{ borderColor: `hsl(${classColor} / 0.3)` }}
+                role="button"
+                aria-label="Hit dice bar"
+              >
+                {renderHitDicePips()}
+                {/* Hover numbers */}
+                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                  <span className="text-[10px] font-bold text-foreground drop-shadow-md">
+                    {hit_dice_remaining}/{hit_dice_total}
+                  </span>
                 </div>
-
-                {/* HP Bar */}
-                <Popover open={editingHP} onOpenChange={setEditingHP}>
-                  <PopoverTrigger asChild>
-                    <div className="relative cursor-pointer">
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <div
-                              className="relative h-[18px] bg-muted/30 rounded-full overflow-hidden border-2"
-                              style={{ 
-                                borderColor: `hsl(${classColor} / 0.3)`,
-                                width: 'clamp(100px, 100%, 140px)'
-                              }}
-                              role="button"
-                              aria-label="HP bar"
-                            >
-                              {/* Base HP fill */}
-                              <div
-                                className="absolute left-0 top-0 h-full transition-all duration-300 rounded-full"
-                                style={{
-                                  width: `${hpPercentage}%`,
-                                  backgroundColor: isLowHP ? 'hsl(0 84% 60%)' : `hsl(${classColor})`,
-                                }}
-                              />
-                              {/* Temp HP overlay */}
-                              {hp_temp > 0 && (
-                                <div
-                                  className="absolute top-0 h-full transition-all duration-300"
-                                  style={{
-                                    left: `${hpPercentage}%`,
-                                    width: `${tempHPPercentage}%`,
-                                    backgroundColor: 'hsl(45 93% 47%)',
-                                  }}
-                                />
-                              )}
-                            </div>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p className="text-sm font-medium">
-                              HP: {hp_current}/{hp_max}
-                              {hp_temp > 0 && ` • Temp: ${hp_temp}`}
-                            </p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    </div>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-64">
-                    <div className="space-y-4">
-                      <h3 className="font-semibold text-sm">Edit HP</h3>
-                      <div className="space-y-2">
-                        <label className="text-xs font-medium">Current HP</label>
-                        <Input
-                          type="number"
-                          value={tempHPCurrent}
-                          onChange={(e) => setTempHPCurrent(parseInt(e.target.value) || 0)}
-                          className="h-8"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <label className="text-xs font-medium">Max HP</label>
-                        <Input
-                          type="number"
-                          value={tempHPMax}
-                          onChange={(e) => setTempHPMax(parseInt(e.target.value) || 0)}
-                          className="h-8"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <label className="text-xs font-medium">Temp HP</label>
-                        <Input
-                          type="number"
-                          value={tempHPTemp}
-                          onChange={(e) => setTempHPTemp(parseInt(e.target.value) || 0)}
-                          className="h-8"
-                        />
-                      </div>
-                      <div className="flex gap-2">
-                        <Button onClick={handleHPSave} size="sm" className="flex-1">
-                          Save
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {
-                            setEditingHP(false);
-                            setTempHPCurrent(hp_current);
-                            setTempHPMax(hp_max);
-                            setTempHPTemp(hp_temp);
-                          }}
-                          className="flex-1"
-                        >
-                          Cancel
-                        </Button>
-                      </div>
-                    </div>
-                  </PopoverContent>
-                </Popover>
-              </div>
-              
-              <div className="text-xs font-bold text-center mt-1 uppercase tracking-wide text-muted-foreground">
-                HP ({hp_current}/{hp_max})
               </div>
             </div>
-          </div>
-
-          {/* Hit Dice Bar (Right) */}
-          <div className="hd-wrap relative flex justify-start -ml-2 z-0">
-            <div className="flex flex-col items-start w-full">
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <div
-                      className="relative h-[18px] bg-muted/30 rounded-full overflow-hidden border-2"
-                      style={{ 
-                        borderColor: `hsl(${classColor} / 0.3)`,
-                        width: 'clamp(100px, 100%, 140px)'
-                      }}
-                      role="button"
-                      aria-label="Hit dice bar"
-                    >
-                      {renderHitDicePips()}
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p className="text-sm font-medium">
-                      Hit Dice: {hit_dice_remaining}/{hit_dice_total}
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Click to spend • Alt+Click to restore
-                    </p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-              
-              <div className="text-xs font-bold text-center mt-1 uppercase tracking-wide text-muted-foreground">
-                HIT DICE ({hit_dice_remaining}/{hit_dice_total})
-              </div>
+            
+            <div className="text-xs font-bold text-center mt-1 uppercase tracking-wide text-muted-foreground">
+              HIT DICE
             </div>
           </div>
         </div>
