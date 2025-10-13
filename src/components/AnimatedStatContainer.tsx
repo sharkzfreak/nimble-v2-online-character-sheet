@@ -54,11 +54,11 @@ export const AnimatedStatContainer = ({
           <div className="flex flex-col items-center group cursor-pointer">
             {/* Container with icon background */}
             <div
-              className="relative w-32 h-32 md:w-40 md:h-40 rounded-3xl flex flex-col items-center justify-center border-4 transition-all duration-500 hover:scale-110 overflow-hidden"
+              className="relative w-20 h-20 md:w-24 md:h-24 rounded-2xl flex flex-col items-center justify-center border-3 transition-all duration-500 hover:scale-110 overflow-hidden"
               style={{
                 backgroundColor: `hsl(${color} / 0.1)`,
                 borderColor: `hsl(${color})`,
-                boxShadow: `0 0 40px hsl(${color} / 0.5), inset 0 0 30px hsl(${color} / 0.15)`,
+                boxShadow: `0 0 30px hsl(${color} / 0.5), inset 0 0 20px hsl(${color} / 0.15)`,
               }}
             >
               {/* Animated background glow */}
@@ -71,14 +71,14 @@ export const AnimatedStatContainer = ({
 
               {/* Icon as large background element */}
               <Icon
-                className={`w-24 h-24 md:w-32 md:h-32 opacity-20 absolute ${animationClass}`}
+                className={`w-14 h-14 md:w-18 md:h-18 opacity-20 absolute ${animationClass}`}
                 style={{ color: `hsl(${color})` }}
                 strokeWidth={1.5}
               />
 
               {/* Value */}
               <div
-                className="text-5xl md:text-6xl font-bold font-cinzel relative z-10 drop-shadow-lg"
+                className="text-3xl md:text-4xl font-bold font-cinzel relative z-10 drop-shadow-lg"
                 style={{
                   color: `hsl(${color})`,
                   textShadow: `0 0 20px hsl(${color} / 0.8), 0 2px 4px rgba(0,0,0,0.5)`,
@@ -88,12 +88,12 @@ export const AnimatedStatContainer = ({
               </div>
 
               {/* Hover effect overlay */}
-              <div className="absolute inset-0 bg-gradient-to-br from-white/0 to-white/0 group-hover:from-white/10 group-hover:to-white/5 transition-all duration-500 rounded-3xl" />
+              <div className="absolute inset-0 bg-gradient-to-br from-white/0 to-white/0 group-hover:from-white/10 group-hover:to-white/5 transition-all duration-500 rounded-2xl" />
             </div>
 
             {/* Label */}
             <span
-              className="text-sm md:text-base text-muted-foreground uppercase tracking-wider font-semibold mt-3 font-cinzel"
+              className="text-xs md:text-sm text-muted-foreground uppercase tracking-wider font-semibold mt-1.5 font-cinzel"
               style={{
                 textShadow: `0 0 10px hsl(${color} / 0.3)`,
               }}

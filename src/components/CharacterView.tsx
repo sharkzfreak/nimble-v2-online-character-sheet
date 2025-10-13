@@ -425,27 +425,49 @@ const CharacterView = ({
             </div>
           </CardHeader>
 
-          {/* ROW 1: Animated Derived Stats with Icon Containers */}
+          {/* ROW 1: Character Identity (Left) + Stat Containers (Right) */}
           <CardContent className="pt-0">
-            <div className="flex justify-center gap-6 md:gap-12 lg:gap-16 mb-8 px-2">
-              <AnimatedStatContainer
-                type="health"
-                value={calculateHealth()}
-                label="Health"
-                tooltip="Hit Points - Your character's health"
-              />
-              <AnimatedStatContainer
-                type="defense"
-                value={calculateDefense()}
-                label="Defense"
-                tooltip="Armor Class - Your defense against attacks"
-              />
-              <AnimatedStatContainer
-                type="speed"
-                value="30 ft"
-                label="Speed"
-                tooltip="Movement speed in feet per turn"
-              />
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 px-2">
+              {/* Left: Character Identity */}
+              <div className="flex flex-wrap items-center gap-2 md:gap-3">
+                <span className="text-xl md:text-2xl font-bold font-cinzel text-foreground">
+                  {formData.name}
+                </span>
+                <span className="text-muted-foreground/60">•</span>
+                <span className="text-base md:text-lg font-semibold" style={{ color: `hsl(${classThemeColor})` }}>
+                  Level {formData.level}
+                </span>
+                <span className="text-muted-foreground/60">•</span>
+                <span className="text-base md:text-lg text-foreground/90">
+                  {formData.class || "No Class"}
+                </span>
+                <span className="text-muted-foreground/60">•</span>
+                <span className="text-base md:text-lg text-foreground/80">
+                  {formData.race || "No Race"}
+                </span>
+              </div>
+
+              {/* Right: Stat Containers */}
+              <div className="flex gap-3 md:gap-4">
+                <AnimatedStatContainer
+                  type="health"
+                  value={calculateHealth()}
+                  label="HP"
+                  tooltip="Hit Points - Your character's health"
+                />
+                <AnimatedStatContainer
+                  type="defense"
+                  value={calculateDefense()}
+                  label="Defense"
+                  tooltip="Armor Class - Your defense against attacks"
+                />
+                <AnimatedStatContainer
+                  type="speed"
+                  value="30 ft"
+                  label="Speed"
+                  tooltip="Movement speed in feet per turn"
+                />
+              </div>
             </div>
 
             {/* ROW 2: Core Ability Stats */}
