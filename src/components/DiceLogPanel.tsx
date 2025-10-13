@@ -114,6 +114,8 @@ export const DiceLogPanel = () => {
     setModifier(prev => Math.max(-10, Math.min(10, prev + delta)));
   };
 
+  const totalDiceInPool = Object.values(dicePool).reduce((sum, count) => sum + count, 0);
+
   const rollDice = (sides: number, count: number = 1): number[] => {
     return Array.from({ length: count }, () => Math.ceil(Math.random() * sides));
   };
@@ -200,6 +202,56 @@ export const DiceLogPanel = () => {
     
     clearPool();
   };
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyPress = (event: KeyboardEvent) => {
+      // Prevent if typing in input
+      if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) return;
+
+      const key = event.key;
+      const isShift = event.shiftKey;
+
+      // 1-6 for d4-d20
+      const diceMap: Record<string, string> = {
+        '1': 'd4',
+        '2': 'd6',
+        '3': 'd8',
+        '4': 'd10',
+        '5': 'd12',
+        '6': 'd20',
+      };
+
+      if (diceMap[key]) {
+        event.preventDefault();
+        if (isShift) {
+          removeFromPool(diceMap[key]);
+        } else {
+          addToPool(diceMap[key]);
+        }
+      }
+
+      // Modifier controls
+      if (key === '-' || key === '_') {
+        event.preventDefault();
+        adjustModifier(-1);
+      }
+      if (key === '=' || key === '+') {
+        event.preventDefault();
+        adjustModifier(1);
+      }
+
+      // Enter to roll
+      if (key === 'Enter' && totalDiceInPool > 0) {
+        event.preventDefault();
+        rollPool();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, [dicePool, modifier, totalDiceInPool]);
+
 
   const formatTime = (timestamp: string) => {
     return new Date(timestamp).toLocaleTimeString([], { 
@@ -304,11 +356,56 @@ export const DiceLogPanel = () => {
     );
   }
 
-  const totalDiceInPool = Object.values(dicePool).reduce((sum, count) => sum + count, 0);
   const poolText = Object.entries(dicePool)
     .filter(([_, count]) => count > 0)
     .map(([type, count]) => `${count}${type}`)
-    .join(' + ');
+    .join(' + ') || '—';
+
+  // Dice icon SVG components
+  const DiceIcon = ({ type }: { type: string }) => {
+    const baseClass = "w-full h-full transition-all";
+    switch (type) {
+      case 'd4':
+        return (
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={baseClass}>
+            <path d="M12 2 L22 20 L2 20 Z M12 2 L12 20" />
+          </svg>
+        );
+      case 'd6':
+        return (
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={baseClass}>
+            <rect x="4" y="4" width="16" height="16" rx="1" />
+            <circle cx="12" cy="12" r="1.5" fill="currentColor" />
+          </svg>
+        );
+      case 'd8':
+        return (
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={baseClass}>
+            <path d="M12 2 L22 12 L12 22 L2 12 Z M12 2 L12 22 M2 12 L22 12" />
+          </svg>
+        );
+      case 'd10':
+        return (
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={baseClass}>
+            <path d="M12 2 L20 8 L18 18 L6 18 L4 8 Z M12 2 L12 18" />
+          </svg>
+        );
+      case 'd12':
+        return (
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={baseClass}>
+            <path d="M12 2 L19 6 L21 13 L16 20 L8 20 L3 13 L5 6 Z M12 2 L12 20" />
+          </svg>
+        );
+      case 'd20':
+        return (
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={baseClass}>
+            <path d="M12 2 L22 9 L19 18 L5 18 L2 9 Z M12 2 L2 9 M12 2 L22 9 M2 9 L5 18 M22 9 L19 18 M5 18 L12 22 M19 18 L12 22" />
+          </svg>
+        );
+      default:
+        return <Dices className={baseClass} />;
+    }
+  };
 
   return (
     <>
@@ -431,57 +528,62 @@ export const DiceLogPanel = () => {
           </ScrollArea>
         </div>
 
-        {/* Dice Dock - Fixed to bottom */}
+        {/* Dice Dock - Fixed to bottom with two rows */}
         <footer 
           ref={dockRef}
+          id="diceDock"
           className="sticky bottom-0 w-full border-t border-primary/30 bg-card/95 backdrop-blur-md px-2 py-2 flex-shrink-0"
         >
-          <div className="flex items-center gap-1.5">
-            {/* Dice Icons */}
-            <TooltipProvider>
-              <div className="flex items-center gap-0.5">
-                {diceTypes.map((dice) => (
-                  <Tooltip key={dice.label}>
-                    <TooltipTrigger asChild>
-                      <button
-                        onClick={() => addToPool(dice.label)}
-                        onContextMenu={(e) => {
-                          e.preventDefault();
-                          removeFromPool(dice.label);
-                        }}
-                        className="relative h-8 w-8 rounded bg-primary/20 hover:bg-primary/30 border border-primary/40 flex flex-col items-center justify-center transition-all hover:scale-110 active:scale-95"
-                        aria-label={`Add ${dice.label}`}
-                      >
-                        <Dices className="h-3 w-3 text-primary" />
-                        <span className="text-[8px] font-bold text-primary">{dice.label}</span>
-                        {dicePool[dice.label] > 0 && (
-                          <span className="absolute -top-1 -right-1 h-3.5 w-3.5 rounded-full bg-accent text-primary-foreground text-[8px] flex items-center justify-center font-bold border border-background">
-                            {dicePool[dice.label]}
-                          </span>
-                        )}
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent side="top">
-                      <p className="text-xs">L-click: Add | R-click: Remove</p>
-                    </TooltipContent>
-                  </Tooltip>
-                ))}
-              </div>
-            </TooltipProvider>
+          {/* Row 1: Dice Icons */}
+          <div className="dice-row flex items-center justify-between gap-1 mb-2">
+            {diceTypes.map((dice) => (
+              <TooltipProvider key={dice.label}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      onClick={() => addToPool(dice.label)}
+                      onContextMenu={(e) => {
+                        e.preventDefault();
+                        removeFromPool(dice.label);
+                      }}
+                      className="relative w-8 h-8 inline-flex items-center justify-center text-primary hover:text-primary/80 transition-all hover:scale-110 active:scale-95 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-card"
+                      aria-label={`Add ${dice.label}`}
+                    >
+                      <DiceIcon type={dice.label} />
+                      {dicePool[dice.label] > 0 && (
+                        <span className="absolute -bottom-1 -right-1 h-3.5 w-3.5 rounded-full bg-accent text-primary-foreground text-[8px] flex items-center justify-center font-bold border border-background">
+                          {dicePool[dice.label]}
+                        </span>
+                      )}
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent side="top">
+                    <p className="text-xs">L-click: add | R-click: remove | Key: {diceTypes.indexOf(dice) + 1}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            ))}
+          </div>
 
-            {/* Modifier Controls */}
-            <div className="flex items-center gap-0.5 ml-1 border-l border-primary/20 pl-1.5">
+          {/* Row 2: Controls */}
+          <div className="controls-row flex items-center gap-2">
+            {/* Modifier */}
+            <div className="modifier flex items-center gap-1">
               <Button
                 size="icon"
                 variant="ghost"
                 onClick={() => adjustModifier(-1)}
                 className="h-6 w-6 rounded hover:bg-primary/20"
+                id="modDec"
                 aria-label="Decrease modifier"
               >
                 <Minus className="h-3 w-3" />
               </Button>
               
-              <div className="px-2 py-0.5 rounded bg-primary/20 text-primary text-xs font-bold min-w-[2rem] text-center">
+              <div 
+                id="modVal"
+                className="mod-value w-10 px-2 py-0.5 rounded bg-primary/20 text-primary text-xs font-bold text-center"
+              >
                 {modifier > 0 ? '+' : ''}{modifier}
               </div>
               
@@ -490,47 +592,48 @@ export const DiceLogPanel = () => {
                 variant="ghost"
                 onClick={() => adjustModifier(1)}
                 className="h-6 w-6 rounded hover:bg-primary/20"
+                id="modInc"
                 aria-label="Increase modifier"
               >
                 <Plus className="h-3 w-3" />
               </Button>
             </div>
 
-            {/* Roll Mode */}
-            <div className="flex items-center gap-0.5 ml-1 border-l border-primary/20 pl-1.5">
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      size="icon"
-                      variant={rollMode === 'advantage' ? 'default' : 'ghost'}
-                      onClick={() => setRollMode(rollMode === 'advantage' ? 'normal' : 'advantage')}
-                      className="h-6 w-6 rounded"
-                      aria-label="Toggle advantage"
-                    >
-                      <TrendingUp className="h-3 w-3" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent><p className="text-xs">Advantage</p></TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      size="icon"
-                      variant={rollMode === 'disadvantage' ? 'default' : 'ghost'}
-                      onClick={() => setRollMode(rollMode === 'disadvantage' ? 'normal' : 'disadvantage')}
-                      className="h-6 w-6 rounded"
-                      aria-label="Toggle disadvantage"
-                    >
-                      <TrendingDown className="h-3 w-3" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent><p className="text-xs">Disadvantage</p></TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+            {/* Roll Mode Toggles */}
+            <div className="roll-mode flex items-center gap-0.5">
+              <Button
+                size="sm"
+                variant={rollMode === 'normal' ? 'default' : 'ghost'}
+                onClick={() => setRollMode('normal')}
+                className="h-6 px-2 text-[10px] rounded"
+                data-mode="normal"
+                aria-pressed={rollMode === 'normal'}
+                aria-label="Normal roll mode"
+              >
+                Normal
+              </Button>
+              <Button
+                size="sm"
+                variant={rollMode === 'advantage' ? 'default' : 'ghost'}
+                onClick={() => setRollMode('advantage')}
+                className="h-6 px-2 text-[10px] rounded"
+                data-mode="advantage"
+                aria-pressed={rollMode === 'advantage'}
+                aria-label="Advantage roll mode"
+              >
+                Adv
+              </Button>
+              <Button
+                size="sm"
+                variant={rollMode === 'disadvantage' ? 'default' : 'ghost'}
+                onClick={() => setRollMode('disadvantage')}
+                className="h-6 px-2 text-[10px] rounded"
+                data-mode="disadvantage"
+                aria-pressed={rollMode === 'disadvantage'}
+                aria-label="Disadvantage roll mode"
+              >
+                Dis
+              </Button>
             </div>
 
             {/* Pool Summary */}
@@ -538,27 +641,29 @@ export const DiceLogPanel = () => {
               <Tooltip>
                 <TooltipTrigger asChild>
                   <div 
-                    className="flex-1 truncate text-[10px] opacity-80 ml-2 cursor-pointer"
+                    id="dicePoolText"
+                    className="pool flex-1 truncate text-[10px] opacity-80 ml-1 cursor-pointer min-w-0"
                     onContextMenu={(e) => {
                       e.preventDefault();
                       clearPool();
                     }}
                   >
-                    {poolText || 'No dice'}
+                    {poolText}
                   </div>
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p className="text-xs">R-click to clear</p>
+                  <p className="text-xs">Right-click to clear pool</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
 
             {/* ROLL Button */}
             <Button
+              id="rollBtn"
               onClick={rollPool}
               disabled={totalDiceInPool === 0 || isRolling}
               size="sm"
-              className="h-7 px-3 text-xs font-bold"
+              className="h-7 px-4 text-xs font-bold"
               aria-label="Roll dice"
             >
               ROLL
