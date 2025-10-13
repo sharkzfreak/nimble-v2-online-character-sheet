@@ -28,6 +28,7 @@ import { useDiceLog } from "@/contexts/DiceLogContext";
 import { DiceLogPanel } from "./DiceLogPanel";
 import { ManualDiceRoller } from "./ManualDiceRoller";
 import { DiceRollAnimation } from "./DiceRollAnimation";
+import { AnimatedStatContainer } from "./AnimatedStatContainer";
 
 interface CharacterViewProps {
   characterId?: string;
@@ -208,17 +209,16 @@ const CharacterView = ({
           <TooltipTrigger asChild>
             <div className="flex flex-col items-center group">
               <div 
-                className="relative w-32 h-32 rounded-full flex flex-col items-center justify-center border-3 transition-all duration-300 hover:scale-110 cursor-pointer"
+                className="relative w-28 h-28 md:w-32 md:h-32 rounded-full flex flex-col items-center justify-center border-4 transition-all duration-300 hover:scale-110 cursor-pointer"
                 style={{
                   backgroundColor: `hsl(${color} / 0.15)`,
                   borderColor: `hsl(${color})`,
-                  borderWidth: '3px',
-                  boxShadow: `0 0 25px hsl(${color} / 0.4), inset 0 0 15px hsl(${color} / 0.1)`
+                  boxShadow: `0 0 30px hsl(${color} / 0.5), inset 0 0 20px hsl(${color} / 0.15)`
                 }}
               >
-                <div className="text-sm font-bold uppercase tracking-wider opacity-80 font-cinzel">{abbreviation}</div>
-                <div className="text-5xl font-bold my-2" style={{ color: `hsl(${color})` }}>{modifier}</div>
-                <div className="text-base opacity-70 font-medium">{value}</div>
+                <div className="text-xs font-bold uppercase tracking-wider opacity-80 font-cinzel">{abbreviation}</div>
+                <div className="text-4xl md:text-5xl font-bold my-1" style={{ color: `hsl(${color})` }}>{modifier}</div>
+                <div className="text-sm opacity-70 font-medium">{value}</div>
                 
                 {/* Dice Roll Button */}
                 <button
@@ -226,13 +226,13 @@ const CharacterView = ({
                     e.stopPropagation();
                     rollDice(name, value, diceType);
                   }}
-                  className="absolute -bottom-2 -right-2 p-2 rounded-full transition-all duration-300 hover:scale-110"
+                  className="absolute -bottom-2 -right-2 p-2.5 rounded-full transition-all duration-300 hover:scale-110"
                   style={{
                     backgroundColor: `hsl(${color})`,
                     boxShadow: `0 4px 12px hsl(${color} / 0.5)`
                   }}
                 >
-                  <Dices className="w-4 h-4 text-background" />
+                  <Dices className="w-5 h-5 text-background" />
                 </button>
               </div>
             </div>
@@ -248,56 +248,6 @@ const CharacterView = ({
     );
   };
 
-  const IconStat = ({ 
-    icon: Icon, 
-    label, 
-    value,
-    tooltip,
-    color
-  }: { 
-    icon: any; 
-    label: string; 
-    value: number | string;
-    tooltip?: string;
-    color: string;
-  }) => (
-    <TooltipProvider>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <div className="flex flex-col items-center group cursor-pointer">
-            <div 
-              className="relative w-28 h-28 md:w-36 md:h-36 rounded-2xl flex flex-col items-center justify-center border-3 transition-all duration-300 hover:scale-105"
-              style={{
-                backgroundColor: `hsl(${color} / 0.15)`,
-                borderColor: `hsl(${color})`,
-                borderWidth: '3px',
-                boxShadow: `0 0 30px hsl(${color} / 0.4), inset 0 0 20px hsl(${color} / 0.1)`
-              }}
-            >
-              <Icon 
-                className="w-12 h-12 md:w-16 md:h-16 mb-2 opacity-40 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" 
-                style={{ color: `hsl(${color})` }} 
-              />
-              <div 
-                className="text-4xl md:text-5xl font-bold font-cinzel relative z-10"
-                style={{ color: `hsl(${color})` }}
-              >
-                {value}
-              </div>
-            </div>
-            <span className="text-xs md:text-sm text-muted-foreground uppercase tracking-wider font-semibold mt-2">
-              {label}
-            </span>
-          </div>
-        </TooltipTrigger>
-        {tooltip && (
-          <TooltipContent className="bg-card border-border">
-            <p className="text-xs">{tooltip}</p>
-          </TooltipContent>
-        )}
-      </Tooltip>
-    </TooltipProvider>
-  );
 
   const SkillItem = ({ 
     name, 
@@ -475,35 +425,32 @@ const CharacterView = ({
             </div>
           </CardHeader>
 
-          {/* ROW 1: Derived Stats with Icon Containers */}
+          {/* ROW 1: Animated Derived Stats with Icon Containers */}
           <CardContent className="pt-0">
-            <div className="flex justify-center gap-6 md:gap-12 mb-6 px-2">
-              <IconStat 
-                icon={Heart} 
-                label="Health" 
-                value={calculateHealth()} 
-                color="220 70% 50%"
+            <div className="flex justify-center gap-6 md:gap-12 lg:gap-16 mb-8 px-2">
+              <AnimatedStatContainer
+                type="health"
+                value={calculateHealth()}
+                label="Health"
                 tooltip="Hit Points - Your character's health"
               />
-              <IconStat 
-                icon={Shield} 
-                label="Defense" 
-                value={calculateDefense()} 
-                color="200 80% 50%"
+              <AnimatedStatContainer
+                type="defense"
+                value={calculateDefense()}
+                label="Defense"
                 tooltip="Armor Class - Your defense against attacks"
               />
-              <IconStat 
-                icon={Footprints} 
-                label="Speed" 
-                value="30 ft" 
-                color="150 60% 50%"
+              <AnimatedStatContainer
+                type="speed"
+                value="30 ft"
+                label="Speed"
                 tooltip="Movement speed in feet per turn"
               />
             </div>
 
             {/* ROW 2: Core Ability Stats */}
-            <Separator className="my-6" style={{ backgroundColor: `hsl(${classThemeColor} / 0.3)` }} />
-            <div className="flex justify-between gap-3 md:gap-6 mb-6 px-2">
+            <Separator className="my-8" style={{ backgroundColor: `hsl(${classThemeColor} / 0.3)` }} />
+            <div className="flex justify-between gap-2 md:gap-4 lg:gap-6 px-2 md:px-4">
               <AbilityBadge 
                 name="Strength" 
                 abbreviation="STR" 
