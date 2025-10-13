@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/hooks/use-toast";
-import { Loader2, Save, ArrowLeft, BookOpen, Trash2 } from "lucide-react";
+import { Loader2, Save, ArrowLeft, BookOpen, Trash2, CheckCircle2, Cloud, CloudOff } from "lucide-react";
 import { ClassSelector } from "@/components/ClassSelector";
 import { RuleTooltip } from "@/components/RuleTooltip";
 import {
@@ -22,6 +22,14 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 interface CharacterFormProps {
   characterId?: string;
@@ -30,6 +38,14 @@ interface CharacterFormProps {
 const CharacterForm = ({ characterId }: CharacterFormProps) => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isDirty, setIsDirty] = useState(false);
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [showUnsavedDialog, setShowUnsavedDialog] = useState(false);
+  const [pendingNavigation, setPendingNavigation] = useState<string | null>(null);
+  const autoSaveTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const initialDataRef = useRef<string>("");
+  
   const [formData, setFormData] = useState({
     name: "",
     player: "",
@@ -69,6 +85,45 @@ const CharacterForm = ({ characterId }: CharacterFormProps) => {
     });
   };
 
+  // Track online/offline status
+  useEffect(() => {
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+    
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
+
+  // Track form changes and start auto-save timer
+  useEffect(() => {
+    const currentData = JSON.stringify(formData);
+    const hasChanged = initialDataRef.current !== "" && currentData !== initialDataRef.current;
+    setIsDirty(hasChanged);
+
+    // Clear existing timer
+    if (autoSaveTimerRef.current) {
+      clearTimeout(autoSaveTimerRef.current);
+    }
+
+    // Set new auto-save timer if there are changes and we're editing an existing character
+    if (hasChanged && characterId && isOnline) {
+      autoSaveTimerRef.current = setTimeout(() => {
+        handleAutoSave();
+      }, 10000); // 10 seconds
+    }
+
+    return () => {
+      if (autoSaveTimerRef.current) {
+        clearTimeout(autoSaveTimerRef.current);
+      }
+    };
+  }, [formData, characterId, isOnline]);
+
   useEffect(() => {
     if (characterId) {
       fetchCharacter();
@@ -86,6 +141,7 @@ const CharacterForm = ({ characterId }: CharacterFormProps) => {
       if (error) throw error;
       if (data) {
         setFormData(data);
+        initialDataRef.current = JSON.stringify(data);
       }
     } catch (error) {
       console.error("Error fetching character:", error);
@@ -94,6 +150,36 @@ const CharacterForm = ({ characterId }: CharacterFormProps) => {
         description: "Failed to load character",
         variant: "destructive",
       });
+    }
+  };
+
+  const handleAutoSave = async () => {
+    if (!characterId || !isDirty) return;
+    
+    setIsSaving(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("No user found");
+
+      const characterData = {
+        ...formData,
+        user_id: user.id,
+      };
+
+      const { error } = await supabase
+        .from("characters")
+        .update(characterData)
+        .eq("id", characterId);
+
+      if (error) throw error;
+      
+      initialDataRef.current = JSON.stringify(formData);
+      setIsDirty(false);
+    } catch (error) {
+      console.error("Error auto-saving character:", error);
+      // Silently fail for auto-save, don't show error toast
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -117,14 +203,22 @@ const CharacterForm = ({ characterId }: CharacterFormProps) => {
           .eq("id", characterId);
 
         if (error) throw error;
-        toast({ title: "Success", description: "Character updated!" });
+        initialDataRef.current = JSON.stringify(formData);
+        setIsDirty(false);
+        toast({ 
+          title: "Success", 
+          description: "Character updated successfully ✅" 
+        });
       } else {
         const { error } = await supabase
           .from("characters")
           .insert([characterData]);
 
         if (error) throw error;
-        toast({ title: "Success", description: "Character created!" });
+        toast({ 
+          title: "Success", 
+          description: "Character created successfully ✅" 
+        });
       }
 
       navigate("/dashboard");
@@ -137,6 +231,60 @@ const CharacterForm = ({ characterId }: CharacterFormProps) => {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleNavigateAway = (path: string) => {
+    if (isDirty && characterId) {
+      setPendingNavigation(path);
+      setShowUnsavedDialog(true);
+    } else {
+      navigate(path);
+    }
+  };
+
+  const handleSaveAndLeave = async () => {
+    if (!characterId) return;
+    
+    setLoading(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("No user found");
+
+      const characterData = {
+        ...formData,
+        user_id: user.id,
+      };
+
+      const { error } = await supabase
+        .from("characters")
+        .update(characterData)
+        .eq("id", characterId);
+
+      if (error) throw error;
+      
+      initialDataRef.current = JSON.stringify(formData);
+      setIsDirty(false);
+      setShowUnsavedDialog(false);
+      if (pendingNavigation) {
+        navigate(pendingNavigation);
+      }
+    } catch (error) {
+      console.error("Error saving character:", error);
+      toast({
+        title: "Error",
+        description: "Failed to save character",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleLeaveWithoutSaving = () => {
+    setShowUnsavedDialog(false);
+    if (pendingNavigation) {
+      navigate(pendingNavigation);
     }
   };
 
@@ -179,8 +327,33 @@ const CharacterForm = ({ characterId }: CharacterFormProps) => {
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(124,58,237,0.05),transparent_50%)]" />
       
       <div className="container mx-auto max-w-4xl relative">
+        {/* Save Status Indicator */}
+        <div className="fixed top-4 right-4 z-50 flex items-center gap-2 px-3 py-2 bg-card border border-border rounded-lg shadow-lg animate-fade-in">
+          {!isOnline ? (
+            <>
+              <CloudOff className="h-4 w-4 text-destructive" />
+              <span className="text-sm text-destructive">Offline</span>
+            </>
+          ) : isSaving ? (
+            <>
+              <Loader2 className="h-4 w-4 animate-spin text-primary" />
+              <span className="text-sm text-muted-foreground">Saving...</span>
+            </>
+          ) : isDirty ? (
+            <>
+              <Cloud className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm text-muted-foreground">Unsaved changes</span>
+            </>
+          ) : characterId ? (
+            <>
+              <CheckCircle2 className="h-4 w-4 text-green-500" />
+              <span className="text-sm text-muted-foreground">All changes saved</span>
+            </>
+          ) : null}
+        </div>
+
         <div className="mb-6 flex justify-between items-center">
-          <Button onClick={() => navigate("/dashboard")} variant="ghost" size="sm" className="hover-scale">
+          <Button onClick={() => handleNavigateAway("/dashboard")} variant="ghost" size="sm" className="hover-scale">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Dashboard
           </Button>
@@ -457,7 +630,7 @@ const CharacterForm = ({ characterId }: CharacterFormProps) => {
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={() => navigate("/codex")}
+                  onClick={() => handleNavigateAway("/codex")}
                   size="lg"
                 >
                   <BookOpen className="mr-2 h-4 w-4" />
@@ -465,7 +638,7 @@ const CharacterForm = ({ characterId }: CharacterFormProps) => {
                 </Button>
                 <Button
                   type="submit"
-                  disabled={loading}
+                  disabled={loading || isSaving}
                   variant="hero"
                   size="lg"
                   className="flex-1"
@@ -485,7 +658,7 @@ const CharacterForm = ({ characterId }: CharacterFormProps) => {
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={() => navigate("/dashboard")}
+                  onClick={() => handleNavigateAway("/dashboard")}
                 >
                   Cancel
                 </Button>
@@ -493,6 +666,45 @@ const CharacterForm = ({ characterId }: CharacterFormProps) => {
             </CardContent>
           </Card>
         </form>
+
+        {/* Unsaved Changes Dialog */}
+        <Dialog open={showUnsavedDialog} onOpenChange={setShowUnsavedDialog}>
+          <DialogContent className="bg-card border-border">
+            <DialogHeader>
+              <DialogTitle>Unsaved Changes</DialogTitle>
+              <DialogDescription>
+                You have unsaved changes. Would you like to save before leaving?
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter className="flex gap-2">
+              <Button
+                variant="outline"
+                onClick={() => setShowUnsavedDialog(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="outline"
+                onClick={handleLeaveWithoutSaving}
+              >
+                Leave Without Saving
+              </Button>
+              <Button
+                onClick={handleSaveAndLeave}
+                disabled={loading}
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  "Save & Leave"
+                )}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
