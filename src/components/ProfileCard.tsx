@@ -84,7 +84,7 @@ export const ProfileCard = ({
 
   const renderHitDicePips = () => {
     const pips = [];
-    const pipHeight = 160 / hit_dice_total;
+    const pipWidth = 100 / hit_dice_total;
     
     for (let i = 0; i < hit_dice_total; i++) {
       const isAvailable = i < hit_dice_remaining;
@@ -93,14 +93,13 @@ export const ProfileCard = ({
       pips.push(
         <div
           key={i}
-          className={`absolute left-0 right-0 border-b transition-all duration-300 cursor-pointer ${
+          className={`absolute top-0 bottom-0 transition-all duration-300 cursor-pointer rounded-full ${
             isSpending ? 'opacity-0 scale-50' : 'opacity-100'
           }`}
           style={{
-            bottom: `${i * pipHeight}px`,
-            height: `${pipHeight}px`,
-            backgroundColor: isAvailable ? 'hsl(142 71% 45%)' : 'hsl(var(--muted))',
-            borderColor: isAvailable ? 'hsl(142 71% 35%)' : 'hsl(var(--muted-foreground) / 0.3)',
+            left: `${i * pipWidth}%`,
+            width: `${pipWidth - 2}%`,
+            backgroundColor: isAvailable ? `hsl(${classColor})` : 'hsl(var(--muted))',
           }}
           onClick={() => handleSpendHitDie(i)}
           onContextMenu={(e) => {
@@ -109,6 +108,7 @@ export const ProfileCard = ({
           }}
           role="button"
           aria-label={`Hit die ${i + 1} ${isAvailable ? 'available' : 'spent'}`}
+          aria-pressed={isAvailable}
         />
       );
     }
@@ -152,11 +152,39 @@ export const ProfileCard = ({
 
       {/* Vitals HUD */}
       <div className="px-5 pb-5">
-        <div className="vitals-row grid grid-cols-3 items-center gap-5 mt-4">
-          {/* HP Bar Column (Left) */}
-          <div className="hp-col flex flex-col items-center">
-            <div className="flex items-center gap-2">
-              {/* HP Bar */}
+        <div className="vitals-row grid grid-cols-[1fr,auto,1fr] items-center gap-4 mt-4">
+          {/* HP Bar (Left) - Horizontal */}
+          <div className="hp-wrap relative flex items-center justify-end gap-2 -mr-3 z-0">
+            {/* HP +/- Buttons (Left of bar) */}
+            <div className="hp-buttons flex flex-col gap-1 order-1">
+              <button
+                onClick={handleHPIncrement}
+                className="w-6 h-6 flex items-center justify-center rounded border transition-all hover:scale-110"
+                style={{
+                  borderColor: `hsl(${classColor} / 0.4)`,
+                  backgroundColor: `hsl(${classColor} / 0.1)`,
+                  color: `hsl(${classColor})`,
+                }}
+                aria-label="Increase HP"
+              >
+                <Plus className="w-3 h-3" />
+              </button>
+              <button
+                onClick={handleHPDecrement}
+                className="w-6 h-6 flex items-center justify-center rounded border transition-all hover:scale-110"
+                style={{
+                  borderColor: `hsl(${classColor} / 0.4)`,
+                  backgroundColor: `hsl(${classColor} / 0.1)`,
+                  color: `hsl(${classColor})`,
+                }}
+                aria-label="Decrease HP"
+              >
+                <Minus className="w-3 h-3" />
+              </button>
+            </div>
+
+            {/* HP Bar (Horizontal) */}
+            <div className="flex flex-col items-center order-2">
               <Popover open={editingHP} onOpenChange={setEditingHP}>
                 <PopoverTrigger asChild>
                   <div className="relative cursor-pointer">
@@ -164,26 +192,26 @@ export const ProfileCard = ({
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <div
-                            className="relative w-[26px] h-[160px] sm:h-[130px] bg-muted/30 rounded-sm overflow-hidden border-2"
+                            className="relative w-[200px] sm:w-[140px] h-[18px] bg-muted/30 rounded-full overflow-hidden border-2"
                             style={{ borderColor: `hsl(${classColor} / 0.3)` }}
                             role="button"
                             aria-label="HP bar"
                           >
                             {/* Base HP fill */}
                             <div
-                              className="absolute bottom-0 left-0 w-full transition-all duration-300"
+                              className="absolute left-0 top-0 h-full transition-all duration-300 rounded-full"
                               style={{
-                                height: `${hpPercentage}%`,
+                                width: `${hpPercentage}%`,
                                 backgroundColor: isLowHP ? 'hsl(0 84% 60%)' : `hsl(${classColor})`,
                               }}
                             />
                             {/* Temp HP overlay */}
                             {hp_temp > 0 && (
                               <div
-                                className="absolute left-0 w-full transition-all duration-300"
+                                className="absolute top-0 h-full transition-all duration-300"
                                 style={{
-                                  bottom: `${hpPercentage}%`,
-                                  height: `${tempHPPercentage}%`,
+                                  left: `${hpPercentage}%`,
+                                  width: `${tempHPPercentage}%`,
                                   backgroundColor: 'hsl(45 93% 47%)',
                                 }}
                               />
@@ -251,49 +279,21 @@ export const ProfileCard = ({
                   </div>
                 </PopoverContent>
               </Popover>
-
-              {/* HP +/- Buttons */}
-              <div className="hp-buttons flex flex-col gap-1">
-                <button
-                  onClick={handleHPIncrement}
-                  className="w-6 h-6 flex items-center justify-center rounded border transition-all hover:scale-110"
-                  style={{
-                    borderColor: `hsl(${classColor} / 0.4)`,
-                    backgroundColor: `hsl(${classColor} / 0.1)`,
-                    color: `hsl(${classColor})`,
-                  }}
-                  aria-label="Increase HP"
-                >
-                  <Plus className="w-3 h-3" />
-                </button>
-                <button
-                  onClick={handleHPDecrement}
-                  className="w-6 h-6 flex items-center justify-center rounded border transition-all hover:scale-110"
-                  style={{
-                    borderColor: `hsl(${classColor} / 0.4)`,
-                    backgroundColor: `hsl(${classColor} / 0.1)`,
-                    color: `hsl(${classColor})`,
-                  }}
-                  aria-label="Decrease HP"
-                >
-                  <Minus className="w-3 h-3" />
-                </button>
+              
+              <div className="text-xs font-bold text-center mt-1 uppercase tracking-wide text-muted-foreground">
+                HP ({hp_current}/{hp_max})
               </div>
-            </div>
-            
-            <div className="text-xs font-bold text-center mt-2 uppercase tracking-wide text-muted-foreground">
-              HP
             </div>
           </div>
 
           {/* Armor Shield (Center) */}
-          <div className="armor-col flex flex-col items-center">
+          <div className="armor-wrap relative z-10">
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <div className="relative">
                     <Shield
-                      className="w-24 h-24 transition-all duration-300 hover:scale-110"
+                      className="w-28 h-28 transition-all duration-300 hover:scale-110"
                       style={{
                         color: `hsl(${classColor})`,
                         fill: `hsl(${classColor} / 0.15)`,
@@ -317,38 +317,40 @@ export const ProfileCard = ({
               </Tooltip>
             </TooltipProvider>
             
-            <div className="text-xs font-bold text-center mt-2 uppercase tracking-wide text-muted-foreground">
+            <div className="text-xs font-bold text-center mt-1 uppercase tracking-wide text-muted-foreground">
               ARMOR
             </div>
           </div>
 
-          {/* Hit Dice Bar (Right) */}
-          <div className="hitdice-col flex flex-col items-center">
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <div
-                    className="relative w-[26px] h-[160px] sm:h-[130px] bg-muted/30 rounded-sm overflow-hidden border-2"
-                    style={{ borderColor: `hsl(${classColor} / 0.3)` }}
-                    role="button"
-                    aria-label="Hit dice bar"
-                  >
-                    {renderHitDicePips()}
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p className="text-sm font-medium">
-                    Hit Dice: {hit_dice_remaining}/{hit_dice_total}
-                  </p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Click to spend • Alt+Click to restore
-                  </p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-            
-            <div className="text-xs font-bold text-center mt-2 uppercase tracking-wide text-muted-foreground">
-              HIT DICE
+          {/* Hit Dice Bar (Right) - Horizontal with pips */}
+          <div className="hitdice-wrap relative flex items-center justify-start -ml-3 z-0">
+            <div className="flex flex-col items-center">
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div
+                      className="relative w-[200px] sm:w-[140px] h-[18px] bg-muted/30 rounded-full overflow-hidden border-2"
+                      style={{ borderColor: `hsl(${classColor} / 0.3)` }}
+                      role="button"
+                      aria-label="Hit dice bar"
+                    >
+                      {renderHitDicePips()}
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="text-sm font-medium">
+                      Hit Dice: {hit_dice_remaining}/{hit_dice_total}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Click to spend • Alt+Click to restore
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+              
+              <div className="text-xs font-bold text-center mt-1 uppercase tracking-wide text-muted-foreground">
+                HIT DICE ({hit_dice_remaining}/{hit_dice_total})
+              </div>
             </div>
           </div>
         </div>

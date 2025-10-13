@@ -361,44 +361,45 @@ const CharacterView = ({
   const willMod = getModifierString(formData.will);
 
   return (
-    <div className="page grid grid-cols-[auto,1fr] gap-6 w-full min-h-screen relative">
-      {/* Profile Card (Sticky Left) */}
-      <ProfileCard
-        characterName={formData.name}
-        classColor={classThemeColor}
-        hp_current={formData.hp_current}
-        hp_max={formData.hp_max}
-        hp_temp={formData.hp_temp}
-        armor={formData.armor}
-        hit_dice_remaining={formData.hit_dice_remaining}
-        hit_dice_total={formData.hit_dice_total}
-        onHPChange={(current, max, temp) => {
-          onFormDataChange?.({
-            hp_current: current,
-            hp_max: max,
-            hp_temp: temp,
-          });
-        }}
-        onArmorChange={(armor) => {
-          onFormDataChange?.({ armor });
-        }}
-        onHitDiceChange={(remaining, total) => {
-          onFormDataChange?.({
-            hit_dice_remaining: remaining,
-            hit_dice_total: total,
-          });
-        }}
-      />
-      
-      {/* Main Content Area */}
-      <div 
-        className="flex-1 pb-12 pr-4 lg:pr-6"
-        style={{
-          background: `radial-gradient(ellipse at top, hsl(${classThemeColor} / 0.15), transparent 50%), 
-                       radial-gradient(ellipse at bottom, hsl(${classThemeColor} / 0.1), transparent 50%),
-                       hsl(var(--background))`
-        }}
-      >
+    <div className="min-h-screen bg-background p-4 sm:p-6 md:p-8">
+      <div className="grid grid-cols-[auto,1fr] gap-6 items-start">
+        {/* Profile Card (Sticky Left) */}
+        <ProfileCard
+          characterName={formData.name}
+          classColor={classThemeColor}
+          hp_current={formData.hp_current}
+          hp_max={formData.hp_max}
+          hp_temp={formData.hp_temp}
+          armor={formData.armor}
+          hit_dice_remaining={formData.hit_dice_remaining}
+          hit_dice_total={formData.hit_dice_total}
+          onHPChange={(current, max, temp) => {
+            onFormDataChange?.({
+              hp_current: current,
+              hp_max: max,
+              hp_temp: temp,
+            });
+          }}
+          onArmorChange={(armor) => {
+            onFormDataChange?.({ armor });
+          }}
+          onHitDiceChange={(remaining, total) => {
+            onFormDataChange?.({
+              hit_dice_remaining: remaining,
+              hit_dice_total: total,
+            });
+          }}
+        />
+        
+        {/* Main Content Area */}
+        <div 
+          className="flex-1"
+          style={{
+            background: `radial-gradient(ellipse at top, hsl(${classThemeColor} / 0.15), transparent 50%), 
+                         radial-gradient(ellipse at bottom, hsl(${classThemeColor} / 0.1), transparent 50%),
+                         hsl(var(--background))`
+          }}
+        >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 animate-fade-in">
         {/* Character Header */}
         <Card 
@@ -765,6 +766,7 @@ const CharacterView = ({
             onClose={() => setDiceRoll(null)}
           />
         )}
+        </div>
         </div>
       </div>
 
