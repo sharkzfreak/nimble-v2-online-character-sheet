@@ -1,4 +1,4 @@
-import { Heart, Shield, Footprints, LucideIcon } from "lucide-react";
+import { Heart, Shield, Footprints, Plus, Minus } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -9,97 +9,99 @@ import {
 interface AnimatedStatContainerProps {
   type: "health" | "defense" | "speed";
   value: number | string;
+  maxValue?: number;
   label: string;
   tooltip?: string;
+  onIncrement?: () => void;
+  onDecrement?: () => void;
 }
 
 export const AnimatedStatContainer = ({
   type,
   value,
+  maxValue,
   label,
   tooltip,
+  onIncrement,
+  onDecrement,
 }: AnimatedStatContainerProps) => {
   const getIconAndStyle = () => {
     switch (type) {
       case "health":
         return {
           Icon: Heart,
-          color: "220 70% 50%",
-          animationClass: "animate-[pulse_3s_ease-in-out_infinite]",
-          glowAnimation: "animate-[pulse_3s_ease-in-out_infinite]",
+          color: "0 84% 60%", // Red for HP
         };
       case "defense":
         return {
           Icon: Shield,
-          color: "200 80% 50%",
-          animationClass: "animate-[shimmer_4s_ease-in-out_infinite]",
-          glowAnimation: "animate-[shimmer_4s_ease-in-out_infinite]",
+          color: "217 91% 60%", // Blue for Defense
         };
       case "speed":
         return {
           Icon: Footprints,
-          color: "150 60% 50%",
-          animationClass: "animate-[bounce_2s_ease-in-out_infinite]",
-          glowAnimation: "animate-[bounce_2s_ease-in-out_infinite]",
+          color: "142 71% 45%", // Green for Speed
         };
     }
   };
 
-  const { Icon, color, animationClass, glowAnimation } = getIconAndStyle();
+  const { Icon, color } = getIconAndStyle();
 
   return (
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger asChild>
-          <div className="flex flex-col items-center group cursor-pointer">
-            {/* Container with icon background */}
-            <div
-              className="relative w-20 h-20 md:w-24 md:h-24 rounded-2xl flex flex-col items-center justify-center border-3 transition-all duration-500 hover:scale-110 overflow-hidden"
-              style={{
-                backgroundColor: `hsl(${color} / 0.1)`,
-                borderColor: `hsl(${color})`,
-                boxShadow: `0 0 30px hsl(${color} / 0.5), inset 0 0 20px hsl(${color} / 0.15)`,
-              }}
-            >
-              {/* Animated background glow */}
-              <div
-                className={`absolute inset-0 ${glowAnimation} opacity-30`}
-                style={{
-                  background: `radial-gradient(circle at 50% 50%, hsl(${color} / 0.4), transparent 70%)`,
-                }}
-              />
-
-              {/* Icon as large background element */}
+          <div className="flex items-center gap-2">
+            {/* Icon Container (no box, icon IS the container) */}
+            <div className="relative flex items-center justify-center">
               <Icon
-                className={`w-14 h-14 md:w-18 md:h-18 opacity-20 absolute ${animationClass}`}
-                style={{ color: `hsl(${color})` }}
-                strokeWidth={1.5}
+                className="w-10 h-10 md:w-12 md:h-12 transition-all duration-300 hover:scale-110 cursor-pointer"
+                style={{ color: `hsl(${color})`, fill: `hsl(${color} / 0.2)` }}
+                strokeWidth={2}
               />
-
-              {/* Value */}
+              
+              {/* Value centered inside icon */}
               <div
-                className="text-3xl md:text-4xl font-bold font-cinzel relative z-10 drop-shadow-lg"
+                className="absolute text-sm md:text-base font-bold font-cinzel pointer-events-none"
                 style={{
-                  color: `hsl(${color})`,
-                  textShadow: `0 0 20px hsl(${color} / 0.8), 0 2px 4px rgba(0,0,0,0.5)`,
+                  color: type === "health" ? "hsl(var(--background))" : `hsl(${color})`,
+                  textShadow: type === "health" 
+                    ? "0 0 4px rgba(0,0,0,0.5)" 
+                    : `0 0 8px hsl(${color} / 0.5)`,
                 }}
               >
-                {value}
+                {typeof value === 'number' ? value : value.toString().split(' ')[0]}
               </div>
-
-              {/* Hover effect overlay */}
-              <div className="absolute inset-0 bg-gradient-to-br from-white/0 to-white/0 group-hover:from-white/10 group-hover:to-white/5 transition-all duration-500 rounded-2xl" />
             </div>
 
-            {/* Label */}
-            <span
-              className="text-xs md:text-sm text-muted-foreground uppercase tracking-wider font-semibold mt-1.5 font-cinzel"
-              style={{
-                textShadow: `0 0 10px hsl(${color} / 0.3)`,
-              }}
-            >
-              {label}
-            </span>
+            {/* HP Controls */}
+            {type === "health" && maxValue && (
+              <div className="flex items-center gap-1.5">
+                <span className="text-sm md:text-base font-medium text-muted-foreground">
+                  / {maxValue}
+                </span>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDecrement?.();
+                  }}
+                  className="p-1 rounded hover:bg-muted transition-colors"
+                  style={{ color: `hsl(${color})` }}
+                >
+                  <Minus className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onIncrement?.();
+                  }}
+                  className="p-1 rounded hover:bg-muted transition-colors"
+                  style={{ color: `hsl(${color})` }}
+                >
+                  <Plus className="w-4 h-4" />
+                </button>
+              </div>
+            )}
           </div>
         </TooltipTrigger>
         {tooltip && (

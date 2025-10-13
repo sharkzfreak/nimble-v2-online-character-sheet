@@ -425,35 +425,21 @@ const CharacterView = ({
             </div>
           </CardHeader>
 
-          {/* ROW 1: Character Identity (Left) + Stat Containers (Right) */}
           <CardContent className="pt-0">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 px-2">
-              {/* Left: Character Identity */}
-              <div className="flex flex-wrap items-center gap-2 md:gap-3">
-                <span className="text-xl md:text-2xl font-bold font-cinzel text-foreground">
-                  {formData.name}
-                </span>
-                <span className="text-muted-foreground/60">•</span>
-                <span className="text-base md:text-lg font-semibold" style={{ color: `hsl(${classThemeColor})` }}>
-                  Level {formData.level}
-                </span>
-                <span className="text-muted-foreground/60">•</span>
-                <span className="text-base md:text-lg text-foreground/90">
-                  {formData.class || "No Class"}
-                </span>
-                <span className="text-muted-foreground/60">•</span>
-                <span className="text-base md:text-lg text-foreground/80">
-                  {formData.race || "No Race"}
-                </span>
-              </div>
-
-              {/* Right: Stat Containers */}
-              <div className="flex gap-3 md:gap-4">
+            {/* ROW 1: Character Identity (Left) + Stat Containers (Right) */}
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 px-2">
+              {/* Left: Character Identity - Keep original from CardHeader above */}
+              
+              {/* Right: Stat Icon Containers */}
+              <div className="flex items-center gap-4 md:gap-6 md:ml-auto">
                 <AnimatedStatContainer
                   type="health"
                   value={calculateHealth()}
+                  maxValue={calculateHealth()}
                   label="HP"
                   tooltip="Hit Points - Your character's health"
+                  onIncrement={() => console.log("Heal")}
+                  onDecrement={() => console.log("Damage")}
                 />
                 <AnimatedStatContainer
                   type="defense"
@@ -463,7 +449,7 @@ const CharacterView = ({
                 />
                 <AnimatedStatContainer
                   type="speed"
-                  value="30 ft"
+                  value="30"
                   label="Speed"
                   tooltip="Movement speed in feet per turn"
                 />
@@ -471,7 +457,7 @@ const CharacterView = ({
             </div>
 
             {/* ROW 2: Core Ability Stats */}
-            <Separator className="my-8" style={{ backgroundColor: `hsl(${classThemeColor} / 0.3)` }} />
+            <Separator className="my-6" style={{ backgroundColor: `hsl(${classThemeColor} / 0.3)` }} />
             <div className="flex justify-between gap-2 md:gap-4 lg:gap-6 px-2 md:px-4">
               <AbilityBadge 
                 name="Strength" 
