@@ -387,15 +387,17 @@ const CharacterView = ({
   const willMod = getModifierString(formData.will);
 
   return (
-    <div 
-      className="min-h-screen pb-12 pr-64 lg:pr-72 relative"
-      style={{
-        background: `radial-gradient(ellipse at top, hsl(${classThemeColor} / 0.15), transparent 50%), 
-                     radial-gradient(ellipse at bottom, hsl(${classThemeColor} / 0.1), transparent 50%),
-                     hsl(var(--background))`
-      }}
-    >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 animate-fade-in">
+    <div className="flex w-full min-h-screen relative">
+      {/* Main Content Area */}
+      <div 
+        className="flex-1 pb-12 pr-4 lg:pr-6"
+        style={{
+          background: `radial-gradient(ellipse at top, hsl(${classThemeColor} / 0.15), transparent 50%), 
+                       radial-gradient(ellipse at bottom, hsl(${classThemeColor} / 0.1), transparent 50%),
+                       hsl(var(--background))`
+        }}
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 animate-fade-in">
         {/* Character Header */}
         <Card 
           className="border-2 shadow-2xl overflow-hidden backdrop-blur-sm"
@@ -458,38 +460,9 @@ const CharacterView = ({
             </div>
           </CardHeader>
 
-          {/* Quick Stats Bar */}
+          {/* Core Stats Row - STR, DEX, INT, WILL at Top */}
           <CardContent className="pt-0">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-              <QuickStat 
-                icon={Shield} 
-                label="AC" 
-                value={calculateDefense()} 
-                tooltip="Armor Class - Your defense against attacks"
-              />
-              <QuickStat 
-                icon={Activity} 
-                label="Speed" 
-                value={30} 
-                tooltip="Movement speed in feet per turn"
-              />
-              <QuickStat 
-                icon={Target} 
-                label="Initiative" 
-                value={`+${calculateInitiative()}`} 
-                tooltip="Initiative bonus - determines turn order in combat"
-              />
-              <QuickStat 
-                icon={Swords} 
-                label="HP" 
-                value={calculateHealth()} 
-                tooltip="Hit Points - Your character's health"
-              />
-            </div>
-
-            {/* Ability Scores - Nimble V2 Stats */}
-            <Separator className="my-6" style={{ backgroundColor: `hsl(${classThemeColor} / 0.3)` }} />
-            <div className="flex justify-center gap-4 md:gap-8 flex-wrap py-6">
+            <div className="flex justify-between gap-3 md:gap-6 mb-8 px-2">
               <AbilityBadge 
                 name="Strength" 
                 abbreviation="STR" 
@@ -517,6 +490,35 @@ const CharacterView = ({
                 value={formData.will} 
                 color="var(--ability-wis)"
                 tooltip="Mental fortitude and force of personality"
+              />
+            </div>
+
+            {/* Quick Stats Bar */}
+            <Separator className="my-6" style={{ backgroundColor: `hsl(${classThemeColor} / 0.3)` }} />
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <QuickStat 
+                icon={Shield} 
+                label="AC" 
+                value={calculateDefense()} 
+                tooltip="Armor Class - Your defense against attacks"
+              />
+              <QuickStat 
+                icon={Activity} 
+                label="Speed" 
+                value={30} 
+                tooltip="Movement speed in feet per turn"
+              />
+              <QuickStat 
+                icon={Target} 
+                label="Initiative" 
+                value={`+${calculateInitiative()}`} 
+                tooltip="Initiative bonus - determines turn order in combat"
+              />
+              <QuickStat 
+                icon={Swords} 
+                label="HP" 
+                value={calculateHealth()} 
+                tooltip="Hit Points - Your character's health"
               />
             </div>
           </CardContent>
@@ -753,8 +755,10 @@ const CharacterView = ({
             onClose={() => setDiceRoll(null)}
           />
         )}
+        </div>
       </div>
 
+      {/* Right Side Panel */}
       <DiceLogPanel />
       <ManualDiceRoller 
         characterName={formData.name} 

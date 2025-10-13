@@ -128,7 +128,7 @@ export const DiceLogPanel = () => {
   }
 
   return (
-    <div className="fixed right-0 top-0 bottom-0 z-40 w-64 lg:w-72 bg-card/95 backdrop-blur-md border-l border-primary/30 shadow-2xl flex flex-col">
+    <div className="fixed right-0 top-0 bottom-0 z-40 w-72 lg:w-80 bg-card/95 backdrop-blur-md border-l border-primary/30 shadow-2xl flex flex-col">
       <CardHeader className="p-3 border-b border-border/50 flex-shrink-0">
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2 text-foreground font-cinzel text-sm">
