@@ -21,6 +21,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { DiceRollToast } from "./DiceRollToast";
+import { useNimbleRuleset } from "@/hooks/useNimbleRuleset";
 
 interface CharacterViewProps {
   formData: {
@@ -64,11 +65,14 @@ const CharacterView = ({
   calculateInitiative,
   calculateCarryWeight,
 }: CharacterViewProps) => {
+  const { data: ruleset, isLoading: rulesetLoading } = useNimbleRuleset();
+  
   const [diceRoll, setDiceRoll] = useState<{
     statName: string;
     roll: number;
     modifier: number;
     total: number;
+    diceType?: string;
   } | null>(null);
 
   const getModifier = (stat: number): number => {
@@ -80,13 +84,22 @@ const CharacterView = ({
     return mod >= 0 ? `+${mod}` : `${mod}`;
   };
 
-  const rollDice = (statName: string, statValue: number) => {
+  const rollDice = (statName: string, statValue: number, diceType: string = "d20") => {
     const modifier = getModifier(statValue);
-    const roll = Math.ceil(Math.random() * 10);
+    const diceMax = parseInt(diceType.substring(1)) || 20;
+    const roll = Math.ceil(Math.random() * diceMax);
     const total = roll + modifier;
     
-    console.log(`Rolling ${statName}: ${roll} + ${modifier} = ${total}`);
-    setDiceRoll({ statName, roll, modifier, total });
+    console.log(`Rolling ${statName}: ${roll} + ${modifier} = ${total} (${diceType})`);
+    setDiceRoll({ statName, roll, modifier, total, diceType });
+  };
+
+  const rollSkillCheck = (skillName: string, skillValue: number) => {
+    const roll = Math.ceil(Math.random() * 20);
+    const total = roll + skillValue;
+    
+    console.log(`Rolling ${skillName}: ${roll} + ${skillValue} = ${total} (d20 skill check)`);
+    setDiceRoll({ statName: skillName, roll, modifier: skillValue, total, diceType: "d20" });
   };
 
   // Get class theme color
@@ -121,6 +134,8 @@ const CharacterView = ({
     tooltip?: string;
   }) => {
     const modifier = getModifierString(value);
+    const diceType = ruleset?.dice_system?.save?.dice || "d20";
+    
     return (
       <TooltipProvider>
         <Tooltip>
@@ -143,7 +158,7 @@ const CharacterView = ({
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    rollDice(name, value);
+                    rollDice(name, value, diceType);
                   }}
                   className="absolute -bottom-2 -right-2 p-2 rounded-full transition-all duration-300 hover:scale-110"
                   style={{
@@ -159,6 +174,7 @@ const CharacterView = ({
           <TooltipContent className="bg-card border-border max-w-xs">
             <p className="font-semibold font-cinzel">{name}</p>
             <p className="text-xs text-muted-foreground">Base: {value} | Modifier: {modifier}</p>
+            <p className="text-xs text-muted-foreground mt-1">Roll: {diceType} + {modifier} for saves</p>
             {tooltip && <p className="text-xs text-muted-foreground mt-1">{tooltip}</p>}
           </TooltipContent>
         </Tooltip>
@@ -216,11 +232,7 @@ const CharacterView = ({
     statValue: number;
   }) => {
     const handleRoll = () => {
-      const modifier = value;
-      const roll = Math.ceil(Math.random() * 10);
-      const total = roll + modifier;
-      console.log(`Rolling ${name}: ${roll} + ${modifier} = ${total}`);
-      setDiceRoll({ statName: name, roll, modifier, total });
+      rollSkillCheck(name, value);
     };
 
     return (

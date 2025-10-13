@@ -362,6 +362,39 @@ export type Database = {
         }
         Relationships: []
       }
+      nimble_ruleset: {
+        Row: {
+          classes: Json
+          created_at: string
+          dice_system: Json
+          id: string
+          skills: Json
+          stats: Json
+          updated_at: string
+          version: string
+        }
+        Insert: {
+          classes?: Json
+          created_at?: string
+          dice_system?: Json
+          id?: string
+          skills?: Json
+          stats?: Json
+          updated_at?: string
+          version?: string
+        }
+        Update: {
+          classes?: Json
+          created_at?: string
+          dice_system?: Json
+          id?: string
+          skills?: Json
+          stats?: Json
+          updated_at?: string
+          version?: string
+        }
+        Relationships: []
+      }
       rules: {
         Row: {
           category: string

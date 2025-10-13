@@ -7,12 +7,16 @@ interface DiceRollToastProps {
   roll: number;
   modifier: number;
   total: number;
+  diceType?: string; // e.g., "d20", "d10"
   onClose: () => void;
 }
 
-export const DiceRollToast = ({ statName, roll, modifier, total, onClose }: DiceRollToastProps) => {
+export const DiceRollToast = ({ statName, roll, modifier, total, diceType = "d20", onClose }: DiceRollToastProps) => {
   const [isRolling, setIsRolling] = useState(true);
   const [currentRoll, setCurrentRoll] = useState(0);
+  
+  // Extract dice max value from diceType (e.g., "d20" -> 20)
+  const diceMax = parseInt(diceType.substring(1)) || 20;
 
   useEffect(() => {
     // Animate the dice roll
@@ -23,7 +27,7 @@ export const DiceRollToast = ({ statName, roll, modifier, total, onClose }: Dice
 
     const interval = setInterval(() => {
       if (currentStep < steps) {
-        setCurrentRoll(Math.ceil(Math.random() * 10));
+        setCurrentRoll(Math.ceil(Math.random() * diceMax));
         currentStep++;
       } else {
         setCurrentRoll(roll);
@@ -50,7 +54,10 @@ export const DiceRollToast = ({ statName, roll, modifier, total, onClose }: Dice
           className={`w-10 h-10 text-primary ${isRolling ? 'animate-spin' : ''}`} 
         />
         <div>
-          <h3 className="font-bold text-lg font-cinzel text-foreground">{statName} Roll</h3>
+          <h3 className="font-bold text-lg font-cinzel text-foreground flex items-center gap-2">
+            {statName} Roll
+            <span className="text-sm text-muted-foreground font-normal">({diceType})</span>
+          </h3>
           <div className="flex items-center gap-2 mt-1">
             <span className="text-3xl font-bold text-primary font-cinzel">
               {isRolling ? currentRoll : roll}
