@@ -29,6 +29,7 @@ import { DiceLogPanel } from "./DiceLogPanel";
 import { ManualDiceRoller } from "./ManualDiceRoller";
 import { DiceRollAnimation } from "./DiceRollAnimation";
 import { AnimatedStatContainer } from "./AnimatedStatContainer";
+import { ProfileCard } from "./ProfileCard";
 
 interface CharacterViewProps {
   characterId?: string;
@@ -59,11 +60,18 @@ interface CharacterViewProps {
     spells: string;
     powers: string;
     notes: string;
+    hp_current: number;
+    hp_max: number;
+    hp_temp: number;
+    armor: number;
+    hit_dice_remaining: number;
+    hit_dice_total: number;
   };
   calculateHealth: () => number;
   calculateDefense: () => number;
   calculateInitiative: () => number;
   calculateCarryWeight: () => number;
+  onFormDataChange?: (updates: Partial<CharacterViewProps['formData']>) => void;
 }
 
 const CharacterView = ({
@@ -73,6 +81,7 @@ const CharacterView = ({
   calculateDefense,
   calculateInitiative,
   calculateCarryWeight,
+  onFormDataChange,
 }: CharacterViewProps) => {
   const { data: ruleset, isLoading: rulesetLoading } = useNimbleRuleset();
   const { addLog } = useDiceLog();
@@ -352,7 +361,35 @@ const CharacterView = ({
   const willMod = getModifierString(formData.will);
 
   return (
-    <div className="flex w-full min-h-screen relative">
+    <div className="flex w-full min-h-screen relative gap-6">
+      {/* Profile Card (Sticky Left) */}
+      <ProfileCard
+        characterName={formData.name}
+        classColor={classThemeColor}
+        hp_current={formData.hp_current}
+        hp_max={formData.hp_max}
+        hp_temp={formData.hp_temp}
+        armor={formData.armor}
+        hit_dice_remaining={formData.hit_dice_remaining}
+        hit_dice_total={formData.hit_dice_total}
+        onHPChange={(current, max, temp) => {
+          onFormDataChange?.({
+            hp_current: current,
+            hp_max: max,
+            hp_temp: temp,
+          });
+        }}
+        onArmorChange={(armor) => {
+          onFormDataChange?.({ armor });
+        }}
+        onHitDiceChange={(remaining, total) => {
+          onFormDataChange?.({
+            hit_dice_remaining: remaining,
+            hit_dice_total: total,
+          });
+        }}
+      />
+      
       {/* Main Content Area */}
       <div 
         className="flex-1 pb-12 pr-4 lg:pr-6"

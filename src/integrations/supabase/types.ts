@@ -140,6 +140,7 @@ export type Database = {
       characters: {
         Row: {
           abilities: string | null
+          armor: number | null
           background: string | null
           campaign: string | null
           class: string | null
@@ -148,6 +149,11 @@ export type Database = {
           description: string | null
           dexterity: number
           equipment: Json | null
+          hit_dice_remaining: number | null
+          hit_dice_total: number | null
+          hp_current: number | null
+          hp_max: number | null
+          hp_temp: number | null
           id: string
           intelligence: number
           level: number
@@ -175,6 +181,7 @@ export type Database = {
         }
         Insert: {
           abilities?: string | null
+          armor?: number | null
           background?: string | null
           campaign?: string | null
           class?: string | null
@@ -183,6 +190,11 @@ export type Database = {
           description?: string | null
           dexterity?: number
           equipment?: Json | null
+          hit_dice_remaining?: number | null
+          hit_dice_total?: number | null
+          hp_current?: number | null
+          hp_max?: number | null
+          hp_temp?: number | null
           id?: string
           intelligence?: number
           level?: number
@@ -210,6 +222,7 @@ export type Database = {
         }
         Update: {
           abilities?: string | null
+          armor?: number | null
           background?: string | null
           campaign?: string | null
           class?: string | null
@@ -218,6 +231,11 @@ export type Database = {
           description?: string | null
           dexterity?: number
           equipment?: Json | null
+          hit_dice_remaining?: number | null
+          hit_dice_total?: number | null
+          hp_current?: number | null
+          hp_max?: number | null
+          hp_temp?: number | null
           id?: string
           intelligence?: number
           level?: number

@@ -78,6 +78,12 @@ const CharacterForm = ({ characterId }: CharacterFormProps) => {
     spells: "",
     powers: "",
     notes: "",
+    hp_current: 0,
+    hp_max: 0,
+    hp_temp: 0,
+    armor: 10,
+    hit_dice_remaining: 1,
+    hit_dice_total: 1,
   });
 
   const handleClassChange = (classId: string, classData: any) => {
@@ -450,6 +456,9 @@ const CharacterForm = ({ characterId }: CharacterFormProps) => {
             calculateDefense={calculateDefense}
             calculateInitiative={calculateInitiative}
             calculateCarryWeight={calculateCarryWeight}
+            onFormDataChange={(updates) => {
+              setFormData({ ...formData, ...updates });
+            }}
           />
         )}
 
