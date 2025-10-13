@@ -153,11 +153,45 @@ export const ProfileCard = ({
       {/* Vitals HUD */}
       <div className="px-5 pb-5">
         <div className="vitals-row relative flex items-center justify-center mt-4">
-          {/* HP Bar (Left) - overlaps under shield */}
-          <div className="hp-wrap absolute left-0 right-1/2 pr-2 flex flex-col items-end z-0 -mt-2">
+          {/* HP Section (Left) */}
+          <div className="hp-section absolute left-0 right-1/2 pr-3 flex items-center justify-end gap-2 z-0">
+            {/* HP Label and Buttons */}
+            <div className="flex flex-col items-center gap-1">
+              <div className="text-xs font-bold uppercase tracking-wide text-muted-foreground">
+                HP
+              </div>
+              <div className="hp-buttons flex gap-1">
+                <button
+                  onClick={handleHPDecrement}
+                  className="w-5 h-5 flex items-center justify-center rounded border transition-all hover:scale-110"
+                  style={{
+                    borderColor: `hsl(${classColor} / 0.4)`,
+                    backgroundColor: `hsl(${classColor} / 0.1)`,
+                    color: `hsl(${classColor})`,
+                  }}
+                  aria-label="Decrease HP"
+                >
+                  <Minus className="w-3 h-3" />
+                </button>
+                <button
+                  onClick={handleHPIncrement}
+                  className="w-5 h-5 flex items-center justify-center rounded border transition-all hover:scale-110"
+                  style={{
+                    borderColor: `hsl(${classColor} / 0.4)`,
+                    backgroundColor: `hsl(${classColor} / 0.1)`,
+                    color: `hsl(${classColor})`,
+                  }}
+                  aria-label="Increase HP"
+                >
+                  <Plus className="w-3 h-3" />
+                </button>
+              </div>
+            </div>
+
+            {/* HP Bar */}
             <Popover open={editingHP} onOpenChange={setEditingHP}>
               <PopoverTrigger asChild>
-                <div className="relative cursor-pointer w-full max-w-[140px] group">
+                <div className="relative cursor-pointer w-full max-w-[120px] group">
                   <div
                     className="relative h-[18px] bg-muted/30 rounded-full overflow-hidden border-2"
                     style={{ 
@@ -245,48 +279,23 @@ export const ProfileCard = ({
                 </div>
               </PopoverContent>
             </Popover>
-            
-            {/* HP +/- Buttons under bar */}
-            <div className="hp-buttons flex gap-1 mt-1">
-              <button
-                onClick={handleHPDecrement}
-                className="w-6 h-6 flex items-center justify-center rounded border transition-all hover:scale-110"
-                style={{
-                  borderColor: `hsl(${classColor} / 0.4)`,
-                  backgroundColor: `hsl(${classColor} / 0.1)`,
-                  color: `hsl(${classColor})`,
-                }}
-                aria-label="Decrease HP"
-              >
-                <Minus className="w-3 h-3" />
-              </button>
-              <button
-                onClick={handleHPIncrement}
-                className="w-6 h-6 flex items-center justify-center rounded border transition-all hover:scale-110"
-                style={{
-                  borderColor: `hsl(${classColor} / 0.4)`,
-                  backgroundColor: `hsl(${classColor} / 0.1)`,
-                  color: `hsl(${classColor})`,
-                }}
-                aria-label="Increase HP"
-              >
-                <Plus className="w-3 h-3" />
-              </button>
-            </div>
-            
-            <div className="text-xs font-bold text-center mt-1 uppercase tracking-wide text-muted-foreground">
-              HP
-            </div>
           </div>
 
-          {/* Armor Shield (Center) */}
+          {/* Armor Shield (Center) - Solid background */}
           <div className="armor-wrap relative z-10 flex flex-col items-center">
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <div className="relative">
+                    {/* Solid background circle */}
+                    <div 
+                      className="absolute inset-0 rounded-full"
+                      style={{
+                        backgroundColor: 'hsl(var(--card))',
+                      }}
+                    />
                     <Shield
-                      className="w-28 h-28 transition-all duration-300 hover:scale-110"
+                      className="w-28 h-28 transition-all duration-300 hover:scale-110 relative z-10"
                       style={{
                         color: `hsl(${classColor})`,
                         fill: `hsl(${classColor} / 0.15)`,
@@ -294,7 +303,7 @@ export const ProfileCard = ({
                       strokeWidth={2.5}
                     />
                     <div
-                      className="absolute inset-0 flex items-center justify-center text-3xl font-bold font-cinzel pointer-events-none"
+                      className="absolute inset-0 flex items-center justify-center text-3xl font-bold font-cinzel pointer-events-none z-20"
                       style={{
                         color: `hsl(${classColor})`,
                         textShadow: `0 0 10px hsl(${classColor} / 0.6)`,
@@ -315,9 +324,10 @@ export const ProfileCard = ({
             </div>
           </div>
 
-          {/* Hit Dice Bar (Right) - overlaps under shield */}
-          <div className="hitdice-wrap absolute right-0 left-1/2 pl-2 flex flex-col items-start z-0 -mt-2">
-            <div className="w-full max-w-[140px] group">
+          {/* Hit Dice Section (Right) */}
+          <div className="hitdice-section absolute right-0 left-1/2 pl-3 flex items-center justify-start gap-2 z-0">
+            {/* Hit Dice Bar */}
+            <div className="w-full max-w-[120px] group">
               <div
                 className="relative h-[18px] bg-muted/30 rounded-full overflow-hidden border-2 cursor-pointer"
                 style={{ borderColor: `hsl(${classColor} / 0.3)` }}
@@ -334,8 +344,9 @@ export const ProfileCard = ({
               </div>
             </div>
             
-            <div className="text-xs font-bold text-center mt-1 uppercase tracking-wide text-muted-foreground">
-              HIT DICE
+            {/* HD Label */}
+            <div className="text-xs font-bold uppercase tracking-wide text-muted-foreground">
+              HD
             </div>
           </div>
         </div>
