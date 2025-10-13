@@ -31,7 +31,15 @@ export const ManualDiceRoller = ({ characterName = "Manual Roll", characterId }:
   const [showToast, setShowToast] = useState(false);
   const [showAnimation, setShowAnimation] = useState(false);
   const [isRolling, setIsRolling] = useState(false);
-  const [lastRoll, setLastRoll] = useState({ roll: 0, total: 0, diceType: "d20", statName: "Manual Roll" });
+  const [lastRoll, setLastRoll] = useState({ roll: 0, total: 0, diceType: "d20", statName: "Manual Roll", formula: "" });
+  const [dicePool, setDicePool] = useState<Record<string, number>>({
+    d20: 0,
+    d12: 0,
+    d10: 0,
+    d8: 0,
+    d6: 0,
+    d4: 0,
+  });
   const { addLog } = useDiceLog();
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -70,15 +78,65 @@ export const ManualDiceRoller = ({ characterName = "Manual Roll", characterId }:
     };
   }, [isDiceOpen, isModifierOpen]);
 
-  const handleRoll = (sides: number, diceLabel: string) => {
+  const addToPool = (diceLabel: string) => {
+    setDicePool(prev => ({
+      ...prev,
+      [diceLabel]: prev[diceLabel] + 1
+    }));
+  };
+
+  const removeFromPool = (diceLabel: string) => {
+    setDicePool(prev => ({
+      ...prev,
+      [diceLabel]: Math.max(0, prev[diceLabel] - 1)
+    }));
+  };
+
+  const clearPool = () => {
+    setDicePool({
+      d20: 0,
+      d12: 0,
+      d10: 0,
+      d8: 0,
+      d6: 0,
+      d4: 0,
+    });
+  };
+
+  const rollPool = () => {
     if (isRolling) return;
     
-    setIsRolling(true);
-    const roll = Math.ceil(Math.random() * sides);
-    const total = roll + modifier;
-    const formula = `${diceLabel}${modifier !== 0 ? ` ${modifier > 0 ? '+' : ''}${modifier}` : ''}`;
+    const poolEntries = Object.entries(dicePool).filter(([_, count]) => count > 0);
+    if (poolEntries.length === 0) return;
 
-    setLastRoll({ roll, total, diceType: diceLabel, statName: "Manual Roll" });
+    setIsRolling(true);
+    
+    // Roll all dice
+    const rolls: number[] = [];
+    let formulaParts: string[] = [];
+    
+    poolEntries.forEach(([diceType, count]) => {
+      const sides = parseInt(diceType.substring(1));
+      for (let i = 0; i < count; i++) {
+        rolls.push(Math.ceil(Math.random() * sides));
+      }
+      formulaParts.push(`${count}${diceType}`);
+    });
+
+    const rawTotal = rolls.reduce((sum, roll) => sum + roll, 0);
+    const total = rawTotal + modifier;
+    const formula = formulaParts.join(' + ') + (modifier !== 0 ? ` ${modifier > 0 ? '+' : ''}${modifier}` : '');
+    
+    // Use first dice type for display, or d20 as fallback
+    const displayDiceType = poolEntries[0][0];
+
+    setLastRoll({ 
+      roll: rawTotal, 
+      total, 
+      diceType: displayDiceType, 
+      statName: "Manual Roll",
+      formula 
+    });
     setIsDiceOpen(false);
     setIsModifierOpen(false);
     setShowAnimation(true);
@@ -90,18 +148,20 @@ export const ManualDiceRoller = ({ characterName = "Manual Roll", characterId }:
     setIsRolling(false);
 
     // Log the roll after animation
-    const formula = `${lastRoll.diceType}${modifier !== 0 ? ` ${modifier > 0 ? '+' : ''}${modifier}` : ''}`;
     addLog({
       character_name: characterName,
       character_id: characterId || null,
-      formula,
+      formula: lastRoll.formula,
       raw_result: lastRoll.roll,
       modifier,
       total: lastRoll.total,
       roll_type: 'manual',
     });
 
-    console.log(`Manual roll: ${formula} = ${lastRoll.roll} + ${modifier} = ${lastRoll.total}`);
+    console.log(`Manual roll: ${lastRoll.formula} = ${lastRoll.roll} + ${modifier} = ${lastRoll.total}`);
+    
+    // Clear pool after roll
+    clearPool();
   };
 
   const adjustModifier = (delta: number) => {
@@ -118,11 +178,14 @@ export const ManualDiceRoller = ({ characterName = "Manual Roll", characterId }:
     setIsDiceOpen(false);
   };
 
+  const totalDiceInPool = Object.values(dicePool).reduce((sum, count) => sum + count, 0);
+  const poolEntries = Object.entries(dicePool).filter(([_, count]) => count > 0);
+
   return (
     <>
       <div 
         ref={containerRef}
-        className="fixed bottom-6 right-6 z-50 flex flex-col items-center gap-3"
+        className="fixed bottom-6 left-6 z-50 flex flex-col items-center gap-3"
       >
         {/* Modifier Controls - Expand Upward */}
         {isModifierOpen && (
@@ -153,21 +216,73 @@ export const ManualDiceRoller = ({ characterName = "Manual Roll", characterId }:
           </div>
         )}
 
+        {/* Dice Pool Display - Expand Upward */}
+        {poolEntries.length > 0 && !isDiceOpen && !isModifierOpen && (
+          <div className="bg-background/90 backdrop-blur-md border-2 border-primary/40 rounded-2xl p-4 shadow-[var(--shadow-glow)] animate-scale-in min-w-[200px]">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-sm font-bold text-foreground">Dice Pool</span>
+              <Button
+                size="icon"
+                variant="ghost"
+                onClick={clearPool}
+                className="h-6 w-6"
+                aria-label="Clear pool"
+              >
+                <span className="text-xs">✕</span>
+              </Button>
+            </div>
+            <div className="flex flex-col gap-2">
+              {poolEntries.map(([diceType, count]) => (
+                <div key={diceType} className="flex items-center justify-between gap-3">
+                  <span className="text-sm font-medium text-foreground">{count}{diceType}</span>
+                  <Button
+                    size="icon"
+                    variant="outline"
+                    onClick={() => removeFromPool(diceType)}
+                    className="h-6 w-6 rounded-full"
+                    aria-label={`Remove ${diceType}`}
+                  >
+                    <Minus className="h-3 w-3" />
+                  </Button>
+                </div>
+              ))}
+              {modifier !== 0 && (
+                <div className="text-sm font-medium text-muted-foreground border-t border-primary/20 pt-2">
+                  Modifier: {modifier > 0 ? '+' : ''}{modifier}
+                </div>
+              )}
+            </div>
+            <Button
+              onClick={rollPool}
+              disabled={isRolling}
+              className="w-full mt-3 bg-gradient-to-r from-primary to-accent hover:scale-105 transition-all"
+            >
+              <Dices className="h-4 w-4 mr-2" />
+              ROLL
+            </Button>
+          </div>
+        )}
+
         {/* Dice Options - Expand Upward */}
         {isDiceOpen && (
           <div className="flex flex-col gap-2 items-center">
             {diceTypes.map((dice, index) => (
               <button
                 key={dice.label}
-                onClick={() => handleRoll(dice.sides, dice.label)}
-                className="h-14 w-14 rounded-full bg-gradient-to-br from-primary/90 to-accent/90 backdrop-blur-md border-2 border-primary/50 shadow-[var(--shadow-glow)] hover:scale-110 transition-all duration-300 flex flex-col items-center justify-center group animate-scale-in"
+                onClick={() => addToPool(dice.label)}
+                className="h-14 w-14 rounded-full bg-gradient-to-br from-primary/90 to-accent/90 backdrop-blur-md border-2 border-primary/50 shadow-[var(--shadow-glow)] hover:scale-110 transition-all duration-300 flex flex-col items-center justify-center group animate-scale-in relative"
                 style={{
                   animationDelay: `${index * 0.05}s`,
                 }}
-                aria-label={`Roll ${dice.label}`}
+                aria-label={`Add ${dice.label} to pool`}
               >
                 <Dices className="h-5 w-5 text-primary-foreground group-hover:rotate-12 transition-transform" />
                 <span className="text-xs font-bold text-primary-foreground mt-0.5">{dice.label}</span>
+                {dicePool[dice.label] > 0 && (
+                  <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-accent text-primary-foreground text-xs flex items-center justify-center font-bold border-2 border-background">
+                    {dicePool[dice.label]}
+                  </span>
+                )}
               </button>
             ))}
           </div>
@@ -207,6 +322,11 @@ export const ManualDiceRoller = ({ characterName = "Manual Roll", characterId }:
             aria-label="Toggle dice menu"
           >
             <Dices className={`h-8 w-8 text-primary-foreground transition-transform ${isDiceOpen ? 'rotate-180' : ''}`} />
+            {totalDiceInPool > 0 && (
+              <span className="absolute -top-1 -right-1 h-6 w-6 rounded-full bg-accent text-primary-foreground text-sm flex items-center justify-center font-bold border-2 border-background">
+                {totalDiceInPool}
+              </span>
+            )}
           </Button>
         </div>
 
@@ -229,9 +349,9 @@ export const ManualDiceRoller = ({ characterName = "Manual Roll", characterId }:
         characterName={characterName}
       />
 
-      {showToast && (
+      {showToast && lastRoll.formula && (
         <DiceRollToast
-          statName="Manual Roll"
+          statName={lastRoll.formula}
           roll={lastRoll.roll}
           modifier={modifier}
           total={lastRoll.total}
