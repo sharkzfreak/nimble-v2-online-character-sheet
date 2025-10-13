@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { DiceSummaryPanel } from "./DiceSummaryPanel";
 
 interface DiceRollAnimationProps {
@@ -93,9 +93,10 @@ export const DiceRollAnimation = ({
   const [currentNumbers, setCurrentNumbers] = useState<number[]>([]);
   const [showResultBar, setShowResultBar] = useState(false);
   
-  const isMultiDice = Array.isArray(result);
-  const results = isMultiDice ? result : [result];
-  const maxSides = parseInt(diceType.substring(1)) || 20;
+  // Memoize derived values to prevent infinite loops
+  const isMultiDice = useMemo(() => Array.isArray(result), [result]);
+  const results = useMemo(() => (isMultiDice ? result as number[] : [result as number]), [result, isMultiDice]);
+  const maxSides = useMemo(() => parseInt(diceType.substring(1)) || 20, [diceType]);
 
   useEffect(() => {
     if (!isVisible) {
@@ -106,13 +107,18 @@ export const DiceRollAnimation = ({
       return;
     }
 
+    console.log("Starting dice animation...");
+    let isCleanedUp = false;
+
     // Initialize multi-dice numbers
     if (isMultiDice) {
       setCurrentNumbers(Array(results.length).fill(1));
     }
 
-    // Stage 1: Rolling animation (2.5 seconds for better preview)
+    // Stage 1: Rolling animation (2.5 seconds)
     const rollingInterval = setInterval(() => {
+      if (isCleanedUp) return;
+      
       if (isMultiDice) {
         setCurrentNumbers(Array(results.length).fill(0).map(() => Math.ceil(Math.random() * maxSides)));
       } else {
@@ -120,42 +126,67 @@ export const DiceRollAnimation = ({
       }
     }, 50);
 
+    // Stage 2: Stop rolling and show final numbers
     const rollingTimer = setTimeout(() => {
+      if (isCleanedUp) return;
       clearInterval(rollingInterval);
+      
       if (isMultiDice) {
         setCurrentNumbers(results);
       } else {
         setCurrentNumber(results[0]);
       }
+      console.log("Dice stopped rolling, showing result...");
     }, 2500);
 
-    // Stage 2: Settling phase (0.5 seconds after rolling stops)
+    // Stage 3: Settle phase - transition to result display
     const settlingTimer = setTimeout(() => {
+      if (isCleanedUp) return;
       setStage("result");
+      console.log("Showing result display...");
     }, 3000);
 
-    // Stage 3: Show result bar and complete (0.3 seconds after result appears)
+    // Stage 4: Show result bar and mark complete
     const resultTimer = setTimeout(() => {
+      if (isCleanedUp) return;
       setStage("complete");
       setShowResultBar(true);
+      console.log("Animation complete, showing result bar...");
       
       // Hide result bar after 3.5 seconds
       setTimeout(() => {
+        if (isCleanedUp) return;
         setShowResultBar(false);
       }, 3500);
-      
-      setTimeout(() => {
-        onComplete();
-      }, 300);
     }, 3300);
 
+    // Failsafe: Force completion after maximum time
+    const failsafeTimer = setTimeout(() => {
+      if (isCleanedUp) return;
+      console.log("Failsafe triggered - forcing animation end");
+      clearInterval(rollingInterval);
+      setStage("complete");
+      onComplete();
+    }, 4000);
+
+    // Final completion callback
+    const completionTimer = setTimeout(() => {
+      if (isCleanedUp) return;
+      console.log("Ending dice animation.");
+      onComplete();
+    }, 3600);
+
+    // Cleanup function
     return () => {
+      isCleanedUp = true;
       clearInterval(rollingInterval);
       clearTimeout(rollingTimer);
       clearTimeout(settlingTimer);
       clearTimeout(resultTimer);
+      clearTimeout(failsafeTimer);
+      clearTimeout(completionTimer);
     };
-  }, [isVisible, result, diceType, onComplete, isMultiDice, results, maxSides]);
+  }, [isVisible, diceType, onComplete]);
 
   if (!isVisible) return null;
 
@@ -204,13 +235,13 @@ export const DiceRollAnimation = ({
           <div className="relative">
             {/* Dice Container */}
             <div
-              className={`relative w-32 h-32 flex items-center justify-center transition-all duration-500 ${
-                stage === "rolling" ? "animate-bounce" : ""
+              className={`relative w-32 h-32 flex items-center justify-center transition-all duration-500 ease-out ${
+                stage === "rolling" ? "animate-bounce" : stage === "result" ? "scale-105" : ""
               }`}
             >
               {/* Glow Effect */}
               <div
-                className={`absolute inset-0 rounded-full blur-xl transition-all duration-500 ${
+                className={`absolute inset-0 rounded-full blur-xl transition-all duration-700 ease-out ${
                   isCriticalSuccess
                     ? "bg-yellow-500/50 animate-pulse"
                     : isCriticalFail
@@ -221,8 +252,8 @@ export const DiceRollAnimation = ({
 
               {/* Dice Icon - Background Layer */}
               <div
-                className={`relative z-10 transition-transform duration-500 ${
-                  stage === "rolling" ? "animate-spin" : "scale-110"
+                className={`relative z-10 transition-all duration-700 ease-[cubic-bezier(0.15,0.85,0.35,1.0)] ${
+                  stage === "rolling" ? "animate-spin" : stage === "result" ? "scale-110" : "scale-100"
                 }`}
               >
                 <DiceIcon
@@ -239,8 +270,8 @@ export const DiceRollAnimation = ({
 
               {/* Number Display - Always on Top */}
               <div
-                className={`absolute inset-0 z-[110] flex items-center justify-center transition-all duration-300 ${
-                  stage === "rolling" ? "scale-75 opacity-80" : "scale-100 opacity-100"
+                className={`absolute inset-0 z-[110] flex items-center justify-center transition-all duration-500 ease-out ${
+                  stage === "rolling" ? "scale-75 opacity-80" : stage === "result" ? "scale-110 opacity-100" : "scale-100 opacity-100"
                 }`}
               >
                 <span
