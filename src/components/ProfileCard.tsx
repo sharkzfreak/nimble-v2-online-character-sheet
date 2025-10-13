@@ -118,7 +118,7 @@ export const ProfileCard = ({
 
   return (
     <aside
-      className="sticky top-4 min-w-[320px] w-[340px] max-w-[360px] rounded-xl border-2 shadow-2xl backdrop-blur-sm overflow-hidden"
+      className="fixed top-4 left-4 z-30 min-w-[320px] w-[340px] max-w-[360px] rounded-xl border-2 shadow-2xl backdrop-blur-sm overflow-hidden md:static md:left-auto md:z-auto"
       style={{
         background: `linear-gradient(135deg, hsl(${classColor} / 0.1), hsl(var(--card)))`,
         borderColor: `hsl(${classColor} / 0.4)`,
@@ -152,13 +152,54 @@ export const ProfileCard = ({
 
       {/* Vitals HUD */}
       <div className="px-5 pb-5">
-        <div className="vitals-row relative flex items-center justify-center mt-4 h-28">
-          {/* HP Section (Left) */}
-          <div className="hp-section absolute left-2 flex flex-col items-center gap-2 z-0">
-            {/* HP Bar */}
+        {/* Shield Row (Centered) */}
+        <div className="armor-wrap relative z-10 flex items-center justify-center mt-4">
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="relative">
+                  {/* Shield-shaped solid background */}
+                  <Shield
+                    className="w-28 h-28 absolute inset-0"
+                    style={{
+                      color: 'hsl(var(--card))',
+                      fill: 'hsl(var(--card))',
+                    }}
+                    strokeWidth={0}
+                  />
+                  <Shield
+                    className="w-28 h-28 transition-all duration-300 hover:scale-110 relative z-10"
+                    style={{
+                      color: `hsl(${classColor})`,
+                      fill: `hsl(${classColor} / 0.15)`,
+                    }}
+                    strokeWidth={2.5}
+                  />
+                  <div
+                    className="absolute inset-0 flex items-center justify-center text-3xl font-bold font-cinzel pointer-events-none z-20"
+                    style={{
+                      color: `hsl(${classColor})`,
+                      textShadow: `0 0 10px hsl(${classColor} / 0.6)`,
+                    }}
+                  >
+                    {armor}
+                  </div>
+                </div>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p className="text-sm font-medium">Armor: {armor}</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
+
+        {/* Bars Row: HP (left) | Hit Dice (right) */}
+        <div className="bars-row mt-3 grid grid-cols-2 gap-4 items-center">
+          {/* HP Left */}
+          <div className="hp-wrap relative flex flex-col items-end mr-[-10px]">
             <Popover open={editingHP} onOpenChange={setEditingHP}>
               <PopoverTrigger asChild>
-                <div className="relative cursor-pointer w-[110px] group">
+                <div className="relative cursor-pointer w-[clamp(100px,100%,140px)] group">
                   <div
                     className="relative h-[20px] bg-muted/30 rounded-full overflow-hidden border-2"
                     style={{ 
@@ -254,7 +295,7 @@ export const ProfileCard = ({
             </Popover>
 
             {/* HP +/- Buttons under bar */}
-            <div className="hp-buttons flex gap-1">
+            <div className="hp-buttons flex gap-1 mt-1">
               <button
                 onClick={handleHPDecrement}
                 className="w-5 h-5 flex items-center justify-center rounded border transition-all hover:scale-110"
@@ -277,56 +318,14 @@ export const ProfileCard = ({
                 }}
                 aria-label="Increase HP"
               >
-                <Plus className="w-3 h-3" />
+                <Plus className="w-5 h-5" />
               </button>
             </div>
           </div>
 
-          {/* Armor Shield (Center) - Shield-shaped background */}
-          <div className="armor-wrap relative z-10 flex flex-col items-center">
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <div className="relative">
-                    {/* Shield-shaped solid background */}
-                    <Shield
-                      className="w-28 h-28 absolute inset-0"
-                      style={{
-                        color: 'hsl(var(--card))',
-                        fill: 'hsl(var(--card))',
-                      }}
-                      strokeWidth={0}
-                    />
-                    <Shield
-                      className="w-28 h-28 transition-all duration-300 hover:scale-110 relative z-10"
-                      style={{
-                        color: `hsl(${classColor})`,
-                        fill: `hsl(${classColor} / 0.15)`,
-                      }}
-                      strokeWidth={2.5}
-                    />
-                    <div
-                      className="absolute inset-0 flex items-center justify-center text-3xl font-bold font-cinzel pointer-events-none z-20"
-                      style={{
-                        color: `hsl(${classColor})`,
-                        textShadow: `0 0 10px hsl(${classColor} / 0.6)`,
-                      }}
-                    >
-                      {armor}
-                    </div>
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p className="text-sm font-medium">Armor: {armor}</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </div>
-
-          {/* Hit Dice Section (Right) */}
-          <div className="hitdice-section absolute right-2 flex items-center z-0">
-            {/* Hit Dice Bar */}
-            <div className="w-[110px] group">
+          {/* Hit Dice Right */}
+          <div className="hd-wrap relative flex items-center justify-start ml-[-10px]">
+            <div className="w-[clamp(100px,100%,140px)] group">
               <div
                 className="relative h-[20px] bg-muted/30 rounded-full overflow-hidden border-2 cursor-pointer"
                 style={{ borderColor: `hsl(${classColor} / 0.3)` }}

@@ -362,8 +362,8 @@ const CharacterView = ({
 
   return (
     <div className="min-h-screen bg-background relative">
-      {/* Profile Card (Sticky Left - Flush) */}
-      <div className="fixed top-4 left-4 z-20">
+      {/* Profile Card (Fixed Left - Flush) */}
+      <div className="hidden md:block">
         <ProfileCard
           characterName={formData.name}
           classColor={classThemeColor}
@@ -392,8 +392,8 @@ const CharacterView = ({
         />
       </div>
       
-      {/* Main Content Area (Centered) */}
-      <div className="max-w-[1100px] mx-auto px-4 sm:px-6 md:px-8 py-4">
+      {/* Main Content Area (Centered with left margin) */}
+      <div className="max-w-[1100px] mx-auto px-4 sm:px-6 md:px-8 py-4 md:ml-[380px]">
         <div 
           className="space-y-8 animate-fade-in"
           style={{
