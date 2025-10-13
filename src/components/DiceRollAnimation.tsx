@@ -132,8 +132,9 @@ export const DiceRollAnimation = ({
 
   if (!isVisible) return null;
 
-  const isNatural1 = result === 1;
-  const isNatural20 = result === 20 && diceType === "d20";
+  const maxSides = parseInt(diceType.substring(1)) || 20;
+  const isCriticalFail = result === 1;
+  const isCriticalSuccess = result === maxSides;
   const diceColor = diceColors[diceType] || "text-primary";
   const formula = `${diceType}${modifier !== 0 ? ` ${modifier > 0 ? '+' : ''}${modifier}` : ''}`;
 
@@ -147,14 +148,14 @@ export const DiceRollAnimation = ({
               <DiceIcon type={diceType} className={`w-5 h-5 ${diceColor}`} />
               <span className="text-foreground font-semibold">
                 {characterName} rolled{" "}
-                <span className={`text-xl font-bold ${isNatural20 ? "text-yellow-400" : isNatural1 ? "text-red-400" : "text-primary"}`}>
+                <span className={`text-xl font-bold ${isCriticalSuccess ? "text-yellow-400" : isCriticalFail ? "text-red-400" : "text-primary"}`}>
                   {total}
                 </span>
                 {" "}
                 <span className="text-muted-foreground text-sm">({formula})</span>
               </span>
-              {isNatural20 && <span className="text-yellow-400">✨</span>}
-              {isNatural1 && <span className="text-red-400">💀</span>}
+              {isCriticalSuccess && <span className="text-yellow-400">✨</span>}
+              {isCriticalFail && <span className="text-red-400">💀</span>}
             </div>
           </div>
         </div>
@@ -174,9 +175,9 @@ export const DiceRollAnimation = ({
               {/* Glow Effect */}
               <div
                 className={`absolute inset-0 rounded-full blur-xl transition-all duration-500 ${
-                  isNatural20
+                  isCriticalSuccess
                     ? "bg-yellow-500/50 animate-pulse"
-                    : isNatural1
+                    : isCriticalFail
                     ? "bg-red-500/50 animate-pulse"
                     : "bg-primary/30"
                 }`}
@@ -191,9 +192,9 @@ export const DiceRollAnimation = ({
                 <DiceIcon
                   type={diceType}
                   className={`w-24 h-24 ${
-                    isNatural20
+                    isCriticalSuccess
                       ? "text-yellow-400"
-                      : isNatural1
+                      : isCriticalFail
                       ? "text-red-400"
                       : diceColor
                   }`}
@@ -208,9 +209,9 @@ export const DiceRollAnimation = ({
               >
                 <span
                   className={`text-5xl font-bold drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] ${
-                    isNatural20
+                    isCriticalSuccess
                       ? "text-yellow-400"
-                      : isNatural1
+                      : isCriticalFail
                       ? "text-red-400"
                       : "text-primary-foreground"
                   } ${stage === "rolling" ? "blur-sm" : "blur-0"}`}
@@ -244,9 +245,9 @@ export const DiceRollAnimation = ({
               <div className="text-lg font-medium text-foreground">{statName}</div>
               <div
                 className={`text-5xl font-bold drop-shadow-[0_2px_12px_rgba(0,0,0,0.9)] ${
-                  isNatural20
+                  isCriticalSuccess
                     ? "text-yellow-400 animate-pulse"
-                    : isNatural1
+                    : isCriticalFail
                     ? "text-red-400 animate-pulse"
                     : "text-primary"
                 }`}
@@ -258,12 +259,12 @@ export const DiceRollAnimation = ({
                   ({result} {modifier > 0 ? "+" : ""} {modifier})
                 </div>
               )}
-              {isNatural20 && (
+              {isCriticalSuccess && (
                 <div className="text-yellow-400 text-lg font-semibold animate-bounce mt-2">
-                  ✨ Natural 20! ✨
+                  ✨ Critical Success! ({diceType.toUpperCase()} max roll) ✨
                 </div>
               )}
-              {isNatural1 && (
+              {isCriticalFail && (
                 <div className="text-red-400 text-lg font-semibold animate-bounce mt-2">
                   💀 Critical Fail! 💀
                 </div>
