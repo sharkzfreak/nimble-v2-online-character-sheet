@@ -8,9 +8,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/hooks/use-toast";
-import { Loader2, Save, ArrowLeft, BookOpen, Trash2, CheckCircle2, Cloud, CloudOff } from "lucide-react";
+import { Loader2, Save, ArrowLeft, BookOpen, Trash2, CheckCircle2, Cloud, CloudOff, Edit3, Eye } from "lucide-react";
 import { ClassSelector } from "@/components/ClassSelector";
 import { RuleTooltip } from "@/components/RuleTooltip";
+import CharacterView from "@/components/CharacterView";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -43,6 +44,8 @@ const CharacterForm = ({ characterId }: CharacterFormProps) => {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [showUnsavedDialog, setShowUnsavedDialog] = useState(false);
   const [pendingNavigation, setPendingNavigation] = useState<string | null>(null);
+  const [isEditing, setIsEditing] = useState(!characterId); // New characters start in edit mode
+  const [isOwner, setIsOwner] = useState(false);
   const autoSaveTimerRef = useRef<NodeJS.Timeout | null>(null);
   const initialDataRef = useRef<string>("");
   
@@ -132,6 +135,8 @@ const CharacterForm = ({ characterId }: CharacterFormProps) => {
 
   const fetchCharacter = async () => {
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
       const { data, error } = await supabase
         .from("characters")
         .select("*")
@@ -142,6 +147,11 @@ const CharacterForm = ({ characterId }: CharacterFormProps) => {
       if (data) {
         setFormData(data);
         initialDataRef.current = JSON.stringify(data);
+        
+        // Check if current user is the owner
+        if (user) {
+          setIsOwner(data.user_id === user.id);
+        }
       }
     } catch (error) {
       console.error("Error fetching character:", error);
@@ -322,73 +332,129 @@ const CharacterForm = ({ characterId }: CharacterFormProps) => {
   const calculateInitiative = () => formData.dexterity;
   const calculateCarryWeight = () => formData.strength * 10;
 
+  const handleToggleMode = () => {
+    if (isEditing && isDirty && characterId) {
+      // Auto-save when switching from edit to view mode
+      handleAutoSave();
+    }
+    setIsEditing(!isEditing);
+  };
+
+  const handleCancelEdit = () => {
+    if (isDirty) {
+      // Revert changes
+      fetchCharacter();
+      setIsDirty(false);
+    }
+    setIsEditing(false);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/10 p-6">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(124,58,237,0.05),transparent_50%)]" />
       
       <div className="container mx-auto max-w-4xl relative">
-        {/* Save Status Indicator */}
-        <div className="fixed top-4 right-4 z-50 flex items-center gap-2 px-3 py-2 bg-card border border-border rounded-lg shadow-lg animate-fade-in">
-          {!isOnline ? (
-            <>
-              <CloudOff className="h-4 w-4 text-destructive" />
-              <span className="text-sm text-destructive">Offline</span>
-            </>
-          ) : isSaving ? (
-            <>
-              <Loader2 className="h-4 w-4 animate-spin text-primary" />
-              <span className="text-sm text-muted-foreground">Saving...</span>
-            </>
-          ) : isDirty ? (
-            <>
-              <Cloud className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm text-muted-foreground">Unsaved changes</span>
-            </>
-          ) : characterId ? (
-            <>
-              <CheckCircle2 className="h-4 w-4 text-green-500" />
-              <span className="text-sm text-muted-foreground">All changes saved</span>
-            </>
-          ) : null}
-        </div>
+        {/* Save Status Indicator - Only show in edit mode */}
+        {isEditing && (
+          <div className="fixed top-4 right-4 z-50 flex items-center gap-2 px-3 py-2 bg-card border border-border rounded-lg shadow-lg animate-fade-in">
+            {!isOnline ? (
+              <>
+                <CloudOff className="h-4 w-4 text-destructive" />
+                <span className="text-sm text-destructive">Offline</span>
+              </>
+            ) : isSaving ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                <span className="text-sm text-muted-foreground">Saving...</span>
+              </>
+            ) : isDirty ? (
+              <>
+                <Cloud className="h-4 w-4 text-muted-foreground" />
+                <span className="text-sm text-muted-foreground">Unsaved changes</span>
+              </>
+            ) : characterId ? (
+              <>
+                <CheckCircle2 className="h-4 w-4 text-green-500" />
+                <span className="text-sm text-muted-foreground">All changes saved</span>
+              </>
+            ) : null}
+          </div>
+        )}
 
-        <div className="mb-6 flex justify-between items-center">
+        <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <Button onClick={() => handleNavigateAway("/dashboard")} variant="ghost" size="sm" className="hover-scale">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Dashboard
           </Button>
           
-          {characterId && (
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button variant="destructive" size="sm" className="hover-scale">
-                  <Trash2 className="mr-2 h-4 w-4" />
-                  Delete Character
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent className="bg-card border-border">
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    This action cannot be undone. This will permanently delete your character
-                    "{formData.name}" and remove all associated data from our servers.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction 
-                    onClick={handleDelete}
-                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                  >
-                    Delete Character
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-          )}
+          <div className="flex flex-wrap gap-2">
+            {/* Mode Toggle - Only show for existing characters */}
+            {characterId && isOwner && (
+              <Button
+                onClick={handleToggleMode}
+                variant={isEditing ? "default" : "outline"}
+                size="sm"
+                className="hover-scale"
+              >
+                {isEditing ? (
+                  <>
+                    <Eye className="mr-2 h-4 w-4" />
+                    View Mode
+                  </>
+                ) : (
+                  <>
+                    <Edit3 className="mr-2 h-4 w-4" />
+                    Edit Mode
+                  </>
+                )}
+              </Button>
+            )}
+            
+            {/* Delete Button */}
+            {characterId && isOwner && (
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="destructive" size="sm" className="hover-scale">
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Delete
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent className="bg-card border-border">
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Delete Character?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Are you sure you want to delete "{formData.name}"? This action cannot be undone.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction 
+                      onClick={handleDelete}
+                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                    >
+                      Confirm Delete
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            )}
+          </div>
         </div>
 
-        <form onSubmit={handleSubmit}>
+        {/* View Mode */}
+        {!isEditing && characterId && (
+          <CharacterView
+            formData={formData}
+            calculateHealth={calculateHealth}
+            calculateDefense={calculateDefense}
+            calculateInitiative={calculateInitiative}
+            calculateCarryWeight={calculateCarryWeight}
+          />
+        )}
+
+        {/* Edit Mode */}
+        {isEditing && (
+          <form onSubmit={handleSubmit} className="animate-fade-in">
           <Card className="bg-card border-border shadow-[var(--shadow-card)]">
             <CardHeader>
               <CardTitle className="text-3xl bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
@@ -666,6 +732,7 @@ const CharacterForm = ({ characterId }: CharacterFormProps) => {
             </CardContent>
           </Card>
         </form>
+        )}
 
         {/* Unsaved Changes Dialog */}
         <Dialog open={showUnsavedDialog} onOpenChange={setShowUnsavedDialog}>
