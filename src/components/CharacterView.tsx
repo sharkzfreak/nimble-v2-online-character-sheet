@@ -25,6 +25,7 @@ import { useNimbleRuleset } from "@/hooks/useNimbleRuleset";
 import { useDiceLog } from "@/contexts/DiceLogContext";
 import { DiceLogPanel } from "./DiceLogPanel";
 import { ManualDiceRoller } from "./ManualDiceRoller";
+import { DiceRollAnimation } from "./DiceRollAnimation";
 
 interface CharacterViewProps {
   characterId?: string;
@@ -80,6 +81,16 @@ const CharacterView = ({
     total: number;
     diceType?: string;
   } | null>(null);
+  const [showAnimation, setShowAnimation] = useState(false);
+  const [isRolling, setIsRolling] = useState(false);
+  const [pendingRoll, setPendingRoll] = useState<{
+    characterName: string;
+    formula: string;
+    rawResult: number;
+    modifier: number;
+    total: number;
+    rollType: string;
+  } | null>(null);
 
   const getModifier = (stat: number): number => {
     return Math.floor((stat - 10) / 2);
@@ -91,6 +102,9 @@ const CharacterView = ({
   };
 
   const rollDice = (statName: string, statValue: number, diceType: string = "d20") => {
+    if (isRolling) return;
+    
+    setIsRolling(true);
     const modifier = getModifier(statValue);
     const diceMax = parseInt(diceType.substring(1)) || 20;
     const roll = Math.ceil(Math.random() * diceMax);
@@ -98,36 +112,58 @@ const CharacterView = ({
     
     console.log(`Rolling ${statName}: ${roll} + ${modifier} = ${total} (${diceType})`);
     setDiceRoll({ statName, roll, modifier, total, diceType });
+    setShowAnimation(true);
 
-    // Log to dice log
-    addLog({
-      character_name: formData.name || 'Unknown',
-      character_id: characterId,
+    // Store pending log data
+    setPendingRoll({
+      characterName: formData.name || 'Unknown',
       formula: `${diceType}${modifier !== 0 ? ` ${modifier > 0 ? '+' : ''}${modifier}` : ''}`,
-      raw_result: roll,
+      rawResult: roll,
       modifier,
       total,
-      roll_type: 'stat',
+      rollType: 'stat',
     });
   };
 
   const rollSkillCheck = (skillName: string, skillValue: number) => {
+    if (isRolling) return;
+    
+    setIsRolling(true);
     const roll = Math.ceil(Math.random() * 20);
     const total = roll + skillValue;
     
     console.log(`Rolling ${skillName}: ${roll} + ${skillValue} = ${total} (d20 skill check)`);
     setDiceRoll({ statName: skillName, roll, modifier: skillValue, total, diceType: "d20" });
+    setShowAnimation(true);
 
-    // Log to dice log
-    addLog({
-      character_name: formData.name || 'Unknown',
-      character_id: characterId,
+    // Store pending log data
+    setPendingRoll({
+      characterName: formData.name || 'Unknown',
       formula: `d20${skillValue !== 0 ? ` ${skillValue > 0 ? '+' : ''}${skillValue}` : ''}`,
-      raw_result: roll,
+      rawResult: roll,
       modifier: skillValue,
       total,
-      roll_type: 'skill',
+      rollType: 'skill',
     });
+  };
+
+  const handleAnimationComplete = () => {
+    setShowAnimation(false);
+    setIsRolling(false);
+
+    // Log the roll after animation
+    if (pendingRoll) {
+      addLog({
+        character_name: pendingRoll.characterName,
+        character_id: characterId,
+        formula: pendingRoll.formula,
+        raw_result: pendingRoll.rawResult,
+        modifier: pendingRoll.modifier,
+        total: pendingRoll.total,
+        roll_type: pendingRoll.rollType,
+      });
+      setPendingRoll(null);
+    }
   };
 
   // Get class theme color
@@ -696,8 +732,21 @@ const CharacterView = ({
           </TabsContent>
         </Tabs>
 
-        {/* Dice Roll Toast */}
+        {/* Dice Roll Animation */}
         {diceRoll && (
+          <DiceRollAnimation
+            diceType={diceRoll.diceType || "d20"}
+            result={diceRoll.roll}
+            modifier={diceRoll.modifier}
+            total={diceRoll.total}
+            isVisible={showAnimation}
+            onComplete={handleAnimationComplete}
+            statName={diceRoll.statName}
+          />
+        )}
+
+        {/* Dice Roll Toast */}
+        {diceRoll && !showAnimation && (
           <DiceRollToast
             {...diceRoll}
             onClose={() => setDiceRoll(null)}

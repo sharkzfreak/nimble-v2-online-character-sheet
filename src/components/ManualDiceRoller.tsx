@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Dices, Plus, Minus } from "lucide-react";
 import { useDiceLog } from "@/contexts/DiceLogContext";
 import { DiceRollToast } from "./DiceRollToast";
+import { DiceRollAnimation } from "./DiceRollAnimation";
 
 interface ManualDiceRollerProps {
   characterName?: string;
@@ -28,7 +29,9 @@ export const ManualDiceRoller = ({ characterName = "Manual Roll", characterId }:
   const [isOpen, setIsOpen] = useState(false);
   const [modifier, setModifier] = useState(0);
   const [showToast, setShowToast] = useState(false);
-  const [lastRoll, setLastRoll] = useState({ roll: 0, total: 0, diceType: "d20" });
+  const [showAnimation, setShowAnimation] = useState(false);
+  const [isRolling, setIsRolling] = useState(false);
+  const [lastRoll, setLastRoll] = useState({ roll: 0, total: 0, diceType: "d20", statName: "Manual Roll" });
   const { addLog } = useDiceLog();
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -61,26 +64,36 @@ export const ManualDiceRoller = ({ characterName = "Manual Roll", characterId }:
   }, [isOpen]);
 
   const handleRoll = (sides: number, diceLabel: string) => {
+    if (isRolling) return;
+    
+    setIsRolling(true);
     const roll = Math.ceil(Math.random() * sides);
     const total = roll + modifier;
     const formula = `${diceLabel}${modifier !== 0 ? ` ${modifier > 0 ? '+' : ''}${modifier}` : ''}`;
 
-    setLastRoll({ roll, total, diceType: diceLabel });
-    setShowToast(true);
+    setLastRoll({ roll, total, diceType: diceLabel, statName: "Manual Roll" });
     setIsOpen(false);
+    setShowAnimation(true);
+  };
 
-    // Log the roll
+  const handleAnimationComplete = () => {
+    setShowAnimation(false);
+    setShowToast(true);
+    setIsRolling(false);
+
+    // Log the roll after animation
+    const formula = `${lastRoll.diceType}${modifier !== 0 ? ` ${modifier > 0 ? '+' : ''}${modifier}` : ''}`;
     addLog({
       character_name: characterName,
       character_id: characterId || null,
       formula,
-      raw_result: roll,
+      raw_result: lastRoll.roll,
       modifier,
-      total,
+      total: lastRoll.total,
       roll_type: 'manual',
     });
 
-    console.log(`Manual roll: ${formula} = ${roll} + ${modifier} = ${total}`);
+    console.log(`Manual roll: ${formula} = ${lastRoll.roll} + ${modifier} = ${lastRoll.total}`);
   };
 
   const adjustModifier = (delta: number) => {
@@ -143,9 +156,10 @@ export const ManualDiceRoller = ({ characterName = "Manual Roll", characterId }:
         <Button
           size="icon"
           onClick={() => setIsOpen(!isOpen)}
+          disabled={isRolling}
           className={`h-20 w-20 rounded-full shadow-[var(--shadow-glow)] bg-gradient-to-br from-primary via-primary to-accent hover:scale-110 active:scale-95 transition-all duration-300 border-4 border-primary-foreground/20 ${
             isOpen ? 'rotate-180' : ''
-          }`}
+          } ${isRolling ? 'opacity-50 cursor-not-allowed' : ''}`}
           style={{
             boxShadow: '0 0 40px hsl(var(--primary) / 0.6), 0 10px 30px hsl(var(--primary) / 0.4)',
           }}
@@ -160,6 +174,16 @@ export const ManualDiceRoller = ({ characterName = "Manual Roll", characterId }:
           </div>
         )}
       </div>
+
+      <DiceRollAnimation
+        diceType={lastRoll.diceType}
+        result={lastRoll.roll}
+        modifier={modifier}
+        total={lastRoll.total}
+        isVisible={showAnimation}
+        onComplete={handleAnimationComplete}
+        statName={lastRoll.statName}
+      />
 
       {showToast && (
         <DiceRollToast
