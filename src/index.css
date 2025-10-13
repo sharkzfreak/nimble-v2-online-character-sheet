@@ -47,8 +47,21 @@ All colors MUST be HSL.
     /* Ability Score Colors */
     --ability-str: 0 70% 55%;
     --ability-dex: 120 60% 50%;
+    --ability-con: 180 60% 55%;
     --ability-int: 220 80% 60%;
-    --ability-will: 280 70% 65%;
+    --ability-wis: 280 70% 65%;
+    --ability-cha: 43 96% 56%;
+
+    /* Class Theme Colors */
+    --class-fighter: 0 65% 45%;
+    --class-rogue: 270 50% 40%;
+    --class-wizard: 220 80% 55%;
+    --class-cleric: 43 90% 50%;
+    --class-ranger: 120 40% 40%;
+    --class-barbarian: 10 80% 50%;
+    --class-bard: 300 70% 55%;
+    --class-paladin: 45 95% 60%;
+    --class-default: 217 33% 25%;
 
     --gradient-primary: linear-gradient(135deg, hsl(262 83% 58%), hsl(282 80% 65%));
     --gradient-accent: linear-gradient(135deg, hsl(43 96% 56%), hsl(38 90% 60%));

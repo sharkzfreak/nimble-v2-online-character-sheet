@@ -1,9 +1,25 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
-import { RuleTooltip } from "@/components/RuleTooltip";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Shield, Zap, Target, Sword, Book, Package, FileText } from "lucide-react";
+import { 
+  Shield, 
+  Zap, 
+  Target, 
+  Swords, 
+  BookOpen, 
+  Wand2, 
+  Package, 
+  FileText, 
+  Dices,
+  Activity
+} from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface CharacterViewProps {
   formData: {
@@ -53,71 +69,134 @@ const CharacterView = ({
     return mod >= 0 ? `+${mod}` : `${mod}`;
   };
 
+  // Get class theme color
+  const getClassColor = (className: string): string => {
+    const normalizedClass = className?.toLowerCase() || '';
+    const classColorMap: Record<string, string> = {
+      'fighter': 'var(--class-fighter)',
+      'rogue': 'var(--class-rogue)',
+      'wizard': 'var(--class-wizard)',
+      'cleric': 'var(--class-cleric)',
+      'ranger': 'var(--class-ranger)',
+      'barbarian': 'var(--class-barbarian)',
+      'bard': 'var(--class-bard)',
+      'paladin': 'var(--class-paladin)',
+    };
+    return classColorMap[normalizedClass] || 'var(--class-default)';
+  };
+
+  const classThemeColor = getClassColor(formData.class);
+
   const AbilityBadge = ({ 
     name, 
     value, 
-    color 
+    color,
+    abbreviation 
   }: { 
     name: string; 
     value: number; 
     color: string;
+    abbreviation: string;
   }) => {
     const modifier = getModifier(value);
     return (
-      <div className="flex flex-col items-center group hover-scale">
-        <div 
-          className="relative w-20 h-20 rounded-full flex flex-col items-center justify-center border-2 transition-all duration-300"
-          style={{
-            backgroundColor: `hsl(${color} / 0.1)`,
-            borderColor: `hsl(${color})`,
-            boxShadow: `0 0 20px hsl(${color} / 0.3)`
-          }}
-        >
-          <div className="text-xs font-bold uppercase tracking-wider opacity-70">{name}</div>
-          <div className="text-2xl font-bold" style={{ color: `hsl(${color})` }}>{modifier}</div>
-          <div className="text-xs opacity-60">{value}</div>
-        </div>
-      </div>
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <div className="flex flex-col items-center group cursor-pointer">
+              <div 
+                className="relative w-24 h-24 rounded-full flex flex-col items-center justify-center border-3 transition-all duration-300 hover:scale-110"
+                style={{
+                  backgroundColor: `hsl(${color} / 0.15)`,
+                  borderColor: `hsl(${color})`,
+                  borderWidth: '3px',
+                  boxShadow: `0 0 25px hsl(${color} / 0.4), inset 0 0 15px hsl(${color} / 0.1)`
+                }}
+              >
+                <div className="text-xs font-bold uppercase tracking-wider opacity-80 font-cinzel">{abbreviation}</div>
+                <div className="text-3xl font-bold my-1" style={{ color: `hsl(${color})` }}>{modifier}</div>
+                <div className="text-sm opacity-70 font-medium">{value}</div>
+              </div>
+            </div>
+          </TooltipTrigger>
+          <TooltipContent className="bg-card border-border">
+            <p className="font-semibold">{name}</p>
+            <p className="text-xs text-muted-foreground">Base: {value} | Modifier: {modifier}</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
     );
   };
 
   const QuickStat = ({ 
     icon: Icon, 
     label, 
-    value 
+    value,
+    tooltip 
   }: { 
     icon: any; 
     label: string; 
     value: number | string;
+    tooltip?: string;
   }) => (
-    <div className="flex items-center gap-2 px-4 py-2 bg-[var(--stat-card-bg)] border border-[var(--stat-card-border)] rounded-lg hover-scale">
-      <Icon className="w-5 h-5 text-primary" />
-      <div className="flex flex-col">
-        <span className="text-xs text-muted-foreground uppercase tracking-wide">{label}</span>
-        <span className="text-xl font-bold text-foreground">{value}</span>
-      </div>
-    </div>
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <div 
+            className="flex items-center gap-3 px-5 py-3 rounded-xl border-2 hover-scale cursor-pointer transition-all duration-300"
+            style={{
+              backgroundColor: `hsl(${classThemeColor} / 0.1)`,
+              borderColor: `hsl(${classThemeColor} / 0.4)`,
+              boxShadow: `0 4px 12px hsl(${classThemeColor} / 0.2)`
+            }}
+          >
+            <Icon className="w-6 h-6" style={{ color: `hsl(${classThemeColor})` }} />
+            <div className="flex flex-col">
+              <span className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">{label}</span>
+              <span className="text-2xl font-bold text-foreground font-cinzel">{value}</span>
+            </div>
+          </div>
+        </TooltipTrigger>
+        {tooltip && (
+          <TooltipContent className="bg-card border-border">
+            <p className="text-xs">{tooltip}</p>
+          </TooltipContent>
+        )}
+      </Tooltip>
+    </TooltipProvider>
   );
 
   const SkillItem = ({ 
     name, 
     value, 
-    proficient = false 
+    proficient = false,
+    onRoll
   }: { 
     name: string; 
     value: number;
     proficient?: boolean;
+    onRoll?: () => void;
   }) => (
-    <div className="flex items-center justify-between py-2 px-3 hover:bg-muted/30 rounded transition-colors">
-      <div className="flex items-center gap-2">
-        <div className={`w-4 h-4 rounded-sm border ${proficient ? 'bg-primary border-primary' : 'border-muted-foreground/30'}`}>
-          {proficient && <div className="w-full h-full flex items-center justify-center text-xs">✓</div>}
+    <div className="flex items-center justify-between py-2 px-4 hover:bg-muted/40 rounded-lg transition-all duration-200 group">
+      <div className="flex items-center gap-3">
+        <div className={`w-5 h-5 rounded-md border-2 transition-all ${proficient ? 'bg-primary/20 border-primary' : 'border-muted-foreground/30'}`}>
+          {proficient && <div className="w-full h-full flex items-center justify-center text-xs font-bold text-primary">✓</div>}
         </div>
         <span className="text-sm font-medium">{name}</span>
       </div>
-      <span className="text-sm font-bold text-muted-foreground">
-        {value >= 0 ? `+${value}` : value}
-      </span>
+      <div className="flex items-center gap-2">
+        <span className="text-base font-bold text-foreground min-w-[2.5rem] text-right">
+          {value >= 0 ? `+${value}` : value}
+        </span>
+        {onRoll && (
+          <button
+            onClick={onRoll}
+            className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-primary/20 rounded"
+          >
+            <Dices className="w-4 h-4 text-primary" />
+          </button>
+        )}
+      </div>
     </div>
   );
 
@@ -125,33 +204,54 @@ const CharacterView = ({
     title, 
     color, 
     modifier, 
-    skills 
+    skills,
+    icon: Icon
   }: { 
     title: string; 
     color: string;
     modifier: string;
     skills: { name: string; value: number; proficient?: boolean }[];
+    icon?: any;
   }) => (
-    <div className="bg-gradient-to-br from-card/80 to-card/60 backdrop-blur-sm rounded-lg border border-border/50 overflow-hidden shadow-lg">
+    <div 
+      className="rounded-xl border-2 overflow-hidden shadow-xl transition-all duration-300 hover:shadow-2xl"
+      style={{
+        backgroundColor: `hsl(${color} / 0.05)`,
+        borderColor: `hsl(${color} / 0.3)`,
+        boxShadow: `0 8px 24px hsl(${color} / 0.15)`
+      }}
+    >
       <div 
-        className="px-4 py-3 border-b"
+        className="px-5 py-4 border-b-2 backdrop-blur-sm"
         style={{
-          backgroundColor: `hsl(${color} / 0.15)`,
-          borderColor: `hsl(${color} / 0.3)`
+          background: `linear-gradient(135deg, hsl(${color} / 0.2), hsl(${color} / 0.1))`,
+          borderColor: `hsl(${color} / 0.4)`
         }}
       >
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-bold uppercase tracking-wider" style={{ color: `hsl(${color})` }}>
-            {title}
-          </h3>
-          <span className="text-lg font-bold" style={{ color: `hsl(${color})` }}>
+          <div className="flex items-center gap-2">
+            {Icon && <Icon className="w-5 h-5" style={{ color: `hsl(${color})` }} />}
+            <h3 className="text-base font-bold uppercase tracking-wider font-cinzel" style={{ color: `hsl(${color})` }}>
+              {title}
+            </h3>
+          </div>
+          <span className="text-2xl font-bold font-cinzel" style={{ color: `hsl(${color})` }}>
             {modifier}
           </span>
         </div>
       </div>
-      <div className="p-2 space-y-1">
+      <div className="p-3 space-y-1">
+        <div className="flex items-center justify-between py-2 px-4 text-xs font-semibold text-muted-foreground uppercase">
+          <span>Saving Throw</span>
+          <span>{modifier}</span>
+        </div>
+        <Separator className="my-1" style={{ backgroundColor: `hsl(${color} / 0.2)` }} />
         {skills.map((skill, idx) => (
-          <SkillItem key={idx} {...skill} />
+          <SkillItem 
+            key={idx} 
+            {...skill} 
+            onRoll={() => console.log(`Rolling ${skill.name}: ${skill.value}`)} 
+          />
         ))}
       </div>
     </div>
@@ -163,229 +263,327 @@ const CharacterView = ({
   const willMod = getModifier(formData.will);
 
   return (
-    <div className="space-y-6 animate-fade-in pb-8">
-      {/* Character Header */}
-      <Card className="bg-gradient-to-br from-card via-card to-primary/5 border-border shadow-[var(--shadow-card)]">
-        <CardHeader className="pb-4">
-          <div className="flex flex-col gap-4">
-            <div>
-              <CardTitle className="text-4xl bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent mb-2">
-                {formData.name || "Unnamed Character"}
-              </CardTitle>
-              <div className="flex flex-wrap gap-2">
-                {formData.class && <Badge variant="default" className="text-sm">{formData.class}</Badge>}
-                {formData.race && <Badge variant="outline" className="text-sm">{formData.race}</Badge>}
-                <Badge variant="secondary" className="text-sm">Level {formData.level}</Badge>
+    <div 
+      className="min-h-screen pb-12 relative"
+      style={{
+        background: `radial-gradient(ellipse at top, hsl(${classThemeColor} / 0.15), transparent 50%), 
+                     radial-gradient(ellipse at bottom, hsl(${classThemeColor} / 0.1), transparent 50%),
+                     hsl(var(--background))`
+      }}
+    >
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 animate-fade-in">
+        {/* Character Header */}
+        <Card 
+          className="border-2 shadow-2xl overflow-hidden backdrop-blur-sm"
+          style={{
+            background: `linear-gradient(135deg, hsl(${classThemeColor} / 0.1), hsl(var(--card)) 50%)`,
+            borderColor: `hsl(${classThemeColor} / 0.4)`,
+            boxShadow: `0 0 40px hsl(${classThemeColor} / 0.2)`
+          }}
+        >
+          <CardHeader className="pb-4">
+            <div className="flex flex-col gap-4">
+              <div>
+                <CardTitle 
+                  className="text-5xl font-bold font-cinzel mb-3"
+                  style={{
+                    background: `linear-gradient(135deg, hsl(${classThemeColor}), hsl(var(--accent)))`,
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    backgroundClip: 'text',
+                    textShadow: `0 0 30px hsl(${classThemeColor} / 0.3)`
+                  }}
+                >
+                  {formData.name || "Unnamed Character"}
+                </CardTitle>
+                <div className="flex flex-wrap gap-2">
+                  {formData.class && (
+                    <Badge 
+                      className="text-sm font-semibold px-3 py-1"
+                      style={{
+                        backgroundColor: `hsl(${classThemeColor} / 0.2)`,
+                        borderColor: `hsl(${classThemeColor})`,
+                        color: `hsl(${classThemeColor})`,
+                        border: '2px solid'
+                      }}
+                    >
+                      {formData.class}
+                    </Badge>
+                  )}
+                  {formData.race && <Badge variant="outline" className="text-sm font-semibold">{formData.race}</Badge>}
+                  <Badge variant="secondary" className="text-sm font-semibold">Level {formData.level}</Badge>
+                </div>
               </div>
+              
+              {(formData.player || formData.campaign) && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                  {formData.player && (
+                    <div>
+                      <span className="text-muted-foreground font-medium">Player:</span>
+                      <span className="ml-2 font-semibold">{formData.player}</span>
+                    </div>
+                  )}
+                  {formData.campaign && (
+                    <div>
+                      <span className="text-muted-foreground font-medium">Campaign:</span>
+                      <span className="ml-2 font-semibold">{formData.campaign}</span>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
-            
-            {(formData.player || formData.campaign) && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
-                {formData.player && (
-                  <div>
-                    <span className="text-muted-foreground">Player:</span>
-                    <span className="ml-2 font-medium">{formData.player}</span>
-                  </div>
-                )}
-                {formData.campaign && (
-                  <div>
-                    <span className="text-muted-foreground">Campaign:</span>
-                    <span className="ml-2 font-medium">{formData.campaign}</span>
-                  </div>
-                )}
-              </div>
+          </CardHeader>
+
+          {/* Quick Stats Bar */}
+          <CardContent className="pt-0">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+              <QuickStat 
+                icon={Shield} 
+                label="AC" 
+                value={calculateDefense()} 
+                tooltip="Armor Class - Your defense against attacks"
+              />
+              <QuickStat 
+                icon={Activity} 
+                label="Speed" 
+                value={30} 
+                tooltip="Movement speed in feet per turn"
+              />
+              <QuickStat 
+                icon={Target} 
+                label="Initiative" 
+                value={`+${calculateInitiative()}`} 
+                tooltip="Initiative bonus - determines turn order in combat"
+              />
+              <QuickStat 
+                icon={Swords} 
+                label="HP" 
+                value={calculateHealth()} 
+                tooltip="Hit Points - Your character's health"
+              />
+            </div>
+
+            {/* Ability Scores */}
+            <Separator className="my-6" style={{ backgroundColor: `hsl(${classThemeColor} / 0.3)` }} />
+            <div className="flex justify-center gap-3 md:gap-6 flex-wrap py-6">
+              <AbilityBadge name="Strength" abbreviation="STR" value={formData.strength} color="var(--ability-str)" />
+              <AbilityBadge name="Dexterity" abbreviation="DEX" value={formData.dexterity} color="var(--ability-dex)" />
+              <AbilityBadge name="Constitution" abbreviation="CON" value={10} color="var(--ability-con)" />
+              <AbilityBadge name="Intelligence" abbreviation="INT" value={formData.intelligence} color="var(--ability-int)" />
+              <AbilityBadge name="Wisdom" abbreviation="WIS" value={formData.will} color="var(--ability-wis)" />
+              <AbilityBadge name="Charisma" abbreviation="CHA" value={10} color="var(--ability-cha)" />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Tabbed Content */}
+        <Tabs defaultValue="skills" className="w-full">
+          <TabsList 
+            className="grid w-full grid-cols-4 h-14 border-2 p-1"
+            style={{
+              backgroundColor: `hsl(${classThemeColor} / 0.1)`,
+              borderColor: `hsl(${classThemeColor} / 0.3)`
+            }}
+          >
+            <TabsTrigger 
+              value="skills" 
+              className="font-semibold data-[state=active]:shadow-lg transition-all"
+              style={{
+                ['--tw-shadow-color' as any]: `hsl(${classThemeColor} / 0.3)`
+              }}
+            >
+              <Swords className="w-4 h-4 mr-2" />
+              <span className="hidden sm:inline">Skills</span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="abilities"
+              className="font-semibold data-[state=active]:shadow-lg transition-all"
+            >
+              <BookOpen className="w-4 h-4 mr-2" />
+              <span className="hidden sm:inline">Abilities</span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="spells"
+              className="font-semibold data-[state=active]:shadow-lg transition-all"
+            >
+              <Wand2 className="w-4 h-4 mr-2" />
+              <span className="hidden sm:inline">Spells</span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="notes"
+              className="font-semibold data-[state=active]:shadow-lg transition-all"
+            >
+              <FileText className="w-4 h-4 mr-2" />
+              <span className="hidden sm:inline">Notes</span>
+            </TabsTrigger>
+          </TabsList>
+
+          {/* Skills Tab */}
+          <TabsContent value="skills" className="mt-6 space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <AbilityPanel
+                title="Strength"
+                color="var(--ability-str)"
+                modifier={strengthMod}
+                icon={Swords}
+                skills={[
+                  { name: "Athletics", value: formData.skill_might, proficient: formData.skill_might > 0 },
+                  { name: "Might", value: formData.skill_might, proficient: formData.skill_might > 0 }
+                ]}
+              />
+              <AbilityPanel
+                title="Dexterity"
+                color="var(--ability-dex)"
+                modifier={dexterityMod}
+                icon={Target}
+                skills={[
+                  { name: "Acrobatics", value: formData.skill_finesse, proficient: formData.skill_finesse > 0 },
+                  { name: "Finesse", value: formData.skill_finesse, proficient: formData.skill_finesse > 0 },
+                  { name: "Stealth", value: formData.skill_stealth, proficient: formData.skill_stealth > 0 }
+                ]}
+              />
+              <AbilityPanel
+                title="Intelligence"
+                color="var(--ability-int)"
+                modifier={intelligenceMod}
+                icon={BookOpen}
+                skills={[
+                  { name: "Arcana", value: formData.skill_arcana, proficient: formData.skill_arcana > 0 },
+                  { name: "Examination", value: formData.skill_examination, proficient: formData.skill_examination > 0 },
+                  { name: "Lore", value: formData.skill_lore, proficient: formData.skill_lore > 0 }
+                ]}
+              />
+              <AbilityPanel
+                title="Wisdom"
+                color="var(--ability-wis)"
+                modifier={willMod}
+                icon={Wand2}
+                skills={[
+                  { name: "Insight", value: formData.skill_insight, proficient: formData.skill_insight > 0 },
+                  { name: "Influence", value: formData.skill_influence, proficient: formData.skill_influence > 0 },
+                  { name: "Naturecraft", value: formData.skill_naturecraft, proficient: formData.skill_naturecraft > 0 },
+                  { name: "Perception", value: formData.skill_perception, proficient: formData.skill_perception > 0 }
+                ]}
+              />
+            </div>
+          </TabsContent>
+
+          {/* Abilities Tab */}
+          <TabsContent value="abilities" className="mt-6 space-y-4">
+            {formData.background && (
+              <Card className="bg-card/70 border-2 backdrop-blur-sm" style={{ borderColor: `hsl(${classThemeColor} / 0.3)` }}>
+                <CardHeader>
+                  <CardTitle className="text-lg font-cinzel" style={{ color: `hsl(${classThemeColor})` }}>
+                    Background
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">
+                    {formData.background}
+                  </p>
+                </CardContent>
+              </Card>
             )}
-          </div>
-        </CardHeader>
+            
+            {formData.abilities && (
+              <Card className="bg-card/70 border-2 backdrop-blur-sm" style={{ borderColor: `hsl(${classThemeColor} / 0.3)` }}>
+                <CardHeader>
+                  <CardTitle className="text-lg font-cinzel" style={{ color: `hsl(${classThemeColor})` }}>
+                    Class Abilities
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">
+                    {formData.abilities}
+                  </p>
+                </CardContent>
+              </Card>
+            )}
 
-        {/* Quick Stats Bar */}
-        <CardContent className="pt-0">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
-            <QuickStat icon={Shield} label="Defense" value={calculateDefense()} />
-            <QuickStat icon={Zap} label="Speed" value={30} />
-            <QuickStat icon={Target} label="Initiative" value={`+${calculateInitiative()}`} />
-            <QuickStat icon={Sword} label="Health" value={calculateHealth()} />
-          </div>
+            {formData.powers && (
+              <Card className="bg-card/70 border-2 backdrop-blur-sm" style={{ borderColor: `hsl(${classThemeColor} / 0.3)` }}>
+                <CardHeader>
+                  <CardTitle className="text-lg font-cinzel" style={{ color: `hsl(${classThemeColor})` }}>
+                    Powers
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">
+                    {formData.powers}
+                  </p>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
 
-          {/* Ability Scores */}
-          <Separator className="my-4" />
-          <div className="flex justify-center gap-4 md:gap-6 flex-wrap py-4">
-            <AbilityBadge name="STR" value={formData.strength} color="var(--ability-str)" />
-            <AbilityBadge name="DEX" value={formData.dexterity} color="var(--ability-dex)" />
-            <AbilityBadge name="INT" value={formData.intelligence} color="var(--ability-int)" />
-            <AbilityBadge name="WILL" value={formData.will} color="var(--ability-will)" />
-          </div>
-        </CardContent>
-      </Card>
+          {/* Spells Tab */}
+          <TabsContent value="spells" className="mt-6">
+            {formData.spells ? (
+              <Card className="bg-card/70 border-2 backdrop-blur-sm" style={{ borderColor: `hsl(${classThemeColor} / 0.3)` }}>
+                <CardHeader>
+                  <CardTitle className="text-lg font-cinzel" style={{ color: `hsl(${classThemeColor})` }}>
+                    Spell List
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">
+                    {formData.spells}
+                  </p>
+                </CardContent>
+              </Card>
+            ) : (
+              <Card className="bg-card/70 border-2 backdrop-blur-sm" style={{ borderColor: `hsl(${classThemeColor} / 0.3)` }}>
+                <CardContent className="py-16 text-center">
+                  <Wand2 className="w-16 h-16 mx-auto mb-4 opacity-30" style={{ color: `hsl(${classThemeColor})` }} />
+                  <p className="text-muted-foreground font-medium">No spells recorded</p>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
 
-      {/* Tabbed Content */}
-      <Tabs defaultValue="abilities" className="w-full">
-        <TabsList className="grid w-full grid-cols-4 bg-card/50 border border-border">
-          <TabsTrigger value="abilities" className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary">
-            <Book className="w-4 h-4 mr-2" />
-            <span className="hidden sm:inline">Abilities</span>
-          </TabsTrigger>
-          <TabsTrigger value="skills" className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary">
-            <Target className="w-4 h-4 mr-2" />
-            <span className="hidden sm:inline">Skills</span>
-          </TabsTrigger>
-          <TabsTrigger value="spells" className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary">
-            <Zap className="w-4 h-4 mr-2" />
-            <span className="hidden sm:inline">Spells</span>
-          </TabsTrigger>
-          <TabsTrigger value="notes" className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary">
-            <FileText className="w-4 h-4 mr-2" />
-            <span className="hidden sm:inline">Notes</span>
-          </TabsTrigger>
-        </TabsList>
+          {/* Notes Tab */}
+          <TabsContent value="notes" className="mt-6 space-y-4">
+            {formData.description && (
+              <Card className="bg-card/70 border-2 backdrop-blur-sm" style={{ borderColor: `hsl(${classThemeColor} / 0.3)` }}>
+                <CardHeader>
+                  <CardTitle className="text-lg font-cinzel" style={{ color: `hsl(${classThemeColor})` }}>
+                    Description
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">
+                    {formData.description}
+                  </p>
+                </CardContent>
+              </Card>
+            )}
 
-        {/* Skills Tab */}
-        <TabsContent value="skills" className="mt-6 space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <AbilityPanel
-              title="Strength"
-              color="var(--ability-str)"
-              modifier={strengthMod}
-              skills={[
-                { name: "Might", value: formData.skill_might, proficient: formData.skill_might > 0 }
-              ]}
-            />
-            <AbilityPanel
-              title="Dexterity"
-              color="var(--ability-dex)"
-              modifier={dexterityMod}
-              skills={[
-                { name: "Finesse", value: formData.skill_finesse, proficient: formData.skill_finesse > 0 },
-                { name: "Stealth", value: formData.skill_stealth, proficient: formData.skill_stealth > 0 }
-              ]}
-            />
-            <AbilityPanel
-              title="Intelligence"
-              color="var(--ability-int)"
-              modifier={intelligenceMod}
-              skills={[
-                { name: "Arcana", value: formData.skill_arcana, proficient: formData.skill_arcana > 0 },
-                { name: "Examination", value: formData.skill_examination, proficient: formData.skill_examination > 0 },
-                { name: "Lore", value: formData.skill_lore, proficient: formData.skill_lore > 0 }
-              ]}
-            />
-            <AbilityPanel
-              title="Will"
-              color="var(--ability-will)"
-              modifier={willMod}
-              skills={[
-                { name: "Insight", value: formData.skill_insight, proficient: formData.skill_insight > 0 },
-                { name: "Influence", value: formData.skill_influence, proficient: formData.skill_influence > 0 },
-                { name: "Naturecraft", value: formData.skill_naturecraft, proficient: formData.skill_naturecraft > 0 },
-                { name: "Perception", value: formData.skill_perception, proficient: formData.skill_perception > 0 }
-              ]}
-            />
-          </div>
-        </TabsContent>
-
-        {/* Abilities Tab */}
-        <TabsContent value="abilities" className="mt-6 space-y-4">
-          {formData.background && (
-            <Card className="bg-card/50 border-border">
-              <CardHeader>
-                <CardTitle className="text-lg text-primary">Background</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">
-                  {formData.background}
-                </p>
-              </CardContent>
-            </Card>
-          )}
-          
-          {formData.abilities && (
-            <Card className="bg-card/50 border-border">
-              <CardHeader>
-                <CardTitle className="text-lg text-primary">Class Abilities</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">
-                  {formData.abilities}
-                </p>
-              </CardContent>
-            </Card>
-          )}
-
-          {formData.powers && (
-            <Card className="bg-card/50 border-border">
-              <CardHeader>
-                <CardTitle className="text-lg text-primary">Powers</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">
-                  {formData.powers}
-                </p>
-              </CardContent>
-            </Card>
-          )}
-        </TabsContent>
-
-        {/* Spells Tab */}
-        <TabsContent value="spells" className="mt-6">
-          {formData.spells ? (
-            <Card className="bg-card/50 border-border">
-              <CardHeader>
-                <CardTitle className="text-lg text-primary">Spell List</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">
-                  {formData.spells}
-                </p>
-              </CardContent>
-            </Card>
-          ) : (
-            <Card className="bg-card/50 border-border">
-              <CardContent className="py-12 text-center">
-                <Zap className="w-12 h-12 mx-auto mb-4 text-muted-foreground/50" />
-                <p className="text-muted-foreground">No spells recorded</p>
-              </CardContent>
-            </Card>
-          )}
-        </TabsContent>
-
-        {/* Notes Tab */}
-        <TabsContent value="notes" className="mt-6 space-y-4">
-          {formData.description && (
-            <Card className="bg-card/50 border-border">
-              <CardHeader>
-                <CardTitle className="text-lg text-primary">Description</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">
-                  {formData.description}
-                </p>
-              </CardContent>
-            </Card>
-          )}
-
-          {formData.notes && (
-            <Card className="bg-card/50 border-border">
-              <CardHeader>
-                <CardTitle className="text-lg text-primary">Notes</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">
-                  {formData.notes}
-                </p>
-              </CardContent>
-            </Card>
-          )}
-          
-          {!formData.description && !formData.notes && (
-            <Card className="bg-card/50 border-border">
-              <CardContent className="py-12 text-center">
-                <FileText className="w-12 h-12 mx-auto mb-4 text-muted-foreground/50" />
-                <p className="text-muted-foreground">No notes recorded</p>
-              </CardContent>
-            </Card>
-          )}
-        </TabsContent>
-      </Tabs>
+            {formData.notes && (
+              <Card className="bg-card/70 border-2 backdrop-blur-sm" style={{ borderColor: `hsl(${classThemeColor} / 0.3)` }}>
+                <CardHeader>
+                  <CardTitle className="text-lg font-cinzel" style={{ color: `hsl(${classThemeColor})` }}>
+                    Notes
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">
+                    {formData.notes}
+                  </p>
+                </CardContent>
+              </Card>
+            )}
+            
+            {!formData.description && !formData.notes && (
+              <Card className="bg-card/70 border-2 backdrop-blur-sm" style={{ borderColor: `hsl(${classThemeColor} / 0.3)` }}>
+                <CardContent className="py-16 text-center">
+                  <FileText className="w-16 h-16 mx-auto mb-4 opacity-30" style={{ color: `hsl(${classThemeColor})` }} />
+                  <p className="text-muted-foreground font-medium">No notes recorded</p>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+        </Tabs>
+      </div>
     </div>
   );
 };
