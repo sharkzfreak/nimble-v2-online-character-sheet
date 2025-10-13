@@ -11,6 +11,9 @@ interface DiceRollAnimationProps {
   statName?: string;
   characterName?: string;
   diceCount?: number; // Number of dice rolled (for multi-dice)
+  rollMode?: 'normal' | 'advantage' | 'disadvantage';
+  allRolls?: number[]; // All rolls for advantage/disadvantage
+  keptRolls?: number[]; // Which rolls were kept
 }
 
 const diceColors: Record<string, string> = {
@@ -87,6 +90,9 @@ export const DiceRollAnimation = ({
   statName = "Roll",
   characterName = "Player",
   diceCount = 1,
+  rollMode = 'normal',
+  allRolls = [],
+  keptRolls = [],
 }: DiceRollAnimationProps) => {
   const [stage, setStage] = useState<"rolling" | "result" | "complete">("rolling");
   const [currentNumber, setCurrentNumber] = useState(1);
@@ -305,8 +311,72 @@ export const DiceRollAnimation = ({
               <div className="bg-background/40 backdrop-blur-sm px-8 py-4 rounded-xl">
                 <div className="text-lg font-medium text-foreground mb-2">{statName}</div>
                 
-                {/* Multi-Dice Summary Panel */}
-                {isMultiDice && (
+                {/* Advantage/Disadvantage Display */}
+                {(rollMode === 'advantage' || rollMode === 'disadvantage') && allRolls.length > 0 && (
+                  <div className="mb-4 flex items-center justify-center gap-4">
+                    {/* Split rolls into two sets */}
+                    {(() => {
+                      const halfPoint = Math.floor(allRolls.length / 2);
+                      const firstSet = allRolls.slice(0, halfPoint);
+                      const secondSet = allRolls.slice(halfPoint);
+                      const firstTotal = firstSet.reduce((a, b) => a + b, 0);
+                      const secondTotal = secondSet.reduce((a, b) => a + b, 0);
+                      const keptTotal = keptRolls.reduce((a, b) => a + b, 0);
+                      const isFirstKept = firstTotal === keptTotal;
+                      
+                      return (
+                        <>
+                          {/* First Roll Set */}
+                          <div className={`flex flex-col items-center gap-2 p-3 rounded-lg border-2 transition-all ${
+                            isFirstKept 
+                              ? 'border-primary bg-primary/10' 
+                              : 'border-muted-foreground/30 bg-muted/20 opacity-50'
+                          }`}>
+                            <div className="flex gap-2 flex-wrap justify-center">
+                              {firstSet.map((roll, idx) => (
+                                <div key={idx} className={`relative ${!isFirstKept ? 'line-through' : ''}`}>
+                                  <span className={`text-2xl font-bold ${!isFirstKept ? 'text-muted-foreground' : diceColor}`}>
+                                    {roll}
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+                            <div className="text-sm font-medium">
+                              Total: {firstTotal}
+                              {isFirstKept && <span className="ml-2 text-primary">✓</span>}
+                              {!isFirstKept && <span className="ml-2 text-muted-foreground">✗</span>}
+                            </div>
+                          </div>
+                          
+                          {/* Second Roll Set */}
+                          <div className={`flex flex-col items-center gap-2 p-3 rounded-lg border-2 transition-all ${
+                            !isFirstKept 
+                              ? 'border-primary bg-primary/10' 
+                              : 'border-muted-foreground/30 bg-muted/20 opacity-50'
+                          }`}>
+                            <div className="flex gap-2 flex-wrap justify-center">
+                              {secondSet.map((roll, idx) => (
+                                <div key={idx} className={`relative ${isFirstKept ? 'line-through' : ''}`}>
+                                  <span className={`text-2xl font-bold ${isFirstKept ? 'text-muted-foreground' : diceColor}`}>
+                                    {roll}
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+                            <div className="text-sm font-medium">
+                              Total: {secondTotal}
+                              {!isFirstKept && <span className="ml-2 text-primary">✓</span>}
+                              {isFirstKept && <span className="ml-2 text-muted-foreground">✗</span>}
+                            </div>
+                          </div>
+                        </>
+                      );
+                    })()}
+                  </div>
+                )}
+                
+                {/* Multi-Dice Summary Panel (for normal rolls) */}
+                {isMultiDice && rollMode === 'normal' && (
                   <div className="mb-4">
                     <DiceSummaryPanel 
                       diceType={diceType}

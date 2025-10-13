@@ -411,6 +411,9 @@ export const ManualDiceRoller = ({ characterName = "Manual Roll", characterId }:
         onComplete={handleAnimationComplete}
         statName={lastRoll.statName}
         characterName={characterName}
+        rollMode={rollMode}
+        allRolls={lastRoll.allRolls}
+        keptRolls={lastRoll.keptRolls}
       />
 
       {showToast && lastRoll.formula && (
