@@ -183,6 +183,7 @@ export const ManualDiceRoller = ({ characterName = "Manual Roll", characterId }:
         isVisible={showAnimation}
         onComplete={handleAnimationComplete}
         statName={lastRoll.statName}
+        characterName={characterName}
       />
 
       {showToast && (

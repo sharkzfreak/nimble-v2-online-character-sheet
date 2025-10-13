@@ -9,7 +9,17 @@ interface DiceRollAnimationProps {
   isVisible: boolean;
   onComplete: () => void;
   statName?: string;
+  characterName?: string;
 }
+
+const diceColors: Record<string, string> = {
+  d4: "text-teal-400",
+  d6: "text-blue-400",
+  d8: "text-violet-400",
+  d10: "text-red-400",
+  d12: "text-yellow-400",
+  d20: "text-green-400",
+};
 
 export const DiceRollAnimation = ({
   diceType,
@@ -19,9 +29,11 @@ export const DiceRollAnimation = ({
   isVisible,
   onComplete,
   statName = "Roll",
+  characterName = "Player",
 }: DiceRollAnimationProps) => {
   const [stage, setStage] = useState<"rolling" | "result" | "complete">("rolling");
   const [currentNumber, setCurrentNumber] = useState(1);
+  const [showResultBar, setShowResultBar] = useState(false);
 
   useEffect(() => {
     if (!isVisible) {
@@ -45,6 +57,13 @@ export const DiceRollAnimation = ({
     // Stage 2: Show result (1 second)
     const resultTimer = setTimeout(() => {
       setStage("complete");
+      setShowResultBar(true);
+      
+      // Hide result bar after 3.5 seconds
+      setTimeout(() => {
+        setShowResultBar(false);
+      }, 3500);
+      
       setTimeout(() => {
         onComplete();
       }, 300);
@@ -61,10 +80,35 @@ export const DiceRollAnimation = ({
 
   const isNatural1 = result === 1;
   const isNatural20 = result === 20 && diceType === "d20";
+  const diceColor = diceColors[diceType] || "text-primary";
+  const formula = `${diceType}${modifier !== 0 ? ` ${modifier > 0 ? '+' : ''}${modifier}` : ''}`;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-background/80 backdrop-blur-md animate-fade-in">
-      <div className="relative flex flex-col items-center gap-6">
+    <>
+      {/* Floating Result Bar */}
+      {showResultBar && (
+        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-[101] animate-slide-down">
+          <div className="bg-background/70 backdrop-blur-md border border-primary/30 rounded-xl px-6 py-3 shadow-[var(--shadow-elegant)] animate-pulse-slow">
+            <div className="flex items-center gap-3">
+              <Dices className={`w-5 h-5 ${diceColor}`} />
+              <span className="text-foreground font-semibold">
+                {characterName} rolled{" "}
+                <span className={`text-xl font-bold ${isNatural20 ? "text-yellow-400" : isNatural1 ? "text-red-400" : "text-primary"}`}>
+                  {total}
+                </span>
+                {" "}
+                <span className="text-muted-foreground text-sm">({formula})</span>
+              </span>
+              {isNatural20 && <span className="text-yellow-400">✨</span>}
+              {isNatural1 && <span className="text-red-400">💀</span>}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Main Animation Overlay */}
+      <div className="fixed inset-0 z-[100] flex items-center justify-center bg-background/80 backdrop-blur-md animate-fade-in">
+        <div className="relative flex flex-col items-center gap-6">
         {/* Rolling Tray */}
         <div className="relative">
           {/* Dice Container */}
@@ -117,10 +161,20 @@ export const DiceRollAnimation = ({
             </div>
           </div>
 
-          {/* Dice Type Label */}
-          <div className="absolute -top-8 left-1/2 -translate-x-1/2 text-sm font-semibold text-muted-foreground">
-            {diceType.toUpperCase()}
+          {/* Dice Type Label with Icon */}
+          <div className="absolute -top-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1">
+            <Dices className={`w-6 h-6 ${diceColor}`} />
+            <div className="text-sm font-semibold text-muted-foreground">
+              {diceType.toUpperCase()}
+            </div>
           </div>
+
+          {/* Rolling Text Overlay */}
+          {stage === "rolling" && (
+            <div className="absolute -bottom-16 left-1/2 -translate-x-1/2 text-lg font-medium text-primary animate-pulse">
+              Rolling...
+            </div>
+          )}
         </div>
 
         {/* Result Display */}
@@ -153,14 +207,8 @@ export const DiceRollAnimation = ({
             )}
           </div>
         )}
-
-        {/* Rolling Text */}
-        {stage === "rolling" && (
-          <div className="text-lg font-medium text-muted-foreground animate-pulse">
-            Rolling...
-          </div>
-        )}
+        </div>
       </div>
-    </div>
+    </>
   );
 };

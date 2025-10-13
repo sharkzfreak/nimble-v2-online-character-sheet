@@ -742,6 +742,7 @@ const CharacterView = ({
             isVisible={showAnimation}
             onComplete={handleAnimationComplete}
             statName={diceRoll.statName}
+            characterName={formData.name}
           />
         )}
 
