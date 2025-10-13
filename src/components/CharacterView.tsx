@@ -361,9 +361,9 @@ const CharacterView = ({
   const willMod = getModifierString(formData.will);
 
   return (
-    <div className="min-h-screen bg-background p-4 sm:p-6 md:p-8">
-      <div className="grid grid-cols-[auto,1fr] gap-6 items-start">
-        {/* Profile Card (Sticky Left) */}
+    <div className="min-h-screen bg-background relative">
+      {/* Profile Card (Sticky Left - Flush) */}
+      <div className="fixed top-4 left-4 z-20">
         <ProfileCard
           characterName={formData.name}
           classColor={classThemeColor}
@@ -390,19 +390,21 @@ const CharacterView = ({
             });
           }}
         />
-        
-        {/* Main Content Area */}
+      </div>
+      
+      {/* Main Content Area (Centered) */}
+      <div className="max-w-[1100px] mx-auto px-4 sm:px-6 md:px-8 py-4">
         <div 
-          className="flex-1"
+          className="space-y-8 animate-fade-in"
           style={{
             background: `radial-gradient(ellipse at top, hsl(${classThemeColor} / 0.15), transparent 50%), 
                          radial-gradient(ellipse at bottom, hsl(${classThemeColor} / 0.1), transparent 50%),
                          hsl(var(--background))`
           }}
         >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 animate-fade-in">
+        
         {/* Character Header */}
-        <Card 
+        <Card
           className="border-2 shadow-2xl overflow-hidden backdrop-blur-sm"
           style={{
             background: `linear-gradient(135deg, hsl(${classThemeColor} / 0.1), hsl(var(--card)) 50%)`,
@@ -766,7 +768,6 @@ const CharacterView = ({
             onClose={() => setDiceRoll(null)}
           />
         )}
-        </div>
         </div>
       </div>
 
