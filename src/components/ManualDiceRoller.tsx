@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Dices, Plus, Minus } from "lucide-react";
+import { Dices, Plus, Minus, TrendingUp, TrendingDown } from "lucide-react";
 import { useDiceLog } from "@/contexts/DiceLogContext";
 import { DiceRollToast } from "./DiceRollToast";
 import { DiceRollAnimation } from "./DiceRollAnimation";
@@ -15,6 +15,8 @@ interface DiceType {
   sides: number;
   label: string;
 }
+
+type RollMode = 'normal' | 'advantage' | 'disadvantage';
 
 const diceTypes: DiceType[] = [
   { sides: 20, label: "d20" },
@@ -31,7 +33,16 @@ export const ManualDiceRoller = ({ characterName = "Manual Roll", characterId }:
   const [showToast, setShowToast] = useState(false);
   const [showAnimation, setShowAnimation] = useState(false);
   const [isRolling, setIsRolling] = useState(false);
-  const [lastRoll, setLastRoll] = useState({ roll: 0, total: 0, diceType: "d20", statName: "Manual Roll", formula: "" });
+  const [rollMode, setRollMode] = useState<RollMode>('normal');
+  const [lastRoll, setLastRoll] = useState({ 
+    roll: 0, 
+    total: 0, 
+    diceType: "d20", 
+    statName: "Manual Roll", 
+    formula: "",
+    allRolls: [] as number[],
+    keptRolls: [] as number[]
+  });
   const [dicePool, setDicePool] = useState<Record<string, number>>({
     d20: 0,
     d12: 0,
@@ -102,6 +113,10 @@ export const ManualDiceRoller = ({ characterName = "Manual Roll", characterId }:
     });
   };
 
+  const rollDice = (sides: number, count: number = 1): number[] => {
+    return Array.from({ length: count }, () => Math.ceil(Math.random() * sides));
+  };
+
   const rollPool = () => {
     if (isRolling) return;
     
@@ -110,21 +125,51 @@ export const ManualDiceRoller = ({ characterName = "Manual Roll", characterId }:
 
     setIsRolling(true);
     
-    // Roll all dice
-    const rolls: number[] = [];
+    let allRolls: number[] = [];
+    let keptRolls: number[] = [];
     let formulaParts: string[] = [];
+    let modePrefix = '';
     
-    poolEntries.forEach(([diceType, count]) => {
-      const sides = parseInt(diceType.substring(1));
-      for (let i = 0; i < count; i++) {
-        rolls.push(Math.ceil(Math.random() * sides));
+    if (rollMode === 'normal') {
+      // Normal roll - roll each die once
+      poolEntries.forEach(([diceType, count]) => {
+        const sides = parseInt(diceType.substring(1));
+        const rolls = rollDice(sides, count);
+        allRolls.push(...rolls);
+        keptRolls.push(...rolls);
+        formulaParts.push(`${count}${diceType}`);
+      });
+    } else {
+      // Advantage/Disadvantage - roll each die type twice and keep highest/lowest total
+      modePrefix = rollMode === 'advantage' ? ' (Advantage)' : ' (Disadvantage)';
+      
+      const firstSet: number[] = [];
+      const secondSet: number[] = [];
+      
+      poolEntries.forEach(([diceType, count]) => {
+        const sides = parseInt(diceType.substring(1));
+        const rolls1 = rollDice(sides, count);
+        const rolls2 = rollDice(sides, count);
+        firstSet.push(...rolls1);
+        secondSet.push(...rolls2);
+        formulaParts.push(`${count}${diceType}`);
+      });
+      
+      const total1 = firstSet.reduce((sum, roll) => sum + roll, 0);
+      const total2 = secondSet.reduce((sum, roll) => sum + roll, 0);
+      
+      allRolls = [...firstSet, ...secondSet];
+      
+      if (rollMode === 'advantage') {
+        keptRolls = total1 >= total2 ? firstSet : secondSet;
+      } else {
+        keptRolls = total1 <= total2 ? firstSet : secondSet;
       }
-      formulaParts.push(`${count}${diceType}`);
-    });
+    }
 
-    const rawTotal = rolls.reduce((sum, roll) => sum + roll, 0);
+    const rawTotal = keptRolls.reduce((sum, roll) => sum + roll, 0);
     const total = rawTotal + modifier;
-    const formula = formulaParts.join(' + ') + (modifier !== 0 ? ` ${modifier > 0 ? '+' : ''}${modifier}` : '');
+    const formula = formulaParts.join(' + ') + modePrefix + (modifier !== 0 ? ` ${modifier > 0 ? '+' : ''}${modifier}` : '');
     
     // Use first dice type for display, or d20 as fallback
     const displayDiceType = poolEntries[0][0];
@@ -133,8 +178,10 @@ export const ManualDiceRoller = ({ characterName = "Manual Roll", characterId }:
       roll: rawTotal, 
       total, 
       diceType: displayDiceType, 
-      statName: "Manual Roll",
-      formula 
+      statName: rollMode === 'normal' ? "Manual Roll" : `Manual Roll${modePrefix}`,
+      formula,
+      allRolls,
+      keptRolls
     });
     setIsDiceOpen(false);
     setShowAnimation(true);
@@ -195,7 +242,42 @@ export const ManualDiceRoller = ({ characterName = "Manual Roll", characterId }:
         {/* Dice Options - Expand Upward */}
         {isDiceOpen && (
           <div className="flex flex-col gap-3 items-center">
-            {/* Modifier Controls at Top */}
+            {/* Roll Mode Selector */}
+            <div className="flex items-center gap-2 bg-background/90 backdrop-blur-md border-2 border-primary/40 rounded-full px-2 py-2 shadow-lg animate-scale-in">
+              <Button
+                size="sm"
+                variant={rollMode === 'normal' ? 'default' : 'ghost'}
+                onClick={() => setRollMode('normal')}
+                className="h-8 px-3 rounded-full text-xs"
+                aria-label="Normal roll"
+              >
+                Normal
+              </Button>
+              <Button
+                size="sm"
+                variant={rollMode === 'advantage' ? 'default' : 'ghost'}
+                onClick={() => setRollMode('advantage')}
+                className="h-8 px-3 rounded-full text-xs"
+                aria-label="Advantage - roll twice, keep highest"
+                title="Roll twice, keep highest"
+              >
+                <TrendingUp className="h-3 w-3 mr-1" />
+                Adv
+              </Button>
+              <Button
+                size="sm"
+                variant={rollMode === 'disadvantage' ? 'default' : 'ghost'}
+                onClick={() => setRollMode('disadvantage')}
+                className="h-8 px-3 rounded-full text-xs"
+                aria-label="Disadvantage - roll twice, keep lowest"
+                title="Roll twice, keep lowest"
+              >
+                <TrendingDown className="h-3 w-3 mr-1" />
+                Dis
+              </Button>
+            </div>
+
+            {/* Modifier Controls */}
             <div className="flex items-center gap-2 bg-background/90 backdrop-blur-md border-2 border-primary/40 rounded-full px-3 py-2 shadow-lg animate-scale-in">
               <Button
                 size="icon"
