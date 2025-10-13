@@ -2,16 +2,58 @@ import { useState, useEffect, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Dices, Trash2, ChevronLeft, ChevronRight, Zap, AlertTriangle, Star, MessageSquare, Target } from "lucide-react";
+import { Dices, Trash2, ChevronLeft, ChevronRight, Zap, AlertTriangle, Star, MessageSquare, Target, Plus, Minus, TrendingUp, TrendingDown } from "lucide-react";
 import { useDiceLog } from "@/contexts/DiceLogContext";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
+import { DiceRollAnimation } from "./DiceRollAnimation";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+
+interface DiceType {
+  sides: number;
+  label: string;
+}
+
+type RollMode = 'normal' | 'advantage' | 'disadvantage';
+
+const diceTypes: DiceType[] = [
+  { sides: 4, label: "d4" },
+  { sides: 6, label: "d6" },
+  { sides: 8, label: "d8" },
+  { sides: 10, label: "d10" },
+  { sides: 12, label: "d12" },
+  { sides: 20, label: "d20" },
+];
 
 export const DiceLogPanel = () => {
-  const { logs, clearLogs, isLoading } = useDiceLog();
+  const { logs, clearLogs, isLoading, addLog } = useDiceLog();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const dockRef = useRef<HTMLDivElement>(null);
   const prevLogsLengthRef = useRef(logs.length);
+
+  // Dice dock state
+  const [modifier, setModifier] = useState(0);
+  const [rollMode, setRollMode] = useState<RollMode>('normal');
+  const [dicePool, setDicePool] = useState<Record<string, number>>({
+    d4: 0,
+    d6: 0,
+    d8: 0,
+    d10: 0,
+    d12: 0,
+    d20: 0,
+  });
+  const [isRolling, setIsRolling] = useState(false);
+  const [showAnimation, setShowAnimation] = useState(false);
+  const [lastRoll, setLastRoll] = useState({ 
+    roll: 0, 
+    total: 0, 
+    diceType: "d20", 
+    statName: "Manual Roll", 
+    formula: "",
+    allRolls: [] as number[],
+    keptRolls: [] as number[]
+  });
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
@@ -23,6 +65,141 @@ export const DiceLogPanel = () => {
     }
     prevLogsLengthRef.current = logs.length;
   }, [logs]);
+
+  // Apply dock inset padding to prevent overlap
+  useEffect(() => {
+    const applyDockInset = () => {
+      if (dockRef.current && scrollRef.current) {
+        const dockHeight = dockRef.current.offsetHeight;
+        const scrollContainer = scrollRef.current.querySelector('[data-radix-scroll-area-viewport]') as HTMLElement;
+        if (scrollContainer) {
+          scrollContainer.style.paddingBottom = `${dockHeight + 8}px`;
+        }
+      }
+    };
+
+    applyDockInset();
+    window.addEventListener('resize', applyDockInset);
+    return () => window.removeEventListener('resize', applyDockInset);
+  }, []);
+
+  // Dice functions
+  const addToPool = (diceLabel: string) => {
+    setDicePool(prev => ({
+      ...prev,
+      [diceLabel]: prev[diceLabel] + 1
+    }));
+  };
+
+  const removeFromPool = (diceLabel: string) => {
+    setDicePool(prev => ({
+      ...prev,
+      [diceLabel]: Math.max(0, prev[diceLabel] - 1)
+    }));
+  };
+
+  const clearPool = () => {
+    setDicePool({
+      d4: 0,
+      d6: 0,
+      d8: 0,
+      d10: 0,
+      d12: 0,
+      d20: 0,
+    });
+    setModifier(0);
+  };
+
+  const adjustModifier = (delta: number) => {
+    setModifier(prev => Math.max(-10, Math.min(10, prev + delta)));
+  };
+
+  const rollDice = (sides: number, count: number = 1): number[] => {
+    return Array.from({ length: count }, () => Math.ceil(Math.random() * sides));
+  };
+
+  const rollPool = () => {
+    if (isRolling) return;
+    
+    const poolEntries = Object.entries(dicePool).filter(([_, count]) => count > 0);
+    if (poolEntries.length === 0) return;
+
+    setIsRolling(true);
+    
+    let allRolls: number[] = [];
+    let keptRolls: number[] = [];
+    let formulaParts: string[] = [];
+    let modePrefix = '';
+    
+    if (rollMode === 'normal') {
+      poolEntries.forEach(([diceType, count]) => {
+        const sides = parseInt(diceType.substring(1));
+        const rolls = rollDice(sides, count);
+        allRolls.push(...rolls);
+        keptRolls.push(...rolls);
+        formulaParts.push(`${count}${diceType}`);
+      });
+    } else {
+      modePrefix = rollMode === 'advantage' ? ' (Advantage)' : ' (Disadvantage)';
+      
+      const firstSet: number[] = [];
+      const secondSet: number[] = [];
+      
+      poolEntries.forEach(([diceType, count]) => {
+        const sides = parseInt(diceType.substring(1));
+        const rolls1 = rollDice(sides, count);
+        const rolls2 = rollDice(sides, count);
+        firstSet.push(...rolls1);
+        secondSet.push(...rolls2);
+        formulaParts.push(`${count}${diceType}`);
+      });
+      
+      const total1 = firstSet.reduce((sum, roll) => sum + roll, 0);
+      const total2 = secondSet.reduce((sum, roll) => sum + roll, 0);
+      
+      allRolls = [...firstSet, ...secondSet];
+      
+      if (rollMode === 'advantage') {
+        keptRolls = total1 >= total2 ? firstSet : secondSet;
+      } else {
+        keptRolls = total1 <= total2 ? firstSet : secondSet;
+      }
+    }
+
+    const rawTotal = keptRolls.reduce((sum, roll) => sum + roll, 0);
+    const total = rawTotal + modifier;
+    const formula = formulaParts.join(' + ') + modePrefix + (modifier !== 0 ? ` ${modifier > 0 ? '+' : ''}${modifier}` : '');
+    
+    const displayDiceType = poolEntries[0][0];
+
+    setLastRoll({ 
+      roll: rawTotal, 
+      total, 
+      diceType: displayDiceType, 
+      statName: rollMode === 'normal' ? "Manual Roll" : `Manual Roll${modePrefix}`,
+      formula,
+      allRolls,
+      keptRolls
+    });
+    setShowAnimation(true);
+  };
+
+  const handleAnimationComplete = () => {
+    setShowAnimation(false);
+    setIsRolling(false);
+
+    addLog({
+      character_name: "Manual Roll",
+      character_id: null,
+      formula: lastRoll.formula,
+      raw_result: lastRoll.roll,
+      modifier,
+      total: lastRoll.total,
+      roll_type: 'manual',
+    });
+    
+    clearPool();
+  };
 
   const formatTime = (timestamp: string) => {
     return new Date(timestamp).toLocaleTimeString([], { 
@@ -127,125 +304,282 @@ export const DiceLogPanel = () => {
     );
   }
 
+  const totalDiceInPool = Object.values(dicePool).reduce((sum, count) => sum + count, 0);
+  const poolText = Object.entries(dicePool)
+    .filter(([_, count]) => count > 0)
+    .map(([type, count]) => `${count}${type}`)
+    .join(' + ');
+
   return (
-    <div className="fixed right-0 top-0 bottom-0 z-40 w-72 lg:w-80 bg-card/95 backdrop-blur-md border-l border-primary/30 shadow-2xl flex flex-col">
-      <CardHeader className="p-3 border-b border-border/50 flex-shrink-0">
-        <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-2 text-foreground font-cinzel text-sm">
-            <Dices className="w-4 h-4 text-primary" />
-            Chat Log
-          </CardTitle>
-          <div className="flex items-center gap-1">
-            {logs.length > 0 && (
+    <>
+      <div className="fixed right-0 top-0 bottom-0 z-40 w-72 lg:w-80 bg-card/95 backdrop-blur-md border-l border-primary/30 shadow-2xl flex flex-col">
+        <CardHeader className="p-3 border-b border-border/50 flex-shrink-0">
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center gap-2 text-foreground font-cinzel text-sm">
+              <Dices className="w-4 h-4 text-primary" />
+              Chat Log
+            </CardTitle>
+            <div className="flex items-center gap-1">
+              {logs.length > 0 && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={clearLogs}
+                  className="h-7 w-7 text-destructive hover:text-destructive hover:bg-destructive/10"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                </Button>
+              )}
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={clearLogs}
-                className="h-7 w-7 text-destructive hover:text-destructive hover:bg-destructive/10"
+                onClick={() => setIsCollapsed(true)}
+                className="h-7 w-7"
               >
-                <Trash2 className="w-3.5 h-3.5" />
+                <ChevronRight className="w-3.5 h-3.5" />
               </Button>
-            )}
+            </div>
+          </div>
+        </CardHeader>
+        <div className="flex-1 overflow-hidden">
+          <ScrollArea className="h-full" ref={scrollRef}>
+            <div className="p-2 space-y-2">
+              {isLoading ? (
+                <>
+                  <Skeleton className="h-20 w-full" />
+                  <Skeleton className="h-20 w-full" />
+                  <Skeleton className="h-20 w-full" />
+                </>
+              ) : logs.length === 0 ? (
+                <div className="text-center py-12 text-muted-foreground">
+                  <Dices className="w-10 h-10 mx-auto mb-3 opacity-50" />
+                  <p className="text-xs">No dice rolls yet</p>
+                  <p className="text-xs mt-1 opacity-70">Start rolling!</p>
+                </div>
+              ) : (
+                logs.map((log, index) => {
+                  const rollInfo = getRollTypeInfo(log.roll_type, log.raw_result, log.total);
+                  const RollIcon = rollInfo.icon;
+                  
+                  return (
+                    <div
+                      key={log.id}
+                      className="p-2.5 rounded-lg bg-gradient-to-br from-background/60 to-background/80 border border-border/40 hover:border-primary/30 transition-all duration-200 animate-fade-in"
+                      style={{ animationDelay: `${index * 0.03}s` }}
+                    >
+                      {/* Header with Avatar, Name, Time */}
+                      <div className="flex items-center gap-2 mb-2">
+                        {/* Avatar */}
+                        <div className="w-7 h-7 rounded-full bg-primary/20 border border-primary/40 flex items-center justify-center flex-shrink-0">
+                          <span className="text-[10px] font-bold text-primary">
+                            {getInitials(log.character_name)}
+                          </span>
+                        </div>
+                        
+                        {/* Name & Time */}
+                        <div className="flex-1 min-w-0">
+                          <div className="text-xs font-semibold text-foreground truncate">
+                            {log.character_name}
+                          </div>
+                          <div className="text-[10px] text-muted-foreground font-mono">
+                            {formatTime(log.created_at)}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Roll Type Badge */}
+                      <div className="mb-2">
+                        <Badge 
+                          variant={rollInfo.variant}
+                          className={`text-[10px] px-2 py-0.5 font-bold tracking-wide ${rollInfo.className}`}
+                        >
+                          <RollIcon className="w-3 h-3 mr-1" />
+                          {rollInfo.label}
+                        </Badge>
+                      </div>
+
+                      {/* Formula */}
+                      <div className="text-xs text-muted-foreground mb-1.5 font-mono">
+                        {log.formula}
+                      </div>
+
+                      {/* Result */}
+                      <div className="flex items-center gap-2 p-2 rounded bg-background/40 border border-border/20">
+                        <Dices className="w-4 h-4 text-primary flex-shrink-0" />
+                        <div className="flex items-baseline gap-1.5 flex-wrap">
+                          <span className="text-lg font-bold text-primary font-cinzel">
+                            {log.raw_result}
+                          </span>
+                          {log.modifier !== 0 && (
+                            <>
+                              <span className="text-xs text-muted-foreground font-medium">
+                                {log.modifier > 0 ? '+' : ''}{log.modifier}
+                              </span>
+                              <span className="text-xs text-muted-foreground">=</span>
+                              <span className="text-base font-bold text-foreground font-cinzel">
+                                {log.total}
+                              </span>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+          </ScrollArea>
+        </div>
+
+        {/* Dice Dock - Fixed to bottom */}
+        <footer 
+          ref={dockRef}
+          className="sticky bottom-0 w-full border-t border-primary/30 bg-card/95 backdrop-blur-md px-2 py-2 flex-shrink-0"
+        >
+          <div className="flex items-center gap-1.5">
+            {/* Dice Icons */}
+            <TooltipProvider>
+              <div className="flex items-center gap-0.5">
+                {diceTypes.map((dice) => (
+                  <Tooltip key={dice.label}>
+                    <TooltipTrigger asChild>
+                      <button
+                        onClick={() => addToPool(dice.label)}
+                        onContextMenu={(e) => {
+                          e.preventDefault();
+                          removeFromPool(dice.label);
+                        }}
+                        className="relative h-8 w-8 rounded bg-primary/20 hover:bg-primary/30 border border-primary/40 flex flex-col items-center justify-center transition-all hover:scale-110 active:scale-95"
+                        aria-label={`Add ${dice.label}`}
+                      >
+                        <Dices className="h-3 w-3 text-primary" />
+                        <span className="text-[8px] font-bold text-primary">{dice.label}</span>
+                        {dicePool[dice.label] > 0 && (
+                          <span className="absolute -top-1 -right-1 h-3.5 w-3.5 rounded-full bg-accent text-primary-foreground text-[8px] flex items-center justify-center font-bold border border-background">
+                            {dicePool[dice.label]}
+                          </span>
+                        )}
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent side="top">
+                      <p className="text-xs">L-click: Add | R-click: Remove</p>
+                    </TooltipContent>
+                  </Tooltip>
+                ))}
+              </div>
+            </TooltipProvider>
+
+            {/* Modifier Controls */}
+            <div className="flex items-center gap-0.5 ml-1 border-l border-primary/20 pl-1.5">
+              <Button
+                size="icon"
+                variant="ghost"
+                onClick={() => adjustModifier(-1)}
+                className="h-6 w-6 rounded hover:bg-primary/20"
+                aria-label="Decrease modifier"
+              >
+                <Minus className="h-3 w-3" />
+              </Button>
+              
+              <div className="px-2 py-0.5 rounded bg-primary/20 text-primary text-xs font-bold min-w-[2rem] text-center">
+                {modifier > 0 ? '+' : ''}{modifier}
+              </div>
+              
+              <Button
+                size="icon"
+                variant="ghost"
+                onClick={() => adjustModifier(1)}
+                className="h-6 w-6 rounded hover:bg-primary/20"
+                aria-label="Increase modifier"
+              >
+                <Plus className="h-3 w-3" />
+              </Button>
+            </div>
+
+            {/* Roll Mode */}
+            <div className="flex items-center gap-0.5 ml-1 border-l border-primary/20 pl-1.5">
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      size="icon"
+                      variant={rollMode === 'advantage' ? 'default' : 'ghost'}
+                      onClick={() => setRollMode(rollMode === 'advantage' ? 'normal' : 'advantage')}
+                      className="h-6 w-6 rounded"
+                      aria-label="Toggle advantage"
+                    >
+                      <TrendingUp className="h-3 w-3" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent><p className="text-xs">Advantage</p></TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      size="icon"
+                      variant={rollMode === 'disadvantage' ? 'default' : 'ghost'}
+                      onClick={() => setRollMode(rollMode === 'disadvantage' ? 'normal' : 'disadvantage')}
+                      className="h-6 w-6 rounded"
+                      aria-label="Toggle disadvantage"
+                    >
+                      <TrendingDown className="h-3 w-3" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent><p className="text-xs">Disadvantage</p></TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+
+            {/* Pool Summary */}
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div 
+                    className="flex-1 truncate text-[10px] opacity-80 ml-2 cursor-pointer"
+                    onContextMenu={(e) => {
+                      e.preventDefault();
+                      clearPool();
+                    }}
+                  >
+                    {poolText || 'No dice'}
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p className="text-xs">R-click to clear</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+
+            {/* ROLL Button */}
             <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setIsCollapsed(true)}
-              className="h-7 w-7"
+              onClick={rollPool}
+              disabled={totalDiceInPool === 0 || isRolling}
+              size="sm"
+              className="h-7 px-3 text-xs font-bold"
+              aria-label="Roll dice"
             >
-              <ChevronRight className="w-3.5 h-3.5" />
+              ROLL
             </Button>
           </div>
-        </div>
-      </CardHeader>
-      <div className="flex-1 overflow-hidden">
-        <ScrollArea className="h-full" ref={scrollRef}>
-          <div className="p-2 space-y-2">
-            {isLoading ? (
-              <>
-                <Skeleton className="h-20 w-full" />
-                <Skeleton className="h-20 w-full" />
-                <Skeleton className="h-20 w-full" />
-              </>
-            ) : logs.length === 0 ? (
-              <div className="text-center py-12 text-muted-foreground">
-                <Dices className="w-10 h-10 mx-auto mb-3 opacity-50" />
-                <p className="text-xs">No dice rolls yet</p>
-                <p className="text-xs mt-1 opacity-70">Start rolling!</p>
-              </div>
-            ) : (
-              logs.map((log, index) => {
-                const rollInfo = getRollTypeInfo(log.roll_type, log.raw_result, log.total);
-                const RollIcon = rollInfo.icon;
-                
-                return (
-                  <div
-                    key={log.id}
-                    className="p-2.5 rounded-lg bg-gradient-to-br from-background/60 to-background/80 border border-border/40 hover:border-primary/30 transition-all duration-200 animate-fade-in"
-                    style={{ animationDelay: `${index * 0.03}s` }}
-                  >
-                    {/* Header with Avatar, Name, Time */}
-                    <div className="flex items-center gap-2 mb-2">
-                      {/* Avatar */}
-                      <div className="w-7 h-7 rounded-full bg-primary/20 border border-primary/40 flex items-center justify-center flex-shrink-0">
-                        <span className="text-[10px] font-bold text-primary">
-                          {getInitials(log.character_name)}
-                        </span>
-                      </div>
-                      
-                      {/* Name & Time */}
-                      <div className="flex-1 min-w-0">
-                        <div className="text-xs font-semibold text-foreground truncate">
-                          {log.character_name}
-                        </div>
-                        <div className="text-[10px] text-muted-foreground font-mono">
-                          {formatTime(log.created_at)}
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Roll Type Badge */}
-                    <div className="mb-2">
-                      <Badge 
-                        variant={rollInfo.variant}
-                        className={`text-[10px] px-2 py-0.5 font-bold tracking-wide ${rollInfo.className}`}
-                      >
-                        <RollIcon className="w-3 h-3 mr-1" />
-                        {rollInfo.label}
-                      </Badge>
-                    </div>
-
-                    {/* Formula */}
-                    <div className="text-xs text-muted-foreground mb-1.5 font-mono">
-                      {log.formula}
-                    </div>
-
-                    {/* Result */}
-                    <div className="flex items-center gap-2 p-2 rounded bg-background/40 border border-border/20">
-                      <Dices className="w-4 h-4 text-primary flex-shrink-0" />
-                      <div className="flex items-baseline gap-1.5 flex-wrap">
-                        <span className="text-lg font-bold text-primary font-cinzel">
-                          {log.raw_result}
-                        </span>
-                        {log.modifier !== 0 && (
-                          <>
-                            <span className="text-xs text-muted-foreground font-medium">
-                              {log.modifier > 0 ? '+' : ''}{log.modifier}
-                            </span>
-                            <span className="text-xs text-muted-foreground">=</span>
-                            <span className="text-base font-bold text-foreground font-cinzel">
-                              {log.total}
-                            </span>
-                          </>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                );
-              })
-            )}
-          </div>
-        </ScrollArea>
+        </footer>
       </div>
-    </div>
+
+      <DiceRollAnimation
+        diceType={lastRoll.diceType}
+        result={lastRoll.roll}
+        modifier={modifier}
+        total={lastRoll.total}
+        isVisible={showAnimation}
+        onComplete={handleAnimationComplete}
+        statName={lastRoll.statName}
+        characterName="Manual Roll"
+        rollMode={rollMode}
+        allRolls={lastRoll.allRolls}
+        keptRolls={lastRoll.keptRolls}
+      />
+    </>
   );
 };
