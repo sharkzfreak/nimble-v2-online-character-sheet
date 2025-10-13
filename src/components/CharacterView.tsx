@@ -206,7 +206,7 @@ const CharacterView = ({
           <TooltipTrigger asChild>
             <div className="flex flex-col items-center group">
               <div 
-                className="relative w-28 h-28 rounded-full flex flex-col items-center justify-center border-3 transition-all duration-300 hover:scale-110 cursor-pointer"
+                className="relative w-32 h-32 rounded-full flex flex-col items-center justify-center border-3 transition-all duration-300 hover:scale-110 cursor-pointer"
                 style={{
                   backgroundColor: `hsl(${color} / 0.15)`,
                   borderColor: `hsl(${color})`,
@@ -214,9 +214,9 @@ const CharacterView = ({
                   boxShadow: `0 0 25px hsl(${color} / 0.4), inset 0 0 15px hsl(${color} / 0.1)`
                 }}
               >
-                <div className="text-xs font-bold uppercase tracking-wider opacity-80 font-cinzel">{abbreviation}</div>
-                <div className="text-4xl font-bold my-1" style={{ color: `hsl(${color})` }}>{modifier}</div>
-                <div className="text-sm opacity-70 font-medium">{value}</div>
+                <div className="text-sm font-bold uppercase tracking-wider opacity-80 font-cinzel">{abbreviation}</div>
+                <div className="text-5xl font-bold my-2" style={{ color: `hsl(${color})` }}>{modifier}</div>
+                <div className="text-base opacity-70 font-medium">{value}</div>
                 
                 {/* Dice Roll Button */}
                 <button
@@ -270,8 +270,8 @@ const CharacterView = ({
           >
             <Icon className="w-6 h-6" style={{ color: `hsl(${classThemeColor})` }} />
             <div className="flex flex-col">
-              <span className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">{label}</span>
-              <span className="text-2xl font-bold text-foreground font-cinzel">{value}</span>
+              <span className="text-sm text-muted-foreground uppercase tracking-wider font-semibold">{label}</span>
+              <span className="text-3xl font-bold text-foreground font-cinzel">{value}</span>
             </div>
           </div>
         </TooltipTrigger>
@@ -305,17 +305,17 @@ const CharacterView = ({
           <div className={`w-5 h-5 rounded-md border-2 transition-all ${proficient ? 'bg-primary/20 border-primary' : 'border-muted-foreground/30'}`}>
             {proficient && <div className="w-full h-full flex items-center justify-center text-xs font-bold text-primary">✓</div>}
           </div>
-          <span className="text-sm font-medium">{name}</span>
+          <span className="text-base font-medium">{name}</span>
         </div>
-        <div className="flex items-center gap-2">
-          <span className="text-base font-bold text-foreground min-w-[2.5rem] text-right">
+        <div className="flex items-center gap-3">
+          <span className="text-lg font-bold text-foreground min-w-[3rem] text-right">
             {value >= 0 ? `+${value}` : value}
           </span>
           <button
             onClick={handleRoll}
-            className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 hover:bg-primary/20 rounded-md"
+            className="opacity-0 group-hover:opacity-100 transition-opacity p-2 hover:bg-primary/20 rounded-md"
           >
-            <Dices className="w-4 h-4 text-primary" />
+            <Dices className="w-5 h-5 text-primary" />
           </button>
         </div>
       </div>
@@ -359,7 +359,7 @@ const CharacterView = ({
               {title}
             </h3>
           </div>
-          <span className="text-2xl font-bold font-cinzel" style={{ color: `hsl(${color})` }}>
+          <span className="text-3xl font-bold font-cinzel" style={{ color: `hsl(${color})` }}>
             {modifier}
           </span>
         </div>
@@ -388,14 +388,14 @@ const CharacterView = ({
 
   return (
     <div 
-      className="min-h-screen pb-12 pr-80 md:pr-96 relative"
+      className="min-h-screen pb-12 pr-64 lg:pr-72 relative"
       style={{
         background: `radial-gradient(ellipse at top, hsl(${classThemeColor} / 0.15), transparent 50%), 
                      radial-gradient(ellipse at bottom, hsl(${classThemeColor} / 0.1), transparent 50%),
                      hsl(var(--background))`
       }}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 animate-fade-in">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 animate-fade-in">
         {/* Character Header */}
         <Card 
           className="border-2 shadow-2xl overflow-hidden backdrop-blur-sm"
@@ -621,7 +621,7 @@ const CharacterView = ({
             {formData.background && (
               <Card className="bg-card/70 border-2 backdrop-blur-sm" style={{ borderColor: `hsl(${classThemeColor} / 0.3)` }}>
                 <CardHeader>
-                  <CardTitle className="text-lg font-cinzel" style={{ color: `hsl(${classThemeColor})` }}>
+                  <CardTitle className="text-xl font-cinzel" style={{ color: `hsl(${classThemeColor})` }}>
                     Background
                   </CardTitle>
                 </CardHeader>
@@ -636,7 +636,7 @@ const CharacterView = ({
             {formData.abilities && (
               <Card className="bg-card/70 border-2 backdrop-blur-sm" style={{ borderColor: `hsl(${classThemeColor} / 0.3)` }}>
                 <CardHeader>
-                  <CardTitle className="text-lg font-cinzel" style={{ color: `hsl(${classThemeColor})` }}>
+                  <CardTitle className="text-xl font-cinzel" style={{ color: `hsl(${classThemeColor})` }}>
                     Class Abilities
                   </CardTitle>
                 </CardHeader>
@@ -651,7 +651,7 @@ const CharacterView = ({
             {formData.powers && (
               <Card className="bg-card/70 border-2 backdrop-blur-sm" style={{ borderColor: `hsl(${classThemeColor} / 0.3)` }}>
                 <CardHeader>
-                  <CardTitle className="text-lg font-cinzel" style={{ color: `hsl(${classThemeColor})` }}>
+                  <CardTitle className="text-xl font-cinzel" style={{ color: `hsl(${classThemeColor})` }}>
                     Powers
                   </CardTitle>
                 </CardHeader>
@@ -669,7 +669,7 @@ const CharacterView = ({
             {formData.spells ? (
               <Card className="bg-card/70 border-2 backdrop-blur-sm" style={{ borderColor: `hsl(${classThemeColor} / 0.3)` }}>
                 <CardHeader>
-                  <CardTitle className="text-lg font-cinzel" style={{ color: `hsl(${classThemeColor})` }}>
+                  <CardTitle className="text-xl font-cinzel" style={{ color: `hsl(${classThemeColor})` }}>
                     Spell List
                   </CardTitle>
                 </CardHeader>
@@ -694,7 +694,7 @@ const CharacterView = ({
             {formData.description && (
               <Card className="bg-card/70 border-2 backdrop-blur-sm" style={{ borderColor: `hsl(${classThemeColor} / 0.3)` }}>
                 <CardHeader>
-                  <CardTitle className="text-lg font-cinzel" style={{ color: `hsl(${classThemeColor})` }}>
+                  <CardTitle className="text-xl font-cinzel" style={{ color: `hsl(${classThemeColor})` }}>
                     Description
                   </CardTitle>
                 </CardHeader>
@@ -709,7 +709,7 @@ const CharacterView = ({
             {formData.notes && (
               <Card className="bg-card/70 border-2 backdrop-blur-sm" style={{ borderColor: `hsl(${classThemeColor} / 0.3)` }}>
                 <CardHeader>
-                  <CardTitle className="text-lg font-cinzel" style={{ color: `hsl(${classThemeColor})` }}>
+                  <CardTitle className="text-xl font-cinzel" style={{ color: `hsl(${classThemeColor})` }}>
                     Notes
                   </CardTitle>
                 </CardHeader>
