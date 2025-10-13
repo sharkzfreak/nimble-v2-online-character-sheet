@@ -1,14 +1,16 @@
 import { useEffect, useState } from "react";
+import { DiceSummaryPanel } from "./DiceSummaryPanel";
 
 interface DiceRollAnimationProps {
   diceType: string;
-  result: number;
+  result: number | number[]; // Support single or multiple dice
   modifier: number;
   total: number;
   isVisible: boolean;
   onComplete: () => void;
   statName?: string;
   characterName?: string;
+  diceCount?: number; // Number of dice rolled (for multi-dice)
 }
 
 const diceColors: Record<string, string> = {
@@ -20,48 +22,54 @@ const diceColors: Record<string, string> = {
   d20: "text-green-400",
 };
 
-// SVG Icons for each dice type
+// SVG Icons for each dice type - accurate geometric representations
 const DiceIcon = ({ type, className }: { type: string; className?: string }) => {
   const icons: Record<string, JSX.Element> = {
     d4: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={className}>
-        <path d="M12 2L2 19.5h20L12 2z" />
-        <text x="12" y="15" textAnchor="middle" fontSize="8" fill="currentColor">4</text>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className={className}>
+        {/* Tetrahedron - triangular pyramid */}
+        <path d="M12 3 L21 19 L3 19 Z" fill="currentColor" fillOpacity="0.1" />
+        <path d="M12 3 L21 19 M12 3 L3 19 M3 19 L21 19" />
       </svg>
     ),
     d6: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={className}>
-        <rect x="4" y="4" width="16" height="16" rx="2" />
-        <circle cx="8" cy="8" r="1" fill="currentColor" />
-        <circle cx="16" cy="8" r="1" fill="currentColor" />
-        <circle cx="8" cy="16" r="1" fill="currentColor" />
-        <circle cx="16" cy="16" r="1" fill="currentColor" />
-        <circle cx="12" cy="12" r="1" fill="currentColor" />
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className={className}>
+        {/* Cube - standard die */}
+        <path d="M4 8 L12 4 L20 8 L20 16 L12 20 L4 16 Z" fill="currentColor" fillOpacity="0.1" />
+        <path d="M4 8 L12 4 L20 8 M4 8 L4 16 M20 8 L20 16 M4 16 L12 20 M20 16 L12 20 M12 4 L12 12 M4 8 L12 12 M20 8 L12 12" />
       </svg>
     ),
     d8: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={className}>
-        <path d="M12 2L2 12L12 22L22 12L12 2z" />
-        <text x="12" y="14" textAnchor="middle" fontSize="8" fill="currentColor">8</text>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className={className}>
+        {/* Octahedron - diamond shape */}
+        <path d="M12 2 L20 12 L12 22 L4 12 Z" fill="currentColor" fillOpacity="0.1" />
+        <path d="M12 2 L20 12 L12 22 L4 12 L12 2 M12 2 L12 22 M4 12 L20 12" />
       </svg>
     ),
     d10: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={className}>
-        <path d="M12 2L3 8v8l9 6l9-6V8l-9-6z" />
-        <text x="12" y="14" textAnchor="middle" fontSize="7" fill="currentColor">10</text>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className={className}>
+        {/* Pentagonal trapezohedron */}
+        <path d="M12 2 L18 7 L20 13 L15 20 L9 20 L4 13 L6 7 Z" fill="currentColor" fillOpacity="0.1" />
+        <path d="M12 2 L18 7 M18 7 L20 13 M20 13 L15 20 M15 20 L9 20 M9 20 L4 13 M4 13 L6 7 M6 7 L12 2 M12 2 L12 22 M6 7 L15 20 M18 7 L9 20" />
       </svg>
     ),
     d12: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={className}>
-        <path d="M12 2l3.5 2.5L19 3l1.5 4.5L22 12l-2 4.5L18 21l-4.5-.5L12 22l-3.5-1.5L4 21l-1.5-4.5L2 12l2-4.5L6 3l4.5 1.5L12 2z" />
-        <text x="12" y="14" textAnchor="middle" fontSize="7" fill="currentColor">12</text>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className={className}>
+        {/* Dodecahedron - 12 sided */}
+        <path d="M12 2 L17 5 L21 9 L21 15 L17 19 L12 22 L7 19 L3 15 L3 9 L7 5 Z" fill="currentColor" fillOpacity="0.1" />
+        <path d="M12 2 L17 5 L21 9 L21 15 L17 19 L12 22 L7 19 L3 15 L3 9 L7 5 L12 2 M12 2 L12 8 M17 5 L15 11 M21 9 L15 11 M21 15 L15 13 M17 19 L15 13 M12 22 L12 16 M7 19 L9 13 M3 15 L9 13 M3 9 L9 11 M7 5 L9 11 M9 11 L15 11 M15 11 L15 13 M15 13 L9 13 M9 13 L9 11 M12 8 L15 11 M12 8 L9 11 M12 16 L15 13 M12 16 L9 13" />
       </svg>
     ),
     d20: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={className}>
-        <path d="M12 2l6 4v4l-6 10l-6-10V6l6-4z" />
-        <path d="M12 2v8M6 6l6 4M18 6l-6 4M6 14l6 6M18 14l-6 6" />
-        <text x="12" y="13" textAnchor="middle" fontSize="6" fill="currentColor">20</text>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className={className}>
+        {/* Icosahedron - true 20-sided die */}
+        <path d="M12 2 L19 6 L22 12 L19 18 L12 22 L5 18 L2 12 L5 6 Z" fill="currentColor" fillOpacity="0.1" />
+        {/* Top pentagon */}
+        <path d="M12 2 L19 6 L16 10 L8 10 L5 6 Z" />
+        {/* Bottom pentagon */}
+        <path d="M12 22 L19 18 L16 14 L8 14 L5 18 Z" />
+        {/* Connecting edges */}
+        <path d="M12 2 L12 10 M19 6 L16 10 M22 12 L16 10 M22 12 L16 14 M19 18 L16 14 M12 22 L12 14 M5 18 L8 14 M2 12 L8 14 M2 12 L8 10 M5 6 L8 10 M8 10 L16 10 M8 14 L16 14 M12 10 L12 14" />
       </svg>
     ),
   };
@@ -78,34 +86,53 @@ export const DiceRollAnimation = ({
   onComplete,
   statName = "Roll",
   characterName = "Player",
+  diceCount = 1,
 }: DiceRollAnimationProps) => {
   const [stage, setStage] = useState<"rolling" | "result" | "complete">("rolling");
   const [currentNumber, setCurrentNumber] = useState(1);
+  const [currentNumbers, setCurrentNumbers] = useState<number[]>([]);
   const [showResultBar, setShowResultBar] = useState(false);
+  
+  const isMultiDice = Array.isArray(result);
+  const results = isMultiDice ? result : [result];
+  const maxSides = parseInt(diceType.substring(1)) || 20;
 
   useEffect(() => {
     if (!isVisible) {
       setStage("rolling");
       setCurrentNumber(1);
+      setCurrentNumbers([]);
       setShowResultBar(false);
       return;
     }
 
-    // Stage 1: Rolling animation (2 seconds)
+    // Initialize multi-dice numbers
+    if (isMultiDice) {
+      setCurrentNumbers(Array(results.length).fill(1));
+    }
+
+    // Stage 1: Rolling animation (2.5 seconds for better preview)
     const rollingInterval = setInterval(() => {
-      const maxSides = parseInt(diceType.substring(1)) || 20;
-      setCurrentNumber(Math.ceil(Math.random() * maxSides));
+      if (isMultiDice) {
+        setCurrentNumbers(Array(results.length).fill(0).map(() => Math.ceil(Math.random() * maxSides)));
+      } else {
+        setCurrentNumber(Math.ceil(Math.random() * maxSides));
+      }
     }, 50);
 
     const rollingTimer = setTimeout(() => {
       clearInterval(rollingInterval);
-      setCurrentNumber(result);
-    }, 2000);
+      if (isMultiDice) {
+        setCurrentNumbers(results);
+      } else {
+        setCurrentNumber(results[0]);
+      }
+    }, 2500);
 
     // Stage 2: Settling phase (0.5 seconds after rolling stops)
     const settlingTimer = setTimeout(() => {
       setStage("result");
-    }, 2500);
+    }, 3000);
 
     // Stage 3: Show result bar and complete (0.3 seconds after result appears)
     const resultTimer = setTimeout(() => {
@@ -120,7 +147,7 @@ export const DiceRollAnimation = ({
       setTimeout(() => {
         onComplete();
       }, 300);
-    }, 2800);
+    }, 3300);
 
     return () => {
       clearInterval(rollingInterval);
@@ -128,15 +155,24 @@ export const DiceRollAnimation = ({
       clearTimeout(settlingTimer);
       clearTimeout(resultTimer);
     };
-  }, [isVisible, result, diceType, onComplete]);
+  }, [isVisible, result, diceType, onComplete, isMultiDice, results, maxSides]);
 
   if (!isVisible) return null;
 
-  const maxSides = parseInt(diceType.substring(1)) || 20;
-  const isCriticalFail = result === 1;
-  const isCriticalSuccess = result === maxSides;
   const diceColor = diceColors[diceType] || "text-primary";
-  const formula = `${diceType}${modifier !== 0 ? ` ${modifier > 0 ? '+' : ''}${modifier}` : ''}`;
+  const formula = isMultiDice 
+    ? `${results.length}${diceType}${modifier !== 0 ? ` ${modifier > 0 ? '+' : ''}${modifier}` : ''}`
+    : `${diceType}${modifier !== 0 ? ` ${modifier > 0 ? '+' : ''}${modifier}` : ''}`;
+  
+  // For single die
+  const singleResult = isMultiDice ? 0 : results[0];
+  const isCriticalFail = !isMultiDice && singleResult === 1;
+  const isCriticalSuccess = !isMultiDice && singleResult === maxSides;
+  
+  // Check if any die in multi-roll is critical
+  const hasCriticals = isMultiDice && results.some(r => r === 1 || r === maxSides);
+  const critSuccessCount = isMultiDice ? results.filter(r => r === maxSides).length : 0;
+  const critFailCount = isMultiDice ? results.filter(r => r === 1).length : 0;
 
   return (
     <>
@@ -241,34 +277,73 @@ export const DiceRollAnimation = ({
 
           {/* Result Display - Always on Top with backdrop */}
           {stage === "result" && (
-            <div className="flex flex-col items-center gap-3 animate-fade-in z-[110] bg-background/40 backdrop-blur-sm px-8 py-4 rounded-xl">
-              <div className="text-lg font-medium text-foreground">{statName}</div>
-              <div
-                className={`text-5xl font-bold drop-shadow-[0_2px_12px_rgba(0,0,0,0.9)] ${
-                  isCriticalSuccess
-                    ? "text-yellow-400 animate-pulse"
-                    : isCriticalFail
-                    ? "text-red-400 animate-pulse"
-                    : "text-primary"
-                }`}
-              >
-                {total}
+            <div className="flex flex-col items-center gap-4 animate-fade-in z-[110]">
+              <div className="bg-background/40 backdrop-blur-sm px-8 py-4 rounded-xl">
+                <div className="text-lg font-medium text-foreground mb-2">{statName}</div>
+                
+                {/* Multi-Dice Summary Panel */}
+                {isMultiDice && (
+                  <div className="mb-4">
+                    <DiceSummaryPanel 
+                      diceType={diceType}
+                      rolls={results}
+                      diceColor={diceColor}
+                    />
+                  </div>
+                )}
+                
+                {/* Total Result */}
+                <div className="flex flex-col items-center gap-2">
+                  <div
+                    className={`text-5xl font-bold drop-shadow-[0_2px_12px_rgba(0,0,0,0.9)] ${
+                      isCriticalSuccess
+                        ? "text-yellow-400 animate-pulse"
+                        : isCriticalFail
+                        ? "text-red-400 animate-pulse"
+                        : hasCriticals
+                        ? "text-primary animate-pulse"
+                        : "text-primary"
+                    }`}
+                  >
+                    {total}
+                  </div>
+                  
+                  {modifier !== 0 && (
+                    <div className="text-base text-muted-foreground font-medium">
+                      ({isMultiDice ? results.reduce((a, b) => a + b, 0) : results[0]} {modifier > 0 ? "+" : ""} {modifier})
+                    </div>
+                  )}
+                  
+                  {/* Critical messages */}
+                  {isCriticalSuccess && (
+                    <div className="text-yellow-400 text-lg font-semibold animate-bounce mt-2">
+                      ✨ Critical Success! ({diceType.toUpperCase()} max roll) ✨
+                    </div>
+                  )}
+                  {isCriticalFail && (
+                    <div className="text-red-400 text-lg font-semibold animate-bounce mt-2">
+                      💀 Critical Fail! 💀
+                    </div>
+                  )}
+                  
+                  {/* Multi-dice critical summary */}
+                  {isMultiDice && hasCriticals && (
+                    <div className="text-sm font-medium mt-2">
+                      {critSuccessCount > 0 && (
+                        <span className="text-yellow-400">
+                          ✨ {critSuccessCount} Critical Success{critSuccessCount > 1 ? 'es' : ''}
+                        </span>
+                      )}
+                      {critSuccessCount > 0 && critFailCount > 0 && <span className="text-muted-foreground"> • </span>}
+                      {critFailCount > 0 && (
+                        <span className="text-red-400">
+                          💀 {critFailCount} Critical Fail{critFailCount > 1 ? 's' : ''}
+                        </span>
+                      )}
+                    </div>
+                  )}
+                </div>
               </div>
-              {modifier !== 0 && (
-                <div className="text-base text-muted-foreground font-medium">
-                  ({result} {modifier > 0 ? "+" : ""} {modifier})
-                </div>
-              )}
-              {isCriticalSuccess && (
-                <div className="text-yellow-400 text-lg font-semibold animate-bounce mt-2">
-                  ✨ Critical Success! ({diceType.toUpperCase()} max roll) ✨
-                </div>
-              )}
-              {isCriticalFail && (
-                <div className="text-red-400 text-lg font-semibold animate-bounce mt-2">
-                  💀 Critical Fail! 💀
-                </div>
-              )}
             </div>
           )}
         </div>
