@@ -152,15 +152,15 @@ export const ProfileCard = ({
 
       {/* Vitals HUD */}
       <div className="px-5 pb-5">
-        <div className="vitals-row relative flex items-center justify-center mt-4 h-32">
+        <div className="vitals-row relative flex items-center justify-center mt-4 h-28">
           {/* HP Section (Left) */}
-          <div className="hp-section absolute left-4 flex flex-col items-center gap-2 z-0">
+          <div className="hp-section absolute left-2 flex flex-col items-center gap-2 z-0">
             {/* HP Bar */}
             <Popover open={editingHP} onOpenChange={setEditingHP}>
               <PopoverTrigger asChild>
-                <div className="relative cursor-pointer w-[100px] group">
+                <div className="relative cursor-pointer w-[110px] group">
                   <div
-                    className="relative h-[18px] bg-muted/30 rounded-full overflow-hidden border-2"
+                    className="relative h-[20px] bg-muted/30 rounded-full overflow-hidden border-2"
                     style={{ 
                       borderColor: `hsl(${classColor} / 0.3)`,
                     }}
@@ -186,9 +186,9 @@ export const ProfileCard = ({
                         }}
                       />
                     )}
-                    {/* HP Text inside bar */}
-                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                      <span className="text-[10px] font-bold text-foreground drop-shadow-md">
+                    {/* HP Text inside bar - disappears on hover */}
+                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none group-hover:opacity-0 transition-opacity">
+                      <span className="text-[11px] font-bold text-foreground drop-shadow-md">
                         HP
                       </span>
                     </div>
@@ -282,18 +282,20 @@ export const ProfileCard = ({
             </div>
           </div>
 
-          {/* Armor Shield (Center) - Solid background */}
+          {/* Armor Shield (Center) - Shield-shaped background */}
           <div className="armor-wrap relative z-10 flex flex-col items-center">
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <div className="relative">
-                    {/* Solid background circle */}
-                    <div 
-                      className="absolute inset-0 rounded-full"
+                    {/* Shield-shaped solid background */}
+                    <Shield
+                      className="w-28 h-28 absolute inset-0"
                       style={{
-                        backgroundColor: 'hsl(var(--card))',
+                        color: 'hsl(var(--card))',
+                        fill: 'hsl(var(--card))',
                       }}
+                      strokeWidth={0}
                     />
                     <Shield
                       className="w-28 h-28 transition-all duration-300 hover:scale-110 relative z-10"
@@ -319,26 +321,22 @@ export const ProfileCard = ({
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
-            
-            <div className="text-xs font-bold text-center mt-1 uppercase tracking-wide text-muted-foreground">
-              ARMOR
-            </div>
           </div>
 
           {/* Hit Dice Section (Right) */}
-          <div className="hitdice-section absolute right-4 flex items-center z-0">
+          <div className="hitdice-section absolute right-2 flex items-center z-0">
             {/* Hit Dice Bar */}
-            <div className="w-[100px] group">
+            <div className="w-[110px] group">
               <div
-                className="relative h-[18px] bg-muted/30 rounded-full overflow-hidden border-2 cursor-pointer"
+                className="relative h-[20px] bg-muted/30 rounded-full overflow-hidden border-2 cursor-pointer"
                 style={{ borderColor: `hsl(${classColor} / 0.3)` }}
                 role="button"
                 aria-label="Hit dice bar"
               >
                 {renderHitDicePips()}
-                {/* HD Text inside bar */}
-                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                  <span className="text-[10px] font-bold text-foreground drop-shadow-md">
+                {/* HD Text inside bar - disappears on hover */}
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none group-hover:opacity-0 transition-opacity">
+                  <span className="text-[11px] font-bold text-foreground drop-shadow-md">
                     HD
                   </span>
                 </div>
