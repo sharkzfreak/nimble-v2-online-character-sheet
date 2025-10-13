@@ -153,7 +153,7 @@ export const ProfileCard = ({
       {/* Vitals HUD */}
       <div className="px-5 pb-5">
         {/* Shield Row (Centered) */}
-        <div className="armor-wrap relative z-10 flex items-center justify-center mt-4">
+        <div className="armor-wrap relative z-20 flex items-center justify-center mt-4">
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -196,7 +196,7 @@ export const ProfileCard = ({
         {/* Bars Row: HP (left) | Hit Dice (right) */}
         <div className="bars-row mt-3 grid grid-cols-2 gap-4 items-center">
           {/* HP Left */}
-          <div className="hp-wrap relative flex flex-col items-end mr-[-10px]">
+          <div className="hp-wrap relative z-0 flex flex-col items-end mr-[-12px]">
             <Popover open={editingHP} onOpenChange={setEditingHP}>
               <PopoverTrigger asChild>
                 <div className="relative cursor-pointer w-[clamp(100px,100%,140px)] group">
@@ -324,7 +324,7 @@ export const ProfileCard = ({
           </div>
 
           {/* Hit Dice Right */}
-          <div className="hd-wrap relative flex items-center justify-start ml-[-10px]">
+          <div className="hd-wrap relative z-0 flex items-center justify-start ml-[-12px]">
             <div className="w-[clamp(100px,100%,140px)] group">
               <div
                 className="relative h-[20px] bg-muted/30 rounded-full overflow-hidden border-2 cursor-pointer"

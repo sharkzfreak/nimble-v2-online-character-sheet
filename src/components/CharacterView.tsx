@@ -26,7 +26,6 @@ import { DiceRollToast } from "./DiceRollToast";
 import { useNimbleRuleset } from "@/hooks/useNimbleRuleset";
 import { useDiceLog } from "@/contexts/DiceLogContext";
 import { DiceLogPanel } from "./DiceLogPanel";
-import { ManualDiceRoller } from "./ManualDiceRoller";
 import { DiceRollAnimation } from "./DiceRollAnimation";
 import { AnimatedStatContainer } from "./AnimatedStatContainer";
 import { ProfileCard } from "./ProfileCard";
@@ -393,7 +392,7 @@ const CharacterView = ({
       </div>
       
       {/* Main Content Area (Centered with left margin) */}
-      <div className="max-w-[1100px] mx-auto px-4 sm:px-6 md:px-8 py-4 md:ml-[380px]">
+      <div className="max-w-[1100px] mx-auto px-4 sm:px-6 md:px-8 py-4 md:ml-[400px]">
         <div 
           className="space-y-8 animate-fade-in"
           style={{
@@ -773,10 +772,6 @@ const CharacterView = ({
 
       {/* Right Side Panel */}
       <DiceLogPanel />
-      <ManualDiceRoller 
-        characterName={formData.name} 
-        characterId={characterId}
-      />
     </div>
   );
 };
