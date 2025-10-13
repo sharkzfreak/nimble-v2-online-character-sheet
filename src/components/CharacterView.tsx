@@ -361,7 +361,7 @@ const CharacterView = ({
   const willMod = getModifierString(formData.will);
 
   return (
-    <div className="flex w-full min-h-screen relative gap-6">
+    <div className="page grid grid-cols-[auto,1fr] gap-6 w-full min-h-screen relative">
       {/* Profile Card (Sticky Left) */}
       <ProfileCard
         characterName={formData.name}
@@ -410,62 +410,8 @@ const CharacterView = ({
           }}
         >
           <CardContent className="pt-6">
-            {/* ROW 1: Portrait (Left) + Character Identity (Right) */}
-            <div className="flex flex-col lg:flex-row gap-6 mb-8">
-              {/* Left Column: Portrait + Vertical Stat Containers */}
-              <div className="flex flex-col items-center gap-4">
-                {/* Portrait Square */}
-                <div 
-                  className="relative w-48 h-48 rounded-lg overflow-hidden border-4 transition-all duration-300"
-                  style={{
-                    backgroundColor: `hsl(${classThemeColor})`,
-                    borderColor: `hsl(${classThemeColor} / 0.8)`,
-                    boxShadow: `0 8px 32px hsl(${classThemeColor} / 0.4), inset 0 0 60px rgba(255,255,255,0.1)`
-                  }}
-                >
-                  {/* Gradient overlay for faded center */}
-                  <div 
-                    className="absolute inset-0"
-                    style={{
-                      background: `radial-gradient(circle, transparent 30%, hsl(${classThemeColor} / 0.3) 70%, hsl(${classThemeColor}) 100%)`
-                    }}
-                  />
-                  {/* Placeholder for portrait image */}
-                  <div className="absolute inset-0 flex items-center justify-center text-4xl font-bold font-cinzel opacity-40">
-                    {formData.name?.[0] || "?"}
-                  </div>
-                </div>
-
-                {/* Vertical Stat Containers */}
-                <div className="flex flex-col gap-4 w-full max-w-[12rem]">
-                  <AnimatedStatContainer
-                    type="armor"
-                    value={calculateDefense()}
-                    label="Armor"
-                    tooltip="Armor Class - Your defense against attacks"
-                    classColor={classThemeColor}
-                  />
-                  <AnimatedStatContainer
-                    type="health"
-                    value={calculateHealth()}
-                    maxValue={calculateHealth()}
-                    label="HP"
-                    tooltip="Hit Points - Your character's health"
-                    onIncrement={() => console.log("Heal")}
-                    onDecrement={() => console.log("Damage")}
-                    classColor={classThemeColor}
-                  />
-                  <AnimatedStatContainer
-                    type="speed"
-                    value="30"
-                    label="Speed"
-                    tooltip="Movement speed in feet per turn"
-                    classColor={classThemeColor}
-                  />
-                </div>
-              </div>
-
-              {/* Right Column: Character Identity */}
+            {/* Character Identity Header */}
+            <div className="flex flex-col gap-6 mb-8">
               <div className="flex-1 flex flex-col justify-start gap-4">
                 <div>
                   <h1 
