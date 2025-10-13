@@ -1,0 +1,73 @@
+import { useEffect, useState } from "react";
+import { Card } from "@/components/ui/card";
+import { Dices } from "lucide-react";
+
+interface DiceRollToastProps {
+  statName: string;
+  roll: number;
+  modifier: number;
+  total: number;
+  onClose: () => void;
+}
+
+export const DiceRollToast = ({ statName, roll, modifier, total, onClose }: DiceRollToastProps) => {
+  const [isRolling, setIsRolling] = useState(true);
+  const [currentRoll, setCurrentRoll] = useState(0);
+
+  useEffect(() => {
+    // Animate the dice roll
+    const animationDuration = 800;
+    const intervalTime = 50;
+    const steps = animationDuration / intervalTime;
+    let currentStep = 0;
+
+    const interval = setInterval(() => {
+      if (currentStep < steps) {
+        setCurrentRoll(Math.ceil(Math.random() * 10));
+        currentStep++;
+      } else {
+        setCurrentRoll(roll);
+        setIsRolling(false);
+        clearInterval(interval);
+      }
+    }, intervalTime);
+
+    // Auto-close after 4 seconds
+    const timeout = setTimeout(() => {
+      onClose();
+    }, 4000);
+
+    return () => {
+      clearInterval(interval);
+      clearTimeout(timeout);
+    };
+  }, [roll, onClose]);
+
+  return (
+    <Card className="fixed top-20 right-6 z-50 p-6 bg-gradient-to-br from-primary/20 to-accent/20 border-2 border-primary/50 shadow-2xl backdrop-blur-md animate-scale-in">
+      <div className="flex items-center gap-4">
+        <Dices 
+          className={`w-10 h-10 text-primary ${isRolling ? 'animate-spin' : ''}`} 
+        />
+        <div>
+          <h3 className="font-bold text-lg font-cinzel text-foreground">{statName} Roll</h3>
+          <div className="flex items-center gap-2 mt-1">
+            <span className="text-3xl font-bold text-primary font-cinzel">
+              {isRolling ? currentRoll : roll}
+            </span>
+            {modifier !== 0 && (
+              <>
+                <span className="text-xl text-muted-foreground">+</span>
+                <span className="text-2xl font-semibold text-accent">{modifier}</span>
+                <span className="text-xl text-muted-foreground">=</span>
+                <span className="text-3xl font-bold text-foreground font-cinzel">
+                  {isRolling ? '?' : total}
+                </span>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+    </Card>
+  );
+};

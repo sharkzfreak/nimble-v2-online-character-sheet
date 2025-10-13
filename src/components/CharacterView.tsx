@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
@@ -9,7 +10,6 @@ import {
   Swords, 
   BookOpen, 
   Wand2, 
-  Package, 
   FileText, 
   Dices,
   Activity
@@ -20,6 +20,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { DiceRollToast } from "./DiceRollToast";
 
 interface CharacterViewProps {
   formData: {
@@ -63,10 +64,29 @@ const CharacterView = ({
   calculateInitiative,
   calculateCarryWeight,
 }: CharacterViewProps) => {
-  
-  const getModifier = (stat: number): string => {
-    const mod = Math.floor((stat - 10) / 2);
+  const [diceRoll, setDiceRoll] = useState<{
+    statName: string;
+    roll: number;
+    modifier: number;
+    total: number;
+  } | null>(null);
+
+  const getModifier = (stat: number): number => {
+    return Math.floor((stat - 10) / 2);
+  };
+
+  const getModifierString = (stat: number): string => {
+    const mod = getModifier(stat);
     return mod >= 0 ? `+${mod}` : `${mod}`;
+  };
+
+  const rollDice = (statName: string, statValue: number) => {
+    const modifier = getModifier(statValue);
+    const roll = Math.ceil(Math.random() * 10);
+    const total = roll + modifier;
+    
+    console.log(`Rolling ${statName}: ${roll} + ${modifier} = ${total}`);
+    setDiceRoll({ statName, roll, modifier, total });
   };
 
   // Get class theme color
@@ -91,21 +111,23 @@ const CharacterView = ({
     name, 
     value, 
     color,
-    abbreviation 
+    abbreviation,
+    tooltip 
   }: { 
     name: string; 
     value: number; 
     color: string;
     abbreviation: string;
+    tooltip?: string;
   }) => {
-    const modifier = getModifier(value);
+    const modifier = getModifierString(value);
     return (
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
-            <div className="flex flex-col items-center group cursor-pointer">
+            <div className="flex flex-col items-center group">
               <div 
-                className="relative w-24 h-24 rounded-full flex flex-col items-center justify-center border-3 transition-all duration-300 hover:scale-110"
+                className="relative w-28 h-28 rounded-full flex flex-col items-center justify-center border-3 transition-all duration-300 hover:scale-110 cursor-pointer"
                 style={{
                   backgroundColor: `hsl(${color} / 0.15)`,
                   borderColor: `hsl(${color})`,
@@ -114,14 +136,30 @@ const CharacterView = ({
                 }}
               >
                 <div className="text-xs font-bold uppercase tracking-wider opacity-80 font-cinzel">{abbreviation}</div>
-                <div className="text-3xl font-bold my-1" style={{ color: `hsl(${color})` }}>{modifier}</div>
+                <div className="text-4xl font-bold my-1" style={{ color: `hsl(${color})` }}>{modifier}</div>
                 <div className="text-sm opacity-70 font-medium">{value}</div>
+                
+                {/* Dice Roll Button */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    rollDice(name, value);
+                  }}
+                  className="absolute -bottom-2 -right-2 p-2 rounded-full transition-all duration-300 hover:scale-110"
+                  style={{
+                    backgroundColor: `hsl(${color})`,
+                    boxShadow: `0 4px 12px hsl(${color} / 0.5)`
+                  }}
+                >
+                  <Dices className="w-4 h-4 text-background" />
+                </button>
               </div>
             </div>
           </TooltipTrigger>
-          <TooltipContent className="bg-card border-border">
-            <p className="font-semibold">{name}</p>
+          <TooltipContent className="bg-card border-border max-w-xs">
+            <p className="font-semibold font-cinzel">{name}</p>
             <p className="text-xs text-muted-foreground">Base: {value} | Modifier: {modifier}</p>
+            {tooltip && <p className="text-xs text-muted-foreground mt-1">{tooltip}</p>}
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>
@@ -170,48 +208,58 @@ const CharacterView = ({
     name, 
     value, 
     proficient = false,
-    onRoll
+    statValue
   }: { 
     name: string; 
     value: number;
     proficient?: boolean;
-    onRoll?: () => void;
-  }) => (
-    <div className="flex items-center justify-between py-2 px-4 hover:bg-muted/40 rounded-lg transition-all duration-200 group">
-      <div className="flex items-center gap-3">
-        <div className={`w-5 h-5 rounded-md border-2 transition-all ${proficient ? 'bg-primary/20 border-primary' : 'border-muted-foreground/30'}`}>
-          {proficient && <div className="w-full h-full flex items-center justify-center text-xs font-bold text-primary">✓</div>}
+    statValue: number;
+  }) => {
+    const handleRoll = () => {
+      const modifier = value;
+      const roll = Math.ceil(Math.random() * 10);
+      const total = roll + modifier;
+      console.log(`Rolling ${name}: ${roll} + ${modifier} = ${total}`);
+      setDiceRoll({ statName: name, roll, modifier, total });
+    };
+
+    return (
+      <div className="flex items-center justify-between py-2 px-4 hover:bg-muted/40 rounded-lg transition-all duration-200 group">
+        <div className="flex items-center gap-3">
+          <div className={`w-5 h-5 rounded-md border-2 transition-all ${proficient ? 'bg-primary/20 border-primary' : 'border-muted-foreground/30'}`}>
+            {proficient && <div className="w-full h-full flex items-center justify-center text-xs font-bold text-primary">✓</div>}
+          </div>
+          <span className="text-sm font-medium">{name}</span>
         </div>
-        <span className="text-sm font-medium">{name}</span>
-      </div>
-      <div className="flex items-center gap-2">
-        <span className="text-base font-bold text-foreground min-w-[2.5rem] text-right">
-          {value >= 0 ? `+${value}` : value}
-        </span>
-        {onRoll && (
+        <div className="flex items-center gap-2">
+          <span className="text-base font-bold text-foreground min-w-[2.5rem] text-right">
+            {value >= 0 ? `+${value}` : value}
+          </span>
           <button
-            onClick={onRoll}
-            className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-primary/20 rounded"
+            onClick={handleRoll}
+            className="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 hover:bg-primary/20 rounded-md"
           >
             <Dices className="w-4 h-4 text-primary" />
           </button>
-        )}
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   const AbilityPanel = ({ 
     title, 
     color, 
     modifier, 
     skills,
-    icon: Icon
+    icon: Icon,
+    statValue
   }: { 
     title: string; 
     color: string;
     modifier: string;
     skills: { name: string; value: number; proficient?: boolean }[];
     icon?: any;
+    statValue: number;
   }) => (
     <div 
       className="rounded-xl border-2 overflow-hidden shadow-xl transition-all duration-300 hover:shadow-2xl"
@@ -249,18 +297,18 @@ const CharacterView = ({
         {skills.map((skill, idx) => (
           <SkillItem 
             key={idx} 
-            {...skill} 
-            onRoll={() => console.log(`Rolling ${skill.name}: ${skill.value}`)} 
+            {...skill}
+            statValue={statValue}
           />
         ))}
       </div>
     </div>
   );
 
-  const strengthMod = getModifier(formData.strength);
-  const dexterityMod = getModifier(formData.dexterity);
-  const intelligenceMod = getModifier(formData.intelligence);
-  const willMod = getModifier(formData.will);
+  const strengthMod = getModifierString(formData.strength);
+  const dexterityMod = getModifierString(formData.dexterity);
+  const intelligenceMod = getModifierString(formData.intelligence);
+  const willMod = getModifierString(formData.will);
 
   return (
     <div 
@@ -363,15 +411,37 @@ const CharacterView = ({
               />
             </div>
 
-            {/* Ability Scores */}
+            {/* Ability Scores - Nimble V2 Stats */}
             <Separator className="my-6" style={{ backgroundColor: `hsl(${classThemeColor} / 0.3)` }} />
-            <div className="flex justify-center gap-3 md:gap-6 flex-wrap py-6">
-              <AbilityBadge name="Strength" abbreviation="STR" value={formData.strength} color="var(--ability-str)" />
-              <AbilityBadge name="Dexterity" abbreviation="DEX" value={formData.dexterity} color="var(--ability-dex)" />
-              <AbilityBadge name="Constitution" abbreviation="CON" value={10} color="var(--ability-con)" />
-              <AbilityBadge name="Intelligence" abbreviation="INT" value={formData.intelligence} color="var(--ability-int)" />
-              <AbilityBadge name="Wisdom" abbreviation="WIS" value={formData.will} color="var(--ability-wis)" />
-              <AbilityBadge name="Charisma" abbreviation="CHA" value={10} color="var(--ability-cha)" />
+            <div className="flex justify-center gap-4 md:gap-8 flex-wrap py-6">
+              <AbilityBadge 
+                name="Strength" 
+                abbreviation="STR" 
+                value={formData.strength} 
+                color="var(--ability-str)"
+                tooltip="Physical power and athletic prowess"
+              />
+              <AbilityBadge 
+                name="Dexterity" 
+                abbreviation="DEX" 
+                value={formData.dexterity} 
+                color="var(--ability-dex)"
+                tooltip="Agility, reflexes, and coordination"
+              />
+              <AbilityBadge 
+                name="Intelligence" 
+                abbreviation="INT" 
+                value={formData.intelligence} 
+                color="var(--ability-int)"
+                tooltip="Reasoning, memory, and analytical ability"
+              />
+              <AbilityBadge 
+                name="Will" 
+                abbreviation="WILL" 
+                value={formData.will} 
+                color="var(--ability-wis)"
+                tooltip="Mental fortitude and force of personality"
+              />
             </div>
           </CardContent>
         </Card>
@@ -418,7 +488,7 @@ const CharacterView = ({
             </TabsTrigger>
           </TabsList>
 
-          {/* Skills Tab */}
+          {/* Skills Tab - Nimble V2 Skills */}
           <TabsContent value="skills" className="mt-6 space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <AbilityPanel
@@ -426,8 +496,8 @@ const CharacterView = ({
                 color="var(--ability-str)"
                 modifier={strengthMod}
                 icon={Swords}
+                statValue={formData.strength}
                 skills={[
-                  { name: "Athletics", value: formData.skill_might, proficient: formData.skill_might > 0 },
                   { name: "Might", value: formData.skill_might, proficient: formData.skill_might > 0 }
                 ]}
               />
@@ -436,8 +506,8 @@ const CharacterView = ({
                 color="var(--ability-dex)"
                 modifier={dexterityMod}
                 icon={Target}
+                statValue={formData.dexterity}
                 skills={[
-                  { name: "Acrobatics", value: formData.skill_finesse, proficient: formData.skill_finesse > 0 },
                   { name: "Finesse", value: formData.skill_finesse, proficient: formData.skill_finesse > 0 },
                   { name: "Stealth", value: formData.skill_stealth, proficient: formData.skill_stealth > 0 }
                 ]}
@@ -447,6 +517,7 @@ const CharacterView = ({
                 color="var(--ability-int)"
                 modifier={intelligenceMod}
                 icon={BookOpen}
+                statValue={formData.intelligence}
                 skills={[
                   { name: "Arcana", value: formData.skill_arcana, proficient: formData.skill_arcana > 0 },
                   { name: "Examination", value: formData.skill_examination, proficient: formData.skill_examination > 0 },
@@ -454,10 +525,11 @@ const CharacterView = ({
                 ]}
               />
               <AbilityPanel
-                title="Wisdom"
+                title="Will"
                 color="var(--ability-wis)"
                 modifier={willMod}
                 icon={Wand2}
+                statValue={formData.will}
                 skills={[
                   { name: "Insight", value: formData.skill_insight, proficient: formData.skill_insight > 0 },
                   { name: "Influence", value: formData.skill_influence, proficient: formData.skill_influence > 0 },
@@ -583,9 +655,18 @@ const CharacterView = ({
             )}
           </TabsContent>
         </Tabs>
+
+        {/* Dice Roll Toast */}
+        {diceRoll && (
+          <DiceRollToast
+            {...diceRoll}
+            onClose={() => setDiceRoll(null)}
+          />
+        )}
       </div>
     </div>
   );
 };
 
 export default CharacterView;
+
