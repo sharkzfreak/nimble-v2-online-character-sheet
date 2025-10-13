@@ -1,14 +1,27 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Dices, Trash2, ChevronDown, ChevronUp } from "lucide-react";
+import { Dices, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
 import { useDiceLog } from "@/contexts/DiceLogContext";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export const DiceLogPanel = () => {
   const { logs, clearLogs, isLoading } = useDiceLog();
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const prevLogsLengthRef = useRef(logs.length);
+
+  // Auto-scroll to bottom when new messages arrive
+  useEffect(() => {
+    if (logs.length > prevLogsLengthRef.current && scrollRef.current) {
+      const scrollContainer = scrollRef.current.querySelector('[data-radix-scroll-area-viewport]');
+      if (scrollContainer) {
+        scrollContainer.scrollTop = scrollContainer.scrollHeight;
+      }
+    }
+    prevLogsLengthRef.current = logs.length;
+  }, [logs]);
 
   const formatTime = (timestamp: string) => {
     return new Date(timestamp).toLocaleTimeString([], { 
@@ -28,27 +41,34 @@ export const DiceLogPanel = () => {
 
   if (isCollapsed) {
     return (
-      <Card className="fixed bottom-4 right-4 z-40 w-80 bg-card/95 backdrop-blur-md border-primary/30 shadow-[var(--shadow-glow)]">
-        <CardHeader className="p-3 cursor-pointer" onClick={() => setIsCollapsed(false)}>
-          <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center gap-2 text-sm text-foreground font-cinzel">
-              <Dices className="w-4 h-4 text-primary" />
-              Dice Log ({logs.length})
-            </CardTitle>
-            <ChevronUp className="w-4 h-4 text-muted-foreground" />
+      <div className="fixed right-0 top-0 bottom-0 z-40 flex items-center">
+        <Button
+          onClick={() => setIsCollapsed(false)}
+          variant="ghost"
+          size="sm"
+          className="h-20 w-8 rounded-l-lg rounded-r-none bg-card/95 backdrop-blur-md border border-r-0 border-primary/30 shadow-[var(--shadow-glow)] hover:bg-card flex flex-col gap-1 items-center justify-center"
+        >
+          <ChevronLeft className="w-4 h-4 text-primary" />
+          <div className="writing-mode-vertical text-xs text-muted-foreground font-cinzel">
+            Chat
           </div>
-        </CardHeader>
-      </Card>
+          {logs.length > 0 && (
+            <div className="w-5 h-5 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center">
+              {logs.length}
+            </div>
+          )}
+        </Button>
+      </div>
     );
   }
 
   return (
-    <Card className="fixed bottom-4 right-4 z-40 w-96 bg-card/95 backdrop-blur-md border-primary/30 shadow-[var(--shadow-glow)]">
-      <CardHeader className="p-4 border-b border-border/50">
+    <div className="fixed right-0 top-0 bottom-0 z-40 w-80 md:w-96 bg-card/95 backdrop-blur-md border-l border-primary/30 shadow-[var(--shadow-glow)] flex flex-col">
+      <CardHeader className="p-4 border-b border-border/50 flex-shrink-0">
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2 text-foreground font-cinzel">
             <Dices className="w-5 h-5 text-primary" />
-            Dice Log
+            Chat Log
           </CardTitle>
           <div className="flex items-center gap-2">
             {logs.length > 0 && (
@@ -67,13 +87,13 @@ export const DiceLogPanel = () => {
               onClick={() => setIsCollapsed(true)}
               className="h-8 w-8"
             >
-              <ChevronDown className="w-4 h-4" />
+              <ChevronRight className="w-4 h-4" />
             </Button>
           </div>
         </div>
       </CardHeader>
-      <CardContent className="p-0">
-        <ScrollArea className="h-80">
+      <div className="flex-1 overflow-hidden">
+        <ScrollArea className="h-full" ref={scrollRef}>
           <div className="p-4 space-y-2">
             {isLoading ? (
               <>
@@ -132,7 +152,7 @@ export const DiceLogPanel = () => {
             )}
           </div>
         </ScrollArea>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 };

@@ -388,7 +388,7 @@ const CharacterView = ({
 
   return (
     <div 
-      className="min-h-screen pb-12 relative"
+      className="min-h-screen pb-12 pr-80 md:pr-96 relative"
       style={{
         background: `radial-gradient(ellipse at top, hsl(${classThemeColor} / 0.15), transparent 50%), 
                      radial-gradient(ellipse at bottom, hsl(${classThemeColor} / 0.1), transparent 50%),
