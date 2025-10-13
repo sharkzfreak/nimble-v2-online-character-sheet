@@ -12,7 +12,9 @@ import {
   Wand2, 
   FileText, 
   Dices,
-  Activity
+  Activity,
+  Heart,
+  Footprints
 } from "lucide-react";
 import {
   Tooltip,
@@ -246,33 +248,46 @@ const CharacterView = ({
     );
   };
 
-  const QuickStat = ({ 
+  const IconStat = ({ 
     icon: Icon, 
     label, 
     value,
-    tooltip 
+    tooltip,
+    color
   }: { 
     icon: any; 
     label: string; 
     value: number | string;
     tooltip?: string;
+    color: string;
   }) => (
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger asChild>
-          <div 
-            className="flex items-center gap-3 px-5 py-3 rounded-xl border-2 hover-scale cursor-pointer transition-all duration-300"
-            style={{
-              backgroundColor: `hsl(${classThemeColor} / 0.1)`,
-              borderColor: `hsl(${classThemeColor} / 0.4)`,
-              boxShadow: `0 4px 12px hsl(${classThemeColor} / 0.2)`
-            }}
-          >
-            <Icon className="w-6 h-6" style={{ color: `hsl(${classThemeColor})` }} />
-            <div className="flex flex-col">
-              <span className="text-sm text-muted-foreground uppercase tracking-wider font-semibold">{label}</span>
-              <span className="text-3xl font-bold text-foreground font-cinzel">{value}</span>
+          <div className="flex flex-col items-center group cursor-pointer">
+            <div 
+              className="relative w-28 h-28 md:w-36 md:h-36 rounded-2xl flex flex-col items-center justify-center border-3 transition-all duration-300 hover:scale-105"
+              style={{
+                backgroundColor: `hsl(${color} / 0.15)`,
+                borderColor: `hsl(${color})`,
+                borderWidth: '3px',
+                boxShadow: `0 0 30px hsl(${color} / 0.4), inset 0 0 20px hsl(${color} / 0.1)`
+              }}
+            >
+              <Icon 
+                className="w-12 h-12 md:w-16 md:h-16 mb-2 opacity-40 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" 
+                style={{ color: `hsl(${color})` }} 
+              />
+              <div 
+                className="text-4xl md:text-5xl font-bold font-cinzel relative z-10"
+                style={{ color: `hsl(${color})` }}
+              >
+                {value}
+              </div>
             </div>
+            <span className="text-xs md:text-sm text-muted-foreground uppercase tracking-wider font-semibold mt-2">
+              {label}
+            </span>
           </div>
         </TooltipTrigger>
         {tooltip && (
@@ -460,9 +475,35 @@ const CharacterView = ({
             </div>
           </CardHeader>
 
-          {/* Core Stats Row - STR, DEX, INT, WILL at Top */}
+          {/* ROW 1: Derived Stats with Icon Containers */}
           <CardContent className="pt-0">
-            <div className="flex justify-between gap-3 md:gap-6 mb-8 px-2">
+            <div className="flex justify-center gap-6 md:gap-12 mb-6 px-2">
+              <IconStat 
+                icon={Heart} 
+                label="Health" 
+                value={calculateHealth()} 
+                color="220 70% 50%"
+                tooltip="Hit Points - Your character's health"
+              />
+              <IconStat 
+                icon={Shield} 
+                label="Defense" 
+                value={calculateDefense()} 
+                color="200 80% 50%"
+                tooltip="Armor Class - Your defense against attacks"
+              />
+              <IconStat 
+                icon={Footprints} 
+                label="Speed" 
+                value="30 ft" 
+                color="150 60% 50%"
+                tooltip="Movement speed in feet per turn"
+              />
+            </div>
+
+            {/* ROW 2: Core Ability Stats */}
+            <Separator className="my-6" style={{ backgroundColor: `hsl(${classThemeColor} / 0.3)` }} />
+            <div className="flex justify-between gap-3 md:gap-6 mb-6 px-2">
               <AbilityBadge 
                 name="Strength" 
                 abbreviation="STR" 
@@ -490,35 +531,6 @@ const CharacterView = ({
                 value={formData.will} 
                 color="var(--ability-wis)"
                 tooltip="Mental fortitude and force of personality"
-              />
-            </div>
-
-            {/* Quick Stats Bar */}
-            <Separator className="my-6" style={{ backgroundColor: `hsl(${classThemeColor} / 0.3)` }} />
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <QuickStat 
-                icon={Shield} 
-                label="AC" 
-                value={calculateDefense()} 
-                tooltip="Armor Class - Your defense against attacks"
-              />
-              <QuickStat 
-                icon={Activity} 
-                label="Speed" 
-                value={30} 
-                tooltip="Movement speed in feet per turn"
-              />
-              <QuickStat 
-                icon={Target} 
-                label="Initiative" 
-                value={`+${calculateInitiative()}`} 
-                tooltip="Initiative bonus - determines turn order in combat"
-              />
-              <QuickStat 
-                icon={Swords} 
-                label="HP" 
-                value={calculateHealth()} 
-                tooltip="Hit Points - Your character's health"
               />
             </div>
           </CardContent>
