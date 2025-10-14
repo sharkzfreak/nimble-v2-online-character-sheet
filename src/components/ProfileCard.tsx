@@ -56,6 +56,8 @@ export const ProfileCard = ({
   const [editingHD, setEditingHD] = useState(false);
   const [tempHDRemaining, setTempHDRemaining] = useState(hit_dice_remaining);
   const [tempHDTotal, setTempHDTotal] = useState(hit_dice_total);
+  const [editingArmor, setEditingArmor] = useState(false);
+  const [tempArmor, setTempArmor] = useState(armor);
   const [imageDialog, setImageDialog] = useState(false);
   const [aiPrompt, setAiPrompt] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
@@ -110,6 +112,11 @@ export const ProfileCard = ({
   const handleHDRightClick = (e: React.MouseEvent) => {
     e.preventDefault();
     setEditingHD(true);
+  };
+
+  const handleArmorSave = () => {
+    onArmorChange?.(tempArmor);
+    setEditingArmor(false);
   };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -459,34 +466,68 @@ export const ProfileCard = ({
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <div className="relative z-10">
-                    {/* Shield-shaped solid background */}
-                    <Shield
-                      className="w-28 h-28 absolute inset-0"
-                      style={{
-                        color: 'hsl(var(--card))',
-                        fill: 'hsl(var(--card))',
-                      }}
-                      strokeWidth={0}
-                    />
-                    <Shield
-                      className="w-28 h-28 transition-all duration-300 hover:scale-110 relative z-10"
-                      style={{
-                        color: 'hsl(0 0% 100%)',
-                        fill: `hsl(${classColor} / 0.15)`,
-                      }}
-                      strokeWidth={1.5}
-                    />
-                    <div
-                      className="absolute inset-0 flex items-center justify-center text-3xl font-bold font-cinzel pointer-events-none z-20"
-                      style={{
-                        color: `hsl(${classColor})`,
-                        textShadow: `0 0 10px hsl(${classColor} / 0.6)`,
-                      }}
-                    >
-                      {armor}
-                    </div>
-                  </div>
+                  <Popover open={editingArmor} onOpenChange={setEditingArmor}>
+                    <PopoverTrigger asChild>
+                      <div className="relative z-10 cursor-pointer">
+                        {/* Shield-shaped solid background */}
+                        <Shield
+                          className="w-28 h-28 absolute inset-0"
+                          style={{
+                            color: 'hsl(var(--card))',
+                            fill: 'hsl(var(--card))',
+                          }}
+                          strokeWidth={0}
+                        />
+                        <Shield
+                          className="w-28 h-28 transition-all duration-300 hover:scale-110 relative z-10"
+                          style={{
+                            color: 'hsl(0 0% 100%)',
+                            fill: `hsl(${classColor} / 0.15)`,
+                          }}
+                          strokeWidth={1.5}
+                        />
+                        <div
+                          className="absolute inset-0 flex items-center justify-center text-3xl font-bold font-cinzel pointer-events-none z-20"
+                          style={{
+                            color: 'hsl(0 0% 100%)',
+                            textShadow: '0 2px 8px rgba(0,0,0,0.8)',
+                          }}
+                        >
+                          {armor}
+                        </div>
+                      </div>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-64">
+                      <div className="space-y-4">
+                        <h3 className="font-semibold text-sm">Edit Armor</h3>
+                        <div className="space-y-2">
+                          <label className="text-xs font-medium">Armor Value</label>
+                          <Input
+                            type="number"
+                            value={tempArmor}
+                            onChange={(e) => setTempArmor(parseInt(e.target.value) || 0)}
+                            className="h-8"
+                          />
+                        </div>
+                        <div className="flex gap-2">
+                          <Button onClick={handleArmorSave} size="sm" className="flex-1">
+                            Save
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              setEditingArmor(false);
+                              setTempArmor(armor);
+                            }}
+                            className="flex-1"
+                          >
+                            Cancel
+                          </Button>
+                        </div>
+                      </div>
+                    </PopoverContent>
+                  </Popover>
                 </TooltipTrigger>
                 <TooltipContent>
                   <p className="text-sm font-medium">Armor: {armor}</p>
