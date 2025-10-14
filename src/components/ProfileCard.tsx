@@ -45,7 +45,19 @@ export const ProfileCard = ({
 
   const hpPercentage = Math.min((hp_current / hp_max) * 100, 100);
   const tempHPPercentage = Math.min((hp_temp / hp_max) * 100, 100);
-  const isLowHP = hp_current < hp_max * 0.25;
+  
+  // Dynamic HP color based on percentage
+  const getHPColor = () => {
+    if (hpPercentage >= 75) {
+      return 'hsl(142 76% 36%)'; // Green
+    } else if (hpPercentage >= 50) {
+      return 'hsl(84 81% 44%)'; // Yellow-green
+    } else if (hpPercentage >= 25) {
+      return 'hsl(45 93% 47%)'; // Yellow/orange
+    } else {
+      return 'hsl(0 84% 60%)'; // Red
+    }
+  };
 
   const handleHPIncrement = () => {
     const newCurrent = Math.min(hp_current + 1, hp_max);
@@ -177,7 +189,7 @@ export const ProfileCard = ({
                       className="absolute left-0 top-0 h-full transition-all duration-300 rounded-full"
                       style={{
                         width: `${hpPercentage}%`,
-                        backgroundColor: isLowHP ? 'hsl(0 84% 60%)' : `hsl(${classColor})`,
+                        backgroundColor: getHPColor(),
                       }}
                     />
                     {/* Temp HP overlay */}
