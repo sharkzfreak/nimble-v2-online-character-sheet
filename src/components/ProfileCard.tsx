@@ -134,7 +134,9 @@ export const ProfileCard = ({
         .from('character-images')
         .getPublicUrl(filePath);
 
-      onPortraitChange?.(data.publicUrl);
+      // Add cache-busting to force browser reload
+      const urlWithCacheBust = `${data.publicUrl}?t=${Date.now()}`;
+      onPortraitChange?.(urlWithCacheBust);
       setImageDialog(false);
       toast.success('Portrait uploaded successfully!');
     } catch (error) {
@@ -190,7 +192,9 @@ export const ProfileCard = ({
           .from('character-images')
           .getPublicUrl(filePath);
 
-        onPortraitChange?.(publicUrlData.publicUrl);
+        // Add cache-busting to force browser reload
+        const urlWithCacheBust = `${publicUrlData.publicUrl}?t=${Date.now()}`;
+        onPortraitChange?.(urlWithCacheBust);
         setImageDialog(false);
         setAiPrompt("");
         toast.success('Portrait generated successfully!');
