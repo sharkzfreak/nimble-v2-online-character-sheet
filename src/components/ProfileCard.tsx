@@ -160,7 +160,7 @@ export const ProfileCard = ({
           <div className="grid grid-cols-[1fr,auto,1fr] items-center gap-3">
             
             {/* HP Bar (Left) */}
-            <div className="relative flex flex-col justify-end items-end gap-1 mt-2">
+            <div className="relative flex justify-end items-center mt-2">
               {/* HP Track (slides under shield) */}
               <Popover open={editingHP} onOpenChange={setEditingHP}>
                 <PopoverTrigger asChild>
@@ -250,32 +250,6 @@ export const ProfileCard = ({
                   </div>
                 </PopoverContent>
               </Popover>
-
-              {/* HP +/- controls (below bar) */}
-              <div className="flex gap-1 mr-[-14px]">
-                <button
-                  onClick={handleHPDecrement}
-                  className="w-5 h-5 rounded flex items-center justify-center text-xs font-bold transition-all hover:scale-110"
-                  style={{
-                    backgroundColor: `hsl(${classColor} / 0.2)`,
-                    color: `hsl(${classColor})`,
-                  }}
-                  aria-label="Damage"
-                >
-                  <Minus className="w-3 h-3" />
-                </button>
-                <button
-                  onClick={handleHPIncrement}
-                  className="w-5 h-5 rounded flex items-center justify-center text-xs font-bold transition-all hover:scale-110"
-                  style={{
-                    backgroundColor: `hsl(${classColor} / 0.2)`,
-                    color: `hsl(${classColor})`,
-                  }}
-                  aria-label="Heal"
-                >
-                  <Plus className="w-3 h-3" />
-                </button>
-              </div>
             </div>
 
             {/* SHIELD (Center) */}
