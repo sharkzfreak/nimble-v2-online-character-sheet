@@ -155,8 +155,9 @@ export const ProfileCard = ({
 
       {/* Vitals HUD */}
       <div className="px-5 pb-5">
-        {/* Shield Row (Centered) */}
-        <div className="armor-wrap relative z-20 flex items-center justify-center mt-4">
+        {/* Shield with bars sticking out below */}
+        <div className="relative z-20 flex flex-col items-center justify-center mt-4">
+          {/* Shield (Centered) */}
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -194,17 +195,15 @@ export const ProfileCard = ({
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
-        </div>
 
-        {/* Bars Row: HP (left) | Hit Dice (right) */}
-        <div className="bars-row mt-3 grid grid-cols-2 gap-4 items-center justify-items-center">
-          {/* HP Left */}
-          <div className="hp-wrap relative z-0 flex flex-col items-center">
+          {/* Bars underneath shield, centered and sticking out */}
+          <div className="flex gap-2 mt-[-8px] z-10">
+            {/* HP Bar */}
             <Popover open={editingHP} onOpenChange={setEditingHP}>
               <PopoverTrigger asChild>
-                <div className="relative cursor-pointer w-[clamp(100px,100%,140px)] group">
+                <div className="relative cursor-pointer w-[90px] group">
                   <div
-                    className="relative h-[20px] bg-muted/30 rounded-full overflow-hidden border-2"
+                    className="relative h-[16px] bg-muted/30 rounded-full overflow-hidden border-2"
                     style={{ 
                       borderColor: `hsl(${classColor} / 0.3)`,
                     }}
@@ -232,13 +231,13 @@ export const ProfileCard = ({
                     )}
                     {/* HP Text inside bar - disappears on hover */}
                     <div className="absolute inset-0 flex items-center justify-center pointer-events-none group-hover:opacity-0 transition-opacity">
-                      <span className="text-[11px] font-bold text-foreground drop-shadow-md">
+                      <span className="text-[10px] font-bold text-foreground drop-shadow-md">
                         HP
                       </span>
                     </div>
                     {/* Hover numbers */}
                     <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                      <span className="text-[10px] font-bold text-foreground drop-shadow-md">
+                      <span className="text-[9px] font-bold text-foreground drop-shadow-md">
                         {hp_current}/{hp_max}
                       </span>
                     </div>
@@ -297,56 +296,28 @@ export const ProfileCard = ({
               </PopoverContent>
             </Popover>
 
-            {/* HP +/- Buttons under bar */}
-            <div className="hp-buttons flex gap-1 mt-1">
-              <button
-                onClick={handleHPDecrement}
-                className="w-5 h-5 flex items-center justify-center rounded border transition-all hover:scale-110"
-                style={{
-                  borderColor: `hsl(${classColor} / 0.4)`,
-                  backgroundColor: `hsl(${classColor} / 0.1)`,
-                  color: `hsl(${classColor})`,
-                }}
-                aria-label="Decrease HP"
-              >
-                <Minus className="w-3 h-3" />
-              </button>
-              <button
-                onClick={handleHPIncrement}
-                className="w-5 h-5 flex items-center justify-center rounded border transition-all hover:scale-110"
-                style={{
-                  borderColor: `hsl(${classColor} / 0.4)`,
-                  backgroundColor: `hsl(${classColor} / 0.1)`,
-                  color: `hsl(${classColor})`,
-                }}
-                aria-label="Increase HP"
-              >
-                <Plus className="w-5 h-5" />
-              </button>
-            </div>
-          </div>
-
-          {/* Hit Dice Right */}
-          <div className="hd-wrap relative z-0 flex items-center justify-start ml-[-12px]">
-            <div className="w-[clamp(100px,100%,140px)] group">
-              <div
-                className="relative h-[20px] bg-muted/30 rounded-full overflow-hidden border-2 cursor-pointer"
-                style={{ borderColor: `hsl(${classColor} / 0.3)` }}
-                role="button"
-                aria-label="Hit dice bar"
-              >
-                {renderHitDicePips()}
-                {/* HD Text inside bar - disappears on hover */}
-                <div className="absolute inset-0 flex items-center justify-center pointer-events-none group-hover:opacity-0 transition-opacity">
-                  <span className="text-[11px] font-bold text-foreground drop-shadow-md">
-                    HD
-                  </span>
-                </div>
-                {/* Hover numbers */}
-                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                  <span className="text-[10px] font-bold text-foreground drop-shadow-md">
-                    {hit_dice_remaining}/{hit_dice_total}
-                  </span>
+            {/* Hit Dice Bar */}
+            <div className="relative w-[90px]">
+              <div className="w-full group">
+                <div
+                  className="relative h-[16px] bg-muted/30 rounded-full overflow-hidden border-2 cursor-pointer"
+                  style={{ borderColor: `hsl(${classColor} / 0.3)` }}
+                  role="button"
+                  aria-label="Hit dice bar"
+                >
+                  {renderHitDicePips()}
+                  {/* HD Text inside bar - disappears on hover */}
+                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none group-hover:opacity-0 transition-opacity">
+                    <span className="text-[10px] font-bold text-foreground drop-shadow-md">
+                      HD
+                    </span>
+                  </div>
+                  {/* Hover numbers */}
+                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                    <span className="text-[9px] font-bold text-foreground drop-shadow-md">
+                      {hit_dice_remaining}/{hit_dice_total}
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
