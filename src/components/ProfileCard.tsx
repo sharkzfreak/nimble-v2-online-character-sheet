@@ -158,7 +158,7 @@ export const ProfileCard = ({
         {/* Shield with bars behind it */}
         <div className="relative z-20 flex flex-col items-center justify-center mt-2">
           {/* Bars behind shield, centered */}
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex flex-col gap-2 z-0">
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex flex-col gap-4 z-0">
             {/* HP Bar */}
             <Popover open={editingHP} onOpenChange={setEditingHP}>
               <PopoverTrigger asChild>
