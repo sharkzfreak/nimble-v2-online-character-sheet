@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
-import { Dices, X } from "lucide-react";
+import { X } from "lucide-react";
+import { D20Icon } from "@/components/icons/D20Icon";
 import { Button } from "@/components/ui/button";
 
 interface DiceRollToastProps {
@@ -53,7 +54,7 @@ const DiceIcon = ({ type }: { type: string }) => {
         </svg>
       );
     default:
-      return <Dices className={baseClass} />;
+      return <D20Icon className={baseClass} />;
   }
 };
 

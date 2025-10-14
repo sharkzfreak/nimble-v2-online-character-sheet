@@ -16,7 +16,6 @@ import {
   BookOpen, 
   Wand2, 
   FileText, 
-  Dices,
   Activity,
   Heart,
   Footprints,
@@ -26,6 +25,7 @@ import {
   Plus,
   X
 } from "lucide-react";
+import { D20Icon } from "@/components/icons/D20Icon";
 import {
   Tooltip,
   TooltipContent,
@@ -356,7 +356,7 @@ const CharacterView = ({
                     boxShadow: `0 4px 12px hsl(${color} / 0.5)`
                   }}
                 >
-                  <Dices className="w-5 h-5 text-background" />
+                  <D20Icon className="w-5 h-5 text-background" />
                 </button>
               </div>
             </div>
@@ -404,7 +404,7 @@ const CharacterView = ({
             onClick={handleRoll}
             className="opacity-0 group-hover:opacity-100 transition-opacity p-2 hover:bg-primary/20 rounded-md"
           >
-            <Dices className="w-5 h-5 text-primary" />
+            <D20Icon className="w-5 h-5 text-primary" />
           </button>
         </div>
       </div>

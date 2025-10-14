@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Star, Swords, Wand2, Package, Dices, X } from "lucide-react";
+import { Star, Swords, Wand2, Package, X } from "lucide-react";
+import { D20Icon } from "@/components/icons/D20Icon";
 import {
   Tooltip,
   TooltipContent,
@@ -92,7 +93,7 @@ export const FavoritesCard = ({
               Favorites
             </TabsTrigger>
             <TabsTrigger value="skills" className="text-xs">
-              <Dices className="w-3 h-3 mr-1" />
+              <D20Icon className="w-3 h-3 mr-1" />
               Skills
             </TabsTrigger>
           </TabsList>
@@ -177,7 +178,7 @@ export const FavoritesCard = ({
                     >
                       {skill.value >= 0 ? `+${skill.value}` : skill.value}
                     </span>
-                    <Dices 
+                    <D20Icon 
                       className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity"
                       style={{ color: `hsl(${skillColor})` }}
                     />

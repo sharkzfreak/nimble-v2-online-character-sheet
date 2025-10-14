@@ -2,7 +2,8 @@ import { useState, useEffect, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Dices, Trash2, ChevronLeft, ChevronRight, Zap, AlertTriangle, Star, MessageSquare, Target, Plus, Minus, TrendingUp, TrendingDown, Lock, LockOpen } from "lucide-react";
+import { Trash2, ChevronLeft, ChevronRight, Zap, AlertTriangle, Star, MessageSquare, Target, Plus, Minus, TrendingUp, TrendingDown, Lock, LockOpen } from "lucide-react";
+import { D20Icon } from "@/components/icons/D20Icon";
 import { useDiceLog } from "@/contexts/DiceLogContext";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
@@ -377,14 +378,14 @@ export const DiceLogPanel = () => {
       case 'manual':
         return {
           label: 'DICE ROLL',
-          icon: Dices,
+          icon: D20Icon,
           variant: 'outline' as const,
           className: 'bg-muted/20 text-muted-foreground border-muted-foreground/40'
         };
       default:
         return {
           label: 'ROLL',
-          icon: Dices,
+          icon: D20Icon,
           variant: 'outline' as const,
           className: 'bg-muted/20 text-muted-foreground border-muted-foreground/40'
         };
@@ -469,7 +470,7 @@ export const DiceLogPanel = () => {
           </svg>
         );
       default:
-        return <Dices className={baseClass} />;
+        return <D20Icon className={baseClass} />;
     }
   };
 
@@ -497,7 +498,7 @@ export const DiceLogPanel = () => {
                       onClick={toggleAnimations}
                       className="flex items-center gap-2 hover:opacity-70 transition-opacity"
                     >
-                      <Dices className={`w-4 h-4 ${animationsEnabled ? 'text-primary' : 'text-muted-foreground'}`} />
+                      <D20Icon className={`w-4 h-4 ${animationsEnabled ? 'text-primary' : 'text-muted-foreground'}`} />
                       Chat Log
                     </button>
                   </TooltipTrigger>
@@ -561,7 +562,7 @@ export const DiceLogPanel = () => {
                 </>
               ) : logs.length === 0 ? (
                 <div className="text-center py-12 text-muted-foreground">
-                  <Dices className="w-10 h-10 mx-auto mb-3 opacity-50" />
+                  <D20Icon className="w-10 h-10 mx-auto mb-3 opacity-50" />
                   <p className="text-xs">No dice rolls yet</p>
                   <p className="text-xs mt-1 opacity-70">Start rolling!</p>
                 </div>

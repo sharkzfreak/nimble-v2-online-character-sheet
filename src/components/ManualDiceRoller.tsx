@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Dices, Plus, Minus, TrendingUp, TrendingDown } from "lucide-react";
+import { Plus, Minus, TrendingUp, TrendingDown } from "lucide-react";
+import { D20Icon } from "@/components/icons/D20Icon";
 import { useDiceLog } from "@/contexts/DiceLogContext";
 import { DiceRollToast } from "./DiceRollToast";
 import { DiceRollAnimation } from "./DiceRollAnimation";
@@ -320,7 +321,7 @@ export const ManualDiceRoller = ({ characterName = "Manual Roll", characterId }:
                 aria-label={`Left-click to add ${dice.label}, right-click to remove`}
                 title="Left-click to add, right-click to remove"
               >
-                <Dices className="h-5 w-5 text-primary-foreground group-hover:rotate-12 transition-transform" />
+                <D20Icon className="h-5 w-5 text-primary-foreground group-hover:rotate-12 transition-transform" />
                 <span className="text-xs font-bold text-primary-foreground mt-0.5">{dice.label}</span>
                 {dicePool[dice.label] > 0 && (
                   <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-accent text-primary-foreground text-xs flex items-center justify-center font-bold border-2 border-background animate-scale-in">
@@ -386,7 +387,7 @@ export const ManualDiceRoller = ({ characterName = "Manual Roll", characterId }:
           aria-label={totalDiceInPool > 0 ? "Left-click to roll, right-click to clear" : "Toggle dice menu"}
           title={totalDiceInPool > 0 ? "Left-click: Roll | Right-click: Clear pool" : "Open dice menu"}
         >
-          <Dices className={`h-8 w-8 text-primary-foreground transition-transform ${isDiceOpen ? 'rotate-180' : ''}`} />
+          <D20Icon className={`h-8 w-8 text-primary-foreground transition-transform ${isDiceOpen ? 'rotate-180' : ''}`} />
           {totalDiceInPool > 0 && (
             <span className="absolute -top-1 -right-1 h-6 w-6 rounded-full bg-accent text-primary-foreground text-sm flex items-center justify-center font-bold border-2 border-background">
               {totalDiceInPool}

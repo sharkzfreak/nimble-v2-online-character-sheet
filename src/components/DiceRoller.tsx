@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dices } from "lucide-react";
+import { D20Icon } from "@/components/icons/D20Icon";
 
 const DiceRoller = () => {
   const [result, setResult] = useState<number | null>(null);
@@ -28,7 +28,7 @@ const DiceRoller = () => {
     <Card className="bg-card border-border shadow-[var(--shadow-card)]">
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-foreground">
-          <Dices className="w-5 h-5 text-primary" />
+          <D20Icon className="w-5 h-5 text-primary" />
           Dice Roller
         </CardTitle>
       </CardHeader>
