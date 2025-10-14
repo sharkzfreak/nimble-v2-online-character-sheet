@@ -153,18 +153,45 @@ export const ProfileCard = ({
         </div>
       </div>
 
-      {/* Vitals HUD */}
-      <div className="px-5 pb-5">
-        {/* Shield with bars behind it */}
-        <div className="relative z-20 flex flex-col items-center justify-center mt-2">
-          {/* Bars behind shield, centered */}
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex flex-col gap-4 z-0">
-            {/* HP Bar */}
-            <Popover open={editingHP} onOpenChange={setEditingHP}>
-              <PopoverTrigger asChild>
-                <div className="relative cursor-pointer w-[90px] group">
+      {/* Vitals HUD - Centered Shield with Horizontal Bars */}
+      <div className="px-5 pb-5 overflow-hidden">
+        <div className="relative mt-4">
+          {/* 3-column grid: HP | Shield | HD */}
+          <div className="grid grid-cols-[1fr,auto,1fr] items-center gap-3">
+            
+            {/* HP Bar (Left) */}
+            <div className="relative flex justify-end items-center">
+              {/* HP +/- controls */}
+              <div className="flex flex-col gap-1 mr-2">
+                <button
+                  onClick={handleHPIncrement}
+                  className="w-5 h-5 rounded flex items-center justify-center text-xs font-bold transition-all hover:scale-110"
+                  style={{
+                    backgroundColor: `hsl(${classColor} / 0.2)`,
+                    color: `hsl(${classColor})`,
+                  }}
+                  aria-label="Heal"
+                >
+                  <Plus className="w-3 h-3" />
+                </button>
+                <button
+                  onClick={handleHPDecrement}
+                  className="w-5 h-5 rounded flex items-center justify-center text-xs font-bold transition-all hover:scale-110"
+                  style={{
+                    backgroundColor: `hsl(${classColor} / 0.2)`,
+                    color: `hsl(${classColor})`,
+                  }}
+                  aria-label="Damage"
+                >
+                  <Minus className="w-3 h-3" />
+                </button>
+              </div>
+
+              {/* HP Track (slides under shield) */}
+              <Popover open={editingHP} onOpenChange={setEditingHP}>
+                <PopoverTrigger asChild>
                   <div
-                    className="relative h-[14px] bg-muted/30 rounded-full overflow-hidden border"
+                    className="relative h-[18px] w-full max-w-[140px] rounded-full bg-muted/30 overflow-hidden border cursor-pointer group mr-[-14px] z-0"
                     style={{ 
                       borderColor: `hsl(${classColor} / 0.3)`,
                     }}
@@ -190,138 +217,135 @@ export const ProfileCard = ({
                         }}
                       />
                     )}
-                    {/* HP Text inside bar - disappears on hover */}
-                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none group-hover:opacity-0 transition-opacity">
-                      <span className="text-[10px] font-bold text-foreground drop-shadow-md">
-                        HP
-                      </span>
-                    </div>
-                    {/* Hover numbers */}
+                    {/* HP Text - shows on hover */}
                     <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                       <span className="text-[9px] font-bold text-foreground drop-shadow-md">
                         {hp_current}/{hp_max}
                       </span>
                     </div>
                   </div>
-                </div>
-              </PopoverTrigger>
-              <PopoverContent className="w-64">
-                <div className="space-y-4">
-                  <h3 className="font-semibold text-sm">Edit HP</h3>
-                  <div className="space-y-2">
-                    <label className="text-xs font-medium">Current HP</label>
-                    <Input
-                      type="number"
-                      value={tempHPCurrent}
-                      onChange={(e) => setTempHPCurrent(parseInt(e.target.value) || 0)}
-                      className="h-8"
-                    />
+                </PopoverTrigger>
+                <PopoverContent className="w-64">
+                  <div className="space-y-4">
+                    <h3 className="font-semibold text-sm">Edit HP</h3>
+                    <div className="space-y-2">
+                      <label className="text-xs font-medium">Current HP</label>
+                      <Input
+                        type="number"
+                        value={tempHPCurrent}
+                        onChange={(e) => setTempHPCurrent(parseInt(e.target.value) || 0)}
+                        className="h-8"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-xs font-medium">Max HP</label>
+                      <Input
+                        type="number"
+                        value={tempHPMax}
+                        onChange={(e) => setTempHPMax(parseInt(e.target.value) || 0)}
+                        className="h-8"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-xs font-medium">Temp HP</label>
+                      <Input
+                        type="number"
+                        value={tempHPTemp}
+                        onChange={(e) => setTempHPTemp(parseInt(e.target.value) || 0)}
+                        className="h-8"
+                      />
+                    </div>
+                    <div className="flex gap-2">
+                      <Button onClick={handleHPSave} size="sm" className="flex-1">
+                        Save
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setEditingHP(false);
+                          setTempHPCurrent(hp_current);
+                          setTempHPMax(hp_max);
+                          setTempHPTemp(hp_temp);
+                        }}
+                        className="flex-1"
+                      >
+                        Cancel
+                      </Button>
+                    </div>
                   </div>
-                  <div className="space-y-2">
-                    <label className="text-xs font-medium">Max HP</label>
-                    <Input
-                      type="number"
-                      value={tempHPMax}
-                      onChange={(e) => setTempHPMax(parseInt(e.target.value) || 0)}
-                      className="h-8"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-xs font-medium">Temp HP</label>
-                    <Input
-                      type="number"
-                      value={tempHPTemp}
-                      onChange={(e) => setTempHPTemp(parseInt(e.target.value) || 0)}
-                      className="h-8"
-                    />
-                  </div>
-                  <div className="flex gap-2">
-                    <Button onClick={handleHPSave} size="sm" className="flex-1">
-                      Save
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        setEditingHP(false);
-                        setTempHPCurrent(hp_current);
-                        setTempHPMax(hp_max);
-                        setTempHPTemp(hp_temp);
-                      }}
-                      className="flex-1"
-                    >
-                      Cancel
-                    </Button>
-                  </div>
-                </div>
-              </PopoverContent>
-            </Popover>
+                </PopoverContent>
+              </Popover>
+            </div>
 
-            {/* Hit Dice Bar */}
-            <div className="relative w-[90px]">
-              <div className="w-full group">
-                <div
-                  className="relative h-[14px] bg-muted/30 rounded-full overflow-hidden border cursor-pointer"
-                  style={{ borderColor: `hsl(${classColor} / 0.3)` }}
-                  role="button"
-                  aria-label="Hit dice bar"
-                >
-                  {renderHitDicePips()}
-                  {/* HD Text inside bar - disappears on hover */}
-                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none group-hover:opacity-0 transition-opacity">
-                    <span className="text-[10px] font-bold text-foreground drop-shadow-md">
-                      HD
-                    </span>
+            {/* SHIELD (Center) */}
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="relative z-10">
+                    {/* Shield-shaped solid background */}
+                    <Shield
+                      className="w-28 h-28 absolute inset-0"
+                      style={{
+                        color: 'hsl(var(--card))',
+                        fill: 'hsl(var(--card))',
+                      }}
+                      strokeWidth={0}
+                    />
+                    <Shield
+                      className="w-28 h-28 transition-all duration-300 hover:scale-110 relative z-10"
+                      style={{
+                        color: `hsl(${classColor})`,
+                        fill: `hsl(${classColor} / 0.15)`,
+                      }}
+                      strokeWidth={1.5}
+                    />
+                    <div
+                      className="absolute inset-0 flex items-center justify-center text-3xl font-bold font-cinzel pointer-events-none z-20"
+                      style={{
+                        color: `hsl(${classColor})`,
+                        textShadow: `0 0 10px hsl(${classColor} / 0.6)`,
+                      }}
+                    >
+                      {armor}
+                    </div>
                   </div>
-                  {/* Hover numbers */}
-                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                    <span className="text-[9px] font-bold text-foreground drop-shadow-md">
-                      {hit_dice_remaining}/{hit_dice_total}
-                    </span>
-                  </div>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p className="text-sm font-medium">Armor: {armor}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+
+            {/* Hit Dice Bar (Right) */}
+            <div className="relative flex justify-start items-center">
+              <div
+                className="relative h-[18px] w-full max-w-[140px] rounded-full bg-muted/30 overflow-hidden border cursor-pointer group ml-[-14px] z-0"
+                style={{ borderColor: `hsl(${classColor} / 0.3)` }}
+                role="button"
+                aria-label="Hit dice bar"
+              >
+                {renderHitDicePips()}
+                {/* HD Text - shows on hover */}
+                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                  <span className="text-[9px] font-bold text-foreground drop-shadow-md">
+                    {hit_dice_remaining}/{hit_dice_total}
+                  </span>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Shield (Centered, on top) */}
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <div className="relative z-10">
-                  {/* Shield-shaped solid background */}
-                  <Shield
-                    className="w-28 h-28 absolute inset-0"
-                    style={{
-                      color: 'hsl(var(--card))',
-                      fill: 'hsl(var(--card))',
-                    }}
-                    strokeWidth={0}
-                  />
-                  <Shield
-                    className="w-28 h-28 transition-all duration-300 hover:scale-110 relative z-10"
-                    style={{
-                      color: `hsl(${classColor})`,
-                      fill: `hsl(${classColor} / 0.15)`,
-                    }}
-                    strokeWidth={1.5}
-                  />
-                  <div
-                    className="absolute inset-0 flex items-center justify-center text-3xl font-bold font-cinzel pointer-events-none z-20"
-                    style={{
-                      color: `hsl(${classColor})`,
-                      textShadow: `0 0 10px hsl(${classColor} / 0.6)`,
-                    }}
-                  >
-                    {armor}
-                  </div>
-                </div>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p className="text-sm font-medium">Armor: {armor}</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+          {/* Labels */}
+          <div className="grid grid-cols-[1fr,auto,1fr] text-[10px] mt-2 opacity-70 font-medium">
+            <div className="text-right pr-8">
+              HP <span className="opacity-60">({hp_current}/{hp_max})</span>
+            </div>
+            <div className="text-center px-4">ARMOR</div>
+            <div className="text-left pl-8">
+              HIT DICE <span className="opacity-60">({hit_dice_remaining}/{hit_dice_total})</span>
+            </div>
+          </div>
         </div>
       </div>
     </aside>
