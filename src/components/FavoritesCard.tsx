@@ -46,6 +46,23 @@ export const FavoritesCard = ({
     }
   };
 
+  // Map skills to their corresponding stat colors
+  const getSkillStatColor = (skillName: string): string => {
+    const skillColorMap: Record<string, string> = {
+      'Might': 'var(--stat-strength)',
+      'Finesse': 'var(--stat-dexterity)',
+      'Stealth': 'var(--stat-dexterity)',
+      'Arcana': 'var(--stat-intelligence)',
+      'Examination': 'var(--stat-intelligence)',
+      'Lore': 'var(--stat-intelligence)',
+      'Insight': 'var(--stat-will)',
+      'Influence': 'var(--stat-will)',
+      'Naturecraft': 'var(--stat-will)',
+      'Perception': 'var(--stat-will)',
+    };
+    return skillColorMap[skillName] || classColor;
+  };
+
   return (
     <aside
       id="favoritesCard"
@@ -134,27 +151,35 @@ export const FavoritesCard = ({
         {/* Skills Content */}
         <TabsContent value="skills" className="m-0">
           <div className="p-3 space-y-1 max-h-[500px] overflow-y-auto">
-            {skills.map((skill) => (
-              <button
-                key={skill.name}
-                onClick={() => onSkillRoll?.(skill.name, skill.value)}
-                className="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:bg-muted/40 transition-all duration-200 group"
-                style={{
-                  borderLeft: `3px solid hsl(${classColor} / 0.5)`,
-                }}
-              >
-                <span className="text-sm font-medium">{skill.name}</span>
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-bold text-foreground min-w-[2rem] text-right">
-                    {skill.value >= 0 ? `+${skill.value}` : skill.value}
-                  </span>
-                  <Dices 
-                    className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity"
-                    style={{ color: `hsl(${classColor})` }}
-                  />
-                </div>
-              </button>
-            ))}
+            {skills.map((skill) => {
+              const skillColor = getSkillStatColor(skill.name);
+              return (
+                <button
+                  key={skill.name}
+                  onClick={() => onSkillRoll?.(skill.name, skill.value)}
+                  className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg transition-all duration-200 group"
+                  style={{
+                    background: `linear-gradient(90deg, hsl(${skillColor} / 0.15), transparent)`,
+                    borderLeft: `3px solid hsl(${skillColor})`,
+                    boxShadow: `inset 0 0 20px hsl(${skillColor} / 0.1)`,
+                  }}
+                >
+                  <span className="text-sm font-medium">{skill.name}</span>
+                  <div className="flex items-center gap-2">
+                    <span 
+                      className="text-sm font-bold min-w-[2rem] text-right"
+                      style={{ color: `hsl(${skillColor})` }}
+                    >
+                      {skill.value >= 0 ? `+${skill.value}` : skill.value}
+                    </span>
+                    <Dices 
+                      className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity"
+                      style={{ color: `hsl(${skillColor})` }}
+                    />
+                  </div>
+                </button>
+              );
+            })}
           </div>
         </TabsContent>
       </Tabs>
