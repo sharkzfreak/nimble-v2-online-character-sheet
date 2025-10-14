@@ -57,12 +57,12 @@ export const DiceLogPanel = () => {
     keptRolls: [] as number[]
   });
 
-  // Auto-scroll to bottom when new messages arrive
+  // Auto-scroll to top when new messages arrive
   useEffect(() => {
     if (logs.length > prevLogsLengthRef.current && scrollRef.current) {
       const scrollContainer = scrollRef.current.querySelector('[data-radix-scroll-area-viewport]');
       if (scrollContainer) {
-        scrollContainer.scrollTop = scrollContainer.scrollHeight;
+        scrollContainer.scrollTop = 0;
       }
     }
     prevLogsLengthRef.current = logs.length;
