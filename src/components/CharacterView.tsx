@@ -29,6 +29,7 @@ import { DiceLogPanel } from "./DiceLogPanel";
 import { DiceRollAnimation } from "./DiceRollAnimation";
 import { AnimatedStatContainer } from "./AnimatedStatContainer";
 import { ProfileCard } from "./ProfileCard";
+import { FavoritesCard } from "./FavoritesCard";
 
 interface CharacterViewProps {
   characterId?: string;
@@ -427,6 +428,17 @@ const CharacterView = ({
             hit_dice_total: total,
           });
         }}
+      />
+
+      {/* Favorites Card */}
+      <FavoritesCard
+        classColor={classThemeColor}
+        favorites={[
+          // Example favorites - will be dynamic later
+          { id: '1', name: 'Longsword', type: 'attack', description: '1d8 slashing damage' },
+          { id: '2', name: 'Fireball', type: 'spell', description: '8d6 fire damage' },
+          { id: '3', name: 'Healing Potion', type: 'item', description: 'Restore 2d4+2 HP' },
+        ]}
       />
       
       {/* Main Content Area (Fills space between left card and chat) */}
