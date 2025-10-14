@@ -339,6 +339,7 @@ export type Database = {
           created_at: string
           formula: string
           id: string
+          individual_rolls: Json | null
           modifier: number
           raw_result: number
           roll_type: string
@@ -351,6 +352,7 @@ export type Database = {
           created_at?: string
           formula: string
           id?: string
+          individual_rolls?: Json | null
           modifier?: number
           raw_result: number
           roll_type: string
@@ -363,6 +365,7 @@ export type Database = {
           created_at?: string
           formula?: string
           id?: string
+          individual_rolls?: Json | null
           modifier?: number
           raw_result?: number
           roll_type?: string

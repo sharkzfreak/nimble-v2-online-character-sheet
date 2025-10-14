@@ -103,6 +103,7 @@ const CharacterView = ({
     modifier: number;
     total: number;
     rollType: string;
+    individualRolls: Array<{ value: number; sides: number }>;
   } | null>(null);
 
   // Layout main content to span full width next to fixed card
@@ -177,6 +178,7 @@ const CharacterView = ({
       modifier,
       total,
       rollType: 'stat',
+      individualRolls: [{ value: roll, sides: diceMax }],
     };
 
     if (animationsEnabled) {
@@ -192,6 +194,7 @@ const CharacterView = ({
         modifier: pendingRollData.modifier,
         total: pendingRollData.total,
         roll_type: pendingRollData.rollType,
+        individual_rolls: pendingRollData.individualRolls,
       });
       setIsRolling(false);
     }
@@ -218,6 +221,7 @@ const CharacterView = ({
       modifier: skillValue,
       total,
       rollType: 'skill',
+      individualRolls: [{ value: roll, sides: 20 }],
     };
 
     if (animationsEnabled) {
@@ -233,6 +237,7 @@ const CharacterView = ({
         modifier: pendingRollData.modifier,
         total: pendingRollData.total,
         roll_type: pendingRollData.rollType,
+        individual_rolls: pendingRollData.individualRolls,
       });
       setIsRolling(false);
     }
@@ -253,6 +258,7 @@ const CharacterView = ({
         modifier: pendingRoll.modifier,
         total: pendingRoll.total,
         roll_type: pendingRoll.rollType,
+        individual_rolls: pendingRoll.individualRolls,
       });
       setPendingRoll(null);
     }

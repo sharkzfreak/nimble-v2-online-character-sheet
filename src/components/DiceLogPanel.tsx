@@ -153,6 +153,7 @@ export const DiceLogPanel = () => {
     
     let allRolls: number[] = [];
     let keptRolls: number[] = [];
+    let individualRolls: Array<{ value: number; sides: number }> = [];
     let formulaParts: string[] = [];
     let modePrefix = '';
     
@@ -162,6 +163,7 @@ export const DiceLogPanel = () => {
         const rolls = rollDice(sides, count);
         allRolls.push(...rolls);
         keptRolls.push(...rolls);
+        rolls.forEach(value => individualRolls.push({ value, sides }));
         formulaParts.push(`${count}${diceType}`);
       });
     } else {
@@ -189,6 +191,16 @@ export const DiceLogPanel = () => {
       } else {
         keptRolls = total1 <= total2 ? firstSet : secondSet;
       }
+      
+      // Store only the kept rolls as individual rolls
+      poolEntries.forEach(([diceType], idx) => {
+        const sides = parseInt(diceType.substring(1));
+        const startIdx = poolEntries.slice(0, idx).reduce((sum, [_, c]) => sum + c, 0);
+        const count = poolEntries[idx][1];
+        for (let i = 0; i < count; i++) {
+          individualRolls.push({ value: keptRolls[startIdx + i], sides });
+        }
+      });
     }
 
     const rawTotal = keptRolls.reduce((sum, roll) => sum + roll, 0);
@@ -219,6 +231,7 @@ export const DiceLogPanel = () => {
         modifier,
         total,
         roll_type: 'manual',
+        individual_rolls: individualRolls,
       });
       setIsRolling(false);
       clearPool();
@@ -230,6 +243,19 @@ export const DiceLogPanel = () => {
     setShowAnimation(false);
     setIsRolling(false);
 
+    // Build individual rolls from keptRolls
+    const poolEntries = Object.entries(dicePool).filter(([_, count]) => count > 0);
+    const individualRolls: Array<{ value: number; sides: number }> = [];
+    poolEntries.forEach(([diceType, count]) => {
+      const sides = parseInt(diceType.substring(1));
+      for (let i = 0; i < count; i++) {
+        const idx = poolEntries.slice(0, poolEntries.findIndex(([dt]) => dt === diceType)).reduce((sum, [_, c]) => sum + c, 0) + i;
+        if (lastRoll.keptRolls[idx] !== undefined) {
+          individualRolls.push({ value: lastRoll.keptRolls[idx], sides });
+        }
+      }
+    });
+
     addLog({
       character_name: "Manual Roll",
       character_id: null,
@@ -238,6 +264,7 @@ export const DiceLogPanel = () => {
       modifier,
       total: lastRoll.total,
       roll_type: 'manual',
+      individual_rolls: individualRolls,
     });
     
     clearPool();
@@ -575,35 +602,83 @@ export const DiceLogPanel = () => {
                         {log.formula}
                       </div>
 
-                      {/* Result with Dice Visual */}
-                      <div className="flex items-center gap-3 p-2 rounded bg-background/40 border border-border/20">
-                        {/* Dice Icon with Value */}
-                        <div className="relative flex-shrink-0">
-                          <div className="w-12 h-12 text-primary/80">
-                            <DiceIcon type={log.formula.match(/d\d+/)?.[0] || 'd20'} />
+                      {/* Individual Dice Rolls */}
+                      {log.individual_rolls && log.individual_rolls.length > 0 ? (
+                        <div className="flex flex-col gap-2">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            {log.individual_rolls.map((die, idx) => {
+                              const isCrit = die.sides === 20 && die.value === 20;
+                              const isFail = die.sides === 20 && die.value === 1;
+                              const diceColor = isCrit ? 'text-green-400' : isFail ? 'text-red-400' : 'text-primary/80';
+                              const bgColor = isCrit ? 'bg-green-500/10' : isFail ? 'bg-red-500/10' : 'bg-background/40';
+                              const borderColor = isCrit ? 'border-green-500/30' : isFail ? 'border-red-500/30' : 'border-border/20';
+                              
+                              return (
+                                <div key={idx} className={`relative flex-shrink-0 p-1.5 rounded ${bgColor} border ${borderColor}`}>
+                                  <div className={`w-10 h-10 ${diceColor}`}>
+                                    <DiceIcon type={`d${die.sides}`} />
+                                  </div>
+                                  <div className="absolute inset-0 flex items-center justify-center">
+                                    <span className={`text-xs font-bold ${diceColor} font-cinzel drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]`}>
+                                      {die.value}
+                                    </span>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                            
+                            {/* Modifier and Total */}
+                            {log.modifier !== 0 && (
+                              <div className="flex items-baseline gap-1.5 ml-1">
+                                <span className="text-base font-bold text-muted-foreground font-cinzel">
+                                  {log.modifier > 0 ? '+' : ''}{log.modifier}
+                                </span>
+                                <span className="text-xs text-muted-foreground">=</span>
+                                <span className="text-lg font-bold text-foreground font-cinzel">
+                                  {log.total}
+                                </span>
+                              </div>
+                            )}
+                            
+                            {log.modifier === 0 && log.individual_rolls.length > 1 && (
+                              <div className="flex items-baseline gap-1.5 ml-1">
+                                <span className="text-xs text-muted-foreground">=</span>
+                                <span className="text-lg font-bold text-foreground font-cinzel">
+                                  {log.total}
+                                </span>
+                              </div>
+                            )}
                           </div>
-                          <div className="absolute inset-0 flex items-center justify-center">
-                            <span className="text-sm font-bold text-primary font-cinzel drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
-                              {log.raw_result}
+                        </div>
+                      ) : (
+                        /* Fallback for old logs without individual_rolls */
+                        <div className="flex items-center gap-3 p-2 rounded bg-background/40 border border-border/20">
+                          <div className="relative flex-shrink-0">
+                            <div className="w-12 h-12 text-primary/80">
+                              <DiceIcon type={log.formula.match(/d\d+/)?.[0] || 'd20'} />
+                            </div>
+                            <div className="absolute inset-0 flex items-center justify-center">
+                              <span className="text-sm font-bold text-primary font-cinzel drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
+                                {log.raw_result}
+                              </span>
+                            </div>
+                          </div>
+                          
+                          <div className="flex items-baseline gap-2 flex-wrap">
+                            {log.modifier !== 0 && (
+                              <>
+                                <span className="text-lg font-bold text-muted-foreground font-cinzel">
+                                  {log.modifier > 0 ? '+' : ''}{log.modifier}
+                                </span>
+                                <span className="text-sm text-muted-foreground">=</span>
+                              </>
+                            )}
+                            <span className="text-xl font-bold text-foreground font-cinzel">
+                              {log.total}
                             </span>
                           </div>
                         </div>
-                        
-                        {/* Modifier and Total */}
-                        <div className="flex items-baseline gap-2 flex-wrap">
-                          {log.modifier !== 0 && (
-                            <>
-                              <span className="text-lg font-bold text-muted-foreground font-cinzel">
-                                {log.modifier > 0 ? '+' : ''}{log.modifier}
-                              </span>
-                              <span className="text-sm text-muted-foreground">=</span>
-                            </>
-                          )}
-                          <span className="text-xl font-bold text-foreground font-cinzel">
-                            {log.total}
-                          </span>
-                        </div>
-                      </div>
+                      )}
                     </div>
                   );
                 })

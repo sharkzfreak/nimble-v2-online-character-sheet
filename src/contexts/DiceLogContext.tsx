@@ -12,6 +12,7 @@ export interface DiceLogEntry {
   total: number;
   roll_type: string;
   created_at: string;
+  individual_rolls?: Array<{ value: number; sides: number }>;
 }
 
 interface DiceLogContextType {
@@ -52,7 +53,14 @@ export function DiceLogProvider({ children }: { children: ReactNode }) {
         .limit(50);
 
       if (error) throw error;
-      setLogs(data || []);
+      
+      // Transform the data to ensure individual_rolls is properly typed
+      const transformedData: DiceLogEntry[] = (data || []).map(log => ({
+        ...log,
+        individual_rolls: log.individual_rolls as Array<{ value: number; sides: number }> | undefined
+      }));
+      
+      setLogs(transformedData);
     } catch (error) {
       console.error("Error fetching dice logs:", error);
     } finally {
@@ -77,7 +85,11 @@ export function DiceLogProvider({ children }: { children: ReactNode }) {
       if (error) throw error;
 
       if (data) {
-        setLogs(prev => [...prev, data].slice(-50)); // Keep only recent 50, newest at end
+        const transformedLog: DiceLogEntry = {
+          ...data,
+          individual_rolls: data.individual_rolls as Array<{ value: number; sides: number }> | undefined
+        };
+        setLogs(prev => [...prev, transformedLog].slice(-50)); // Keep only recent 50, newest at end
       }
     } catch (error) {
       console.error("Error adding dice log:", error);
