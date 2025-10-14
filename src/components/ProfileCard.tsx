@@ -160,7 +160,7 @@ export const ProfileCard = ({
           <div className="grid grid-cols-[1fr,auto,1fr] items-center gap-3">
             
             {/* HP Bar (Left) */}
-            <div className="relative flex flex-col justify-end items-end gap-1">
+            <div className="relative flex flex-col justify-end items-end gap-1 mt-2">
               {/* HP Track (slides under shield) */}
               <Popover open={editingHP} onOpenChange={setEditingHP}>
                 <PopoverTrigger asChild>
