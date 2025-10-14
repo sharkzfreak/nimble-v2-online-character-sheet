@@ -49,16 +49,16 @@ export const FavoritesCard = ({
   // Map skills to their corresponding stat colors
   const getSkillStatColor = (skillName: string): string => {
     const skillColorMap: Record<string, string> = {
-      'Might': 'var(--stat-strength)',
-      'Finesse': 'var(--stat-dexterity)',
-      'Stealth': 'var(--stat-dexterity)',
-      'Arcana': 'var(--stat-intelligence)',
-      'Examination': 'var(--stat-intelligence)',
-      'Lore': 'var(--stat-intelligence)',
-      'Insight': 'var(--stat-will)',
-      'Influence': 'var(--stat-will)',
-      'Naturecraft': 'var(--stat-will)',
-      'Perception': 'var(--stat-will)',
+      'Might': '0 70% 55%',
+      'Finesse': '120 60% 50%',
+      'Stealth': '120 60% 50%',
+      'Arcana': '220 80% 60%',
+      'Examination': '220 80% 60%',
+      'Lore': '220 80% 60%',
+      'Insight': '280 70% 65%',
+      'Influence': '280 70% 65%',
+      'Naturecraft': '280 70% 65%',
+      'Perception': '280 70% 65%',
     };
     return skillColorMap[skillName] || classColor;
   };
@@ -157,7 +157,7 @@ export const FavoritesCard = ({
                 <button
                   key={skill.name}
                   onClick={() => onSkillRoll?.(skill.name, skill.value)}
-                  className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg transition-all duration-200 group"
+                  className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg transition-all duration-200 group hover:brightness-110"
                   style={{
                     background: `linear-gradient(90deg, hsl(${skillColor} / 0.15), transparent)`,
                     borderLeft: `3px solid hsl(${skillColor})`,

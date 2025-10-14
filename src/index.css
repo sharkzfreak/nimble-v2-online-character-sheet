@@ -52,6 +52,12 @@ All colors MUST be HSL.
     --ability-wis: 280 70% 65%;
     --ability-cha: 43 96% 56%;
 
+    /* Stat Colors (Nimble System) */
+    --stat-strength: 0 70% 55%;
+    --stat-dexterity: 120 60% 50%;
+    --stat-intelligence: 220 80% 60%;
+    --stat-will: 280 70% 65%;
+
     /* Class Theme Colors */
     --class-fighter: 0 65% 45%;
     --class-rogue: 270 50% 40%;
