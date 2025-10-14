@@ -81,7 +81,7 @@ export const FavoritesCard = ({
 
         {/* Favorites Content */}
         <TabsContent value="favorites" className="m-0">
-          <div className="p-3 space-y-1 max-h-[300px] overflow-y-auto">
+          <div className="p-3 space-y-1 max-h-[400px] overflow-y-auto">
             {favorites.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground text-sm">
                 <Star className="w-8 h-8 mx-auto mb-2 opacity-30" />
@@ -133,7 +133,7 @@ export const FavoritesCard = ({
 
         {/* Skills Content */}
         <TabsContent value="skills" className="m-0">
-          <div className="p-3 space-y-1 max-h-[300px] overflow-y-auto">
+          <div className="p-3 space-y-1 max-h-[500px] overflow-y-auto">
             {skills.map((skill) => (
               <button
                 key={skill.name}
