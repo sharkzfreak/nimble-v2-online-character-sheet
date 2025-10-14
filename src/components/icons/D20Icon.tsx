@@ -13,17 +13,16 @@ export const D20Icon = ({ className, ...props }: SVGProps<SVGSVGElement>) => {
       className={className}
       {...props}
     >
-      {/* Icosahedron outline */}
-      {/* Top pyramid */}
-      <path d="M12 2 L20 8 L16 14 L12 8 L8 14 L4 8 Z" />
-      {/* Middle band */}
-      <path d="M4 8 L8 14 L12 8 L16 14 L20 8" />
-      {/* Bottom pyramid */}
-      <path d="M4 8 L8 14 L12 22 L16 14 L20 8" />
-      <path d="M8 14 L12 22 L16 14" />
-      {/* Connecting lines */}
-      <path d="M12 2 L12 8" />
-      <path d="M12 8 L12 22" />
+      {/* D20 Icosahedron outer outline only */}
+      {/* Top point */}
+      <path d="M12 2 L20 7 L18 14 L12 18 L6 14 L4 7 Z" />
+      {/* Bottom point */}
+      <path d="M12 18 L18 14 L20 17 L12 22 L4 17 L6 14 Z" />
+      {/* Left and right edges */}
+      <path d="M4 7 L6 14" />
+      <path d="M20 7 L18 14" />
+      <path d="M6 14 L4 17" />
+      <path d="M18 14 L20 17" />
     </svg>
   );
 };
