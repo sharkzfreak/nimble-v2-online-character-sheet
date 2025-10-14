@@ -206,7 +206,23 @@ export const DiceLogPanel = () => {
       allRolls,
       keptRolls
     });
-    setShowAnimation(animationsEnabled);
+    
+    if (animationsEnabled) {
+      setShowAnimation(true);
+    } else {
+      // No animation - log immediately
+      addLog({
+        character_name: "Manual Roll",
+        character_id: null,
+        formula,
+        raw_result: rawTotal,
+        modifier,
+        total,
+        roll_type: 'manual',
+      });
+      setIsRolling(false);
+      clearPool();
+    }
   };
 
   const handleAnimationComplete = () => {

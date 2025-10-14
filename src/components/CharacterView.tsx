@@ -169,17 +169,32 @@ const CharacterView = ({
     
     console.log(`Rolling ${statName}: ${roll} + ${modifier} = ${total} (${diceType})`);
     setDiceRoll({ statName, roll, modifier, total, diceType });
-    setShowAnimation(animationsEnabled);
-
-    // Store pending log data
-    setPendingRoll({
+    
+    const pendingRollData = {
       characterName: formData.name || 'Unknown',
       formula: `${diceType}${modifier !== 0 ? ` ${modifier > 0 ? '+' : ''}${modifier}` : ''}`,
       rawResult: roll,
       modifier,
       total,
       rollType: 'stat',
-    });
+    };
+
+    if (animationsEnabled) {
+      setShowAnimation(true);
+      setPendingRoll(pendingRollData);
+    } else {
+      // No animation - log immediately
+      addLog({
+        character_name: pendingRollData.characterName,
+        character_id: characterId,
+        formula: pendingRollData.formula,
+        raw_result: pendingRollData.rawResult,
+        modifier: pendingRollData.modifier,
+        total: pendingRollData.total,
+        roll_type: pendingRollData.rollType,
+      });
+      setIsRolling(false);
+    }
   };
 
   const rollSkillCheck = (skillName: string, skillValue: number) => {
@@ -195,17 +210,32 @@ const CharacterView = ({
     
     console.log(`Rolling ${skillName}: ${roll} + ${skillValue} = ${total} (d20 skill check)`);
     setDiceRoll({ statName: skillName, roll, modifier: skillValue, total, diceType: "d20" });
-    setShowAnimation(animationsEnabled);
-
-    // Store pending log data
-    setPendingRoll({
+    
+    const pendingRollData = {
       characterName: formData.name || 'Unknown',
       formula: `d20${skillValue !== 0 ? ` ${skillValue > 0 ? '+' : ''}${skillValue}` : ''}`,
       rawResult: roll,
       modifier: skillValue,
       total,
       rollType: 'skill',
-    });
+    };
+
+    if (animationsEnabled) {
+      setShowAnimation(true);
+      setPendingRoll(pendingRollData);
+    } else {
+      // No animation - log immediately
+      addLog({
+        character_name: pendingRollData.characterName,
+        character_id: characterId,
+        formula: pendingRollData.formula,
+        raw_result: pendingRollData.rawResult,
+        modifier: pendingRollData.modifier,
+        total: pendingRollData.total,
+        roll_type: pendingRollData.rollType,
+      });
+      setIsRolling(false);
+    }
   };
 
   const handleAnimationComplete = () => {
