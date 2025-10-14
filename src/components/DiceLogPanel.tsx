@@ -475,10 +475,10 @@ export const DiceLogPanel = () => {
   };
 
   // Render dice face with numbers
-  const DiceFace = ({ value, sides }: { value: number; sides: number }) => {
+  const DiceFace = ({ value, sides, className = '' }: { value: number; sides: number; className?: string }) => {
     return (
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-        <span className="text-xs font-bold font-cinzel drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
+        <span className={`text-xs font-bold font-cinzel drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)] ${className}`}>
           {value}
         </span>
       </div>
@@ -616,46 +616,122 @@ export const DiceLogPanel = () => {
                       {/* Individual Dice Rolls */}
                       {log.individual_rolls && log.individual_rolls.length > 0 ? (
                         <div className="flex flex-col gap-2">
-                          <div className="flex items-center gap-2 flex-wrap">
-                            {log.individual_rolls.map((die, idx) => {
-                              const isCrit = die.sides === 20 && die.value === 20;
-                              const isFail = die.sides === 20 && die.value === 1;
-                              const diceColor = isCrit ? 'text-green-400' : isFail ? 'text-red-400' : 'text-primary/80';
-                              const bgColor = isCrit ? 'bg-green-500/10' : isFail ? 'bg-red-500/10' : 'bg-background/40';
-                              const borderColor = isCrit ? 'border-green-500/30' : isFail ? 'border-red-500/30' : 'border-border/20';
+                          {/* Check if this is an advantage/disadvantage roll */}
+                          {(() => {
+                            const isAdvDis = log.formula.includes('Advantage') || log.formula.includes('Disadvantage');
+                            const isAdvantage = log.formula.includes('Advantage');
+                            
+                            if (isAdvDis && log.individual_rolls.length >= 2) {
+                              // Split into two sets
+                              const halfPoint = Math.floor(log.individual_rolls.length / 2);
+                              const firstSet = log.individual_rolls.slice(0, halfPoint);
+                              const secondSet = log.individual_rolls.slice(halfPoint);
+                              const firstTotal = firstSet.reduce((a, b) => a + b.value, 0);
+                              const secondTotal = secondSet.reduce((a, b) => a + b.value, 0);
+                              
+                              // Determine which set to keep
+                              const keepFirst = isAdvantage ? firstTotal >= secondTotal : firstTotal <= secondTotal;
                               
                               return (
-                                <div key={idx} className={`relative flex-shrink-0 p-1.5 rounded ${bgColor} border ${borderColor}`}>
-                                  <div className={`w-10 h-10 ${diceColor}`}>
-                                    <DiceIcon type={`d${die.sides}`} />
-                                  </div>
-                                  <DiceFace value={die.value} sides={die.sides} />
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  {/* First Set */}
+                                  {firstSet.map((die, idx) => {
+                                    const isCrit = die.sides === 20 && die.value === 20;
+                                    const isFail = die.sides === 20 && die.value === 1;
+                                    const isDiscarded = !keepFirst;
+                                    const diceColor = isDiscarded ? 'text-muted-foreground/40' : (isCrit ? 'text-green-400' : isFail ? 'text-red-400' : 'text-primary/80');
+                                    const bgColor = isDiscarded ? 'bg-muted/20' : (isCrit ? 'bg-green-500/10' : isFail ? 'bg-red-500/10' : 'bg-background/40');
+                                    const borderColor = isDiscarded ? 'border-muted-foreground/20' : (isCrit ? 'border-green-500/30' : isFail ? 'border-red-500/30' : 'border-border/20');
+                                    
+                                    return (
+                                      <div key={`first-${idx}`} className={`relative flex-shrink-0 p-1.5 rounded ${bgColor} border ${borderColor} ${isDiscarded ? 'opacity-60' : ''}`}>
+                                        <div className={`w-10 h-10 ${diceColor}`}>
+                                          <DiceIcon type={`d${die.sides}`} />
+                                        </div>
+                                        <DiceFace value={die.value} sides={die.sides} className={isDiscarded ? 'line-through decoration-2 decoration-destructive' : ''} />
+                                      </div>
+                                    );
+                                  })}
+                                  
+                                  {/* Second Set */}
+                                  {secondSet.map((die, idx) => {
+                                    const isCrit = die.sides === 20 && die.value === 20;
+                                    const isFail = die.sides === 20 && die.value === 1;
+                                    const isDiscarded = keepFirst;
+                                    const diceColor = isDiscarded ? 'text-muted-foreground/40' : (isCrit ? 'text-green-400' : isFail ? 'text-red-400' : 'text-primary/80');
+                                    const bgColor = isDiscarded ? 'bg-muted/20' : (isCrit ? 'bg-green-500/10' : isFail ? 'bg-red-500/10' : 'bg-background/40');
+                                    const borderColor = isDiscarded ? 'border-muted-foreground/20' : (isCrit ? 'border-green-500/30' : isFail ? 'border-red-500/30' : 'border-border/20');
+                                    
+                                    return (
+                                      <div key={`second-${idx}`} className={`relative flex-shrink-0 p-1.5 rounded ${bgColor} border ${borderColor} ${isDiscarded ? 'opacity-60' : ''}`}>
+                                        <div className={`w-10 h-10 ${diceColor}`}>
+                                          <DiceIcon type={`d${die.sides}`} />
+                                        </div>
+                                        <DiceFace value={die.value} sides={die.sides} className={isDiscarded ? 'line-through decoration-2 decoration-destructive' : ''} />
+                                      </div>
+                                    );
+                                  })}
+                                  
+                                  {/* Modifier and Total */}
+                                  {log.modifier !== 0 && (
+                                    <div className="flex items-baseline gap-1.5 ml-1">
+                                      <span className="text-base font-bold text-muted-foreground font-cinzel">
+                                        {log.modifier > 0 ? '+' : ''}{log.modifier}
+                                      </span>
+                                      <span className="text-xs text-muted-foreground">=</span>
+                                      <span className="text-lg font-bold text-foreground font-cinzel">
+                                        {log.total}
+                                      </span>
+                                    </div>
+                                  )}
                                 </div>
                               );
-                            })}
-                            
-                            {/* Modifier and Total */}
-                            {log.modifier !== 0 && (
-                              <div className="flex items-baseline gap-1.5 ml-1">
-                                <span className="text-base font-bold text-muted-foreground font-cinzel">
-                                  {log.modifier > 0 ? '+' : ''}{log.modifier}
-                                </span>
-                                <span className="text-xs text-muted-foreground">=</span>
-                                <span className="text-lg font-bold text-foreground font-cinzel">
-                                  {log.total}
-                                </span>
-                              </div>
-                            )}
-                            
-                            {log.modifier === 0 && log.individual_rolls.length > 1 && (
-                              <div className="flex items-baseline gap-1.5 ml-1">
-                                <span className="text-xs text-muted-foreground">=</span>
-                                <span className="text-lg font-bold text-foreground font-cinzel">
-                                  {log.total}
-                                </span>
-                              </div>
-                            )}
-                          </div>
+                            } else {
+                              // Normal roll display
+                              return (
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  {log.individual_rolls.map((die, idx) => {
+                                    const isCrit = die.sides === 20 && die.value === 20;
+                                    const isFail = die.sides === 20 && die.value === 1;
+                                    const diceColor = isCrit ? 'text-green-400' : isFail ? 'text-red-400' : 'text-primary/80';
+                                    const bgColor = isCrit ? 'bg-green-500/10' : isFail ? 'bg-red-500/10' : 'bg-background/40';
+                                    const borderColor = isCrit ? 'border-green-500/30' : isFail ? 'border-red-500/30' : 'border-border/20';
+                                    
+                                    return (
+                                      <div key={idx} className={`relative flex-shrink-0 p-1.5 rounded ${bgColor} border ${borderColor}`}>
+                                        <div className={`w-10 h-10 ${diceColor}`}>
+                                          <DiceIcon type={`d${die.sides}`} />
+                                        </div>
+                                        <DiceFace value={die.value} sides={die.sides} />
+                                      </div>
+                                    );
+                                  })}
+                                  
+                                  {/* Modifier and Total */}
+                                  {log.modifier !== 0 && (
+                                    <div className="flex items-baseline gap-1.5 ml-1">
+                                      <span className="text-base font-bold text-muted-foreground font-cinzel">
+                                        {log.modifier > 0 ? '+' : ''}{log.modifier}
+                                      </span>
+                                      <span className="text-xs text-muted-foreground">=</span>
+                                      <span className="text-lg font-bold text-foreground font-cinzel">
+                                        {log.total}
+                                      </span>
+                                    </div>
+                                  )}
+                                  
+                                  {log.modifier === 0 && log.individual_rolls.length > 1 && (
+                                    <div className="flex items-baseline gap-1.5 ml-1">
+                                      <span className="text-xs text-muted-foreground">=</span>
+                                      <span className="text-lg font-bold text-foreground font-cinzel">
+                                        {log.total}
+                                      </span>
+                                    </div>
+                                  )}
+                                </div>
+                              );
+                            }
+                          })()}
                         </div>
                       ) : (
                         /* Fallback for old logs without individual_rolls */

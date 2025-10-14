@@ -334,8 +334,8 @@ export const DiceRollAnimation = ({
                           }`}>
                             <div className="flex gap-2 flex-wrap justify-center">
                               {firstSet.map((roll, idx) => (
-                                <div key={idx} className={`relative ${!isFirstKept ? 'line-through' : ''}`}>
-                                  <span className={`text-2xl font-bold ${!isFirstKept ? 'text-muted-foreground' : diceColor}`}>
+                                <div key={idx} className="relative">
+                                  <span className={`text-2xl font-bold ${!isFirstKept ? 'text-muted-foreground line-through decoration-2 decoration-destructive' : diceColor}`}>
                                     {roll}
                                   </span>
                                 </div>
@@ -356,8 +356,8 @@ export const DiceRollAnimation = ({
                           }`}>
                             <div className="flex gap-2 flex-wrap justify-center">
                               {secondSet.map((roll, idx) => (
-                                <div key={idx} className={`relative ${isFirstKept ? 'line-through' : ''}`}>
-                                  <span className={`text-2xl font-bold ${isFirstKept ? 'text-muted-foreground' : diceColor}`}>
+                                <div key={idx} className="relative">
+                                  <span className={`text-2xl font-bold ${isFirstKept ? 'text-muted-foreground line-through decoration-2 decoration-destructive' : diceColor}`}>
                                     {roll}
                                   </span>
                                 </div>
