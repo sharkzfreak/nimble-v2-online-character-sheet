@@ -122,14 +122,16 @@ const CharacterView = ({
       }
 
       const cardW = card.offsetWidth || 0;
+      const cardLeft = 16; // left offset of card
       const gapLeft = 24;   // space between card and sheet
 
       // Left align main container right next to the fixed card
-      sheet.style.marginLeft = `${cardW + gapLeft}px`;
+      sheet.style.marginLeft = `${cardW + cardLeft + gapLeft}px`;
 
-      // Make content span remaining width
-      sheet.style.width = `calc(100vw - ${cardW + gapLeft}px)`;
-      sheet.style.maxWidth = 'none';
+      // Make content span remaining width with right padding to prevent horizontal scroll
+      const totalOffset = cardW + cardLeft + gapLeft + 24; // +24 for right padding
+      sheet.style.width = `calc(100vw - ${totalOffset}px)`;
+      sheet.style.maxWidth = `calc(100vw - ${totalOffset}px)`;
     };
 
     // Initial alignment and on resize
