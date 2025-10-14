@@ -51,7 +51,7 @@ export const ManualDiceRoller = ({ characterName = "Manual Roll", characterId }:
     d6: 0,
     d4: 0,
   });
-  const { addLog } = useDiceLog();
+  const { addLog, animationsEnabled } = useDiceLog();
   const containerRef = useRef<HTMLDivElement>(null);
 
   // Close menu when clicking outside
@@ -184,7 +184,7 @@ export const ManualDiceRoller = ({ characterName = "Manual Roll", characterId }:
       keptRolls
     });
     setIsDiceOpen(false);
-    setShowAnimation(true);
+    setShowAnimation(animationsEnabled);
   };
 
   const handleAnimationComplete = () => {

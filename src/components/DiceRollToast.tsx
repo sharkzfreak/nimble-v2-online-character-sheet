@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
-import { Dices } from "lucide-react";
+import { Dices, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface DiceRollToastProps {
   statName: string;
@@ -49,6 +50,14 @@ export const DiceRollToast = ({ statName, roll, modifier, total, diceType = "d20
 
   return (
     <Card className="fixed top-20 right-6 z-50 p-6 bg-gradient-to-br from-primary/20 to-accent/20 border-2 border-primary/50 shadow-2xl backdrop-blur-md animate-scale-in">
+      <Button
+        variant="ghost"
+        size="sm"
+        className="absolute top-2 right-2 h-6 w-6 p-0 hover:bg-destructive/20"
+        onClick={onClose}
+      >
+        <X className="h-4 w-4" />
+      </Button>
       <div className="flex items-center gap-4">
         <Dices 
           className={`w-10 h-10 text-primary ${isRolling ? 'animate-spin' : ''}`} 

@@ -26,7 +26,7 @@ const diceTypes: DiceType[] = [
 ];
 
 export const DiceLogPanel = () => {
-  const { logs, clearLogs, isLoading, addLog } = useDiceLog();
+  const { logs, clearLogs, isLoading, addLog, animationsEnabled, toggleAnimations } = useDiceLog();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const dockRef = useRef<HTMLDivElement>(null);
@@ -183,7 +183,7 @@ export const DiceLogPanel = () => {
       allRolls,
       keptRolls
     });
-    setShowAnimation(true);
+    setShowAnimation(animationsEnabled);
   };
 
   const handleAnimationComplete = () => {
@@ -413,8 +413,22 @@ export const DiceLogPanel = () => {
         <CardHeader className="p-3 border-b border-border/50 flex-shrink-0">
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-2 text-foreground font-cinzel text-sm">
-              <Dices className="w-4 h-4 text-primary" />
-              Chat Log
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      onClick={toggleAnimations}
+                      className="flex items-center gap-2 hover:opacity-70 transition-opacity"
+                    >
+                      <Dices className={`w-4 h-4 ${animationsEnabled ? 'text-primary' : 'text-muted-foreground'}`} />
+                      Chat Log
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Click to {animationsEnabled ? 'disable' : 'enable'} animations</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </CardTitle>
             <div className="flex items-center gap-1">
               {logs.length > 0 && (

@@ -85,7 +85,7 @@ const CharacterView = ({
   onFormDataChange,
 }: CharacterViewProps) => {
   const { data: ruleset, isLoading: rulesetLoading } = useNimbleRuleset();
-  const { addLog } = useDiceLog();
+  const { addLog, animationsEnabled } = useDiceLog();
   
   const [diceRoll, setDiceRoll] = useState<{
     statName: string;
@@ -165,7 +165,7 @@ const CharacterView = ({
     
     console.log(`Rolling ${statName}: ${roll} + ${modifier} = ${total} (${diceType})`);
     setDiceRoll({ statName, roll, modifier, total, diceType });
-    setShowAnimation(true);
+    setShowAnimation(animationsEnabled);
 
     // Store pending log data
     setPendingRoll({
@@ -187,7 +187,7 @@ const CharacterView = ({
     
     console.log(`Rolling ${skillName}: ${roll} + ${skillValue} = ${total} (d20 skill check)`);
     setDiceRoll({ statName: skillName, roll, modifier: skillValue, total, diceType: "d20" });
-    setShowAnimation(true);
+    setShowAnimation(animationsEnabled);
 
     // Store pending log data
     setPendingRoll({

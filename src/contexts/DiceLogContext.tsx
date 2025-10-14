@@ -19,6 +19,8 @@ interface DiceLogContextType {
   addLog: (entry: Omit<DiceLogEntry, "id" | "created_at">) => Promise<void>;
   clearLogs: () => Promise<void>;
   isLoading: boolean;
+  animationsEnabled: boolean;
+  toggleAnimations: () => void;
 }
 
 const DiceLogContext = createContext<DiceLogContextType | undefined>(undefined);
@@ -26,6 +28,10 @@ const DiceLogContext = createContext<DiceLogContextType | undefined>(undefined);
 export function DiceLogProvider({ children }: { children: ReactNode }) {
   const [logs, setLogs] = useState<DiceLogEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [animationsEnabled, setAnimationsEnabled] = useState(() => {
+    const saved = localStorage.getItem('diceAnimationsEnabled');
+    return saved !== null ? JSON.parse(saved) : true;
+  });
   const { toast } = useToast();
 
   // Fetch recent logs on mount
@@ -110,8 +116,20 @@ export function DiceLogProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const toggleAnimations = () => {
+    setAnimationsEnabled(prev => {
+      const newValue = !prev;
+      localStorage.setItem('diceAnimationsEnabled', JSON.stringify(newValue));
+      toast({
+        title: `Animations ${newValue ? 'enabled' : 'disabled'}`,
+        description: `Dice roll animations are now ${newValue ? 'on' : 'off'}`,
+      });
+      return newValue;
+    });
+  };
+
   return (
-    <DiceLogContext.Provider value={{ logs, addLog, clearLogs, isLoading }}>
+    <DiceLogContext.Provider value={{ logs, addLog, clearLogs, isLoading, animationsEnabled, toggleAnimations }}>
       {children}
     </DiceLogContext.Provider>
   );
