@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Star, Swords, Wand2, Package, Dices } from "lucide-react";
+import { Star, Swords, Wand2, Package, Dices, X } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -25,6 +25,7 @@ interface FavoritesCardProps {
   favorites?: FavoriteItem[];
   skills: SkillData[];
   onSkillRoll?: (skillName: string, skillValue: number) => void;
+  onRemoveFavorite?: (itemId: string) => void;
 }
 
 export const FavoritesCard = ({
@@ -32,6 +33,7 @@ export const FavoritesCard = ({
   favorites = [],
   skills,
   onSkillRoll,
+  onRemoveFavorite,
 }: FavoritesCardProps) => {
   const [activeTab, setActiveTab] = useState<'favorites' | 'skills'>('favorites');
 
@@ -112,8 +114,8 @@ export const FavoritesCard = ({
                   <TooltipProvider key={item.id}>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <button
-                          className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-muted/40 transition-all duration-200 text-left group"
+                        <div
+                          className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-muted/40 transition-all duration-200 group relative"
                           style={{
                             borderLeft: `3px solid hsl(${classColor} / 0.5)`,
                           }}
@@ -126,14 +128,17 @@ export const FavoritesCard = ({
                             <p className="text-sm font-medium truncate">{item.name}</p>
                             <p className="text-xs text-muted-foreground capitalize">{item.type}</p>
                           </div>
-                          <Star
-                            className="w-3 h-3 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                            style={{ 
-                              color: `hsl(${classColor})`,
-                              fill: `hsl(${classColor})`
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onRemoveFavorite?.(item.id);
                             }}
-                          />
-                        </button>
+                            className="flex-shrink-0 p-1 rounded hover:bg-destructive/20 transition-colors opacity-0 group-hover:opacity-100"
+                            aria-label="Remove from favorites"
+                          >
+                            <X className="w-3 h-3 text-destructive" />
+                          </button>
+                        </div>
                       </TooltipTrigger>
                       {item.description && (
                         <TooltipContent className="max-w-xs">
