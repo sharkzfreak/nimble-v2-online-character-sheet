@@ -156,7 +156,7 @@ const CharacterForm = ({ characterId }: CharacterFormProps) => {
         const transformedData = {
           ...data,
           favorites: (data.favorites || []) as Array<{ id: string; name: string; type: 'attack' | 'spell' | 'item'; description?: string }>,
-          journal_entries: (data.journal_entries || []) as Array<{ id: string; title: string; content: string; timestamp: string }>,
+          journal_entries: ((data as any).journal_entries || []) as Array<{ id: string; title: string; content: string; timestamp: string }>,
         };
         setFormData(transformedData);
         initialDataRef.current = JSON.stringify(transformedData);

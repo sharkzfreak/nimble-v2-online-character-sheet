@@ -157,6 +157,7 @@ export type Database = {
           hp_temp: number | null
           id: string
           intelligence: number
+          journal_entries: Json | null
           level: number
           name: string
           notes: string | null
@@ -200,6 +201,7 @@ export type Database = {
           hp_temp?: number | null
           id?: string
           intelligence?: number
+          journal_entries?: Json | null
           level?: number
           name: string
           notes?: string | null
@@ -243,6 +245,7 @@ export type Database = {
           hp_temp?: number | null
           id?: string
           intelligence?: number
+          journal_entries?: Json | null
           level?: number
           name?: string
           notes?: string | null
