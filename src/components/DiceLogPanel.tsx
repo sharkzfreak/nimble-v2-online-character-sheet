@@ -121,11 +121,18 @@ export const DiceLogPanel = () => {
   };
 
   const rollPool = () => {
-    if (isRolling) return;
+    if (isRolling) {
+      console.log('Already rolling, skipping...');
+      return;
+    }
     
     const poolEntries = Object.entries(dicePool).filter(([_, count]) => count > 0);
-    if (poolEntries.length === 0) return;
+    if (poolEntries.length === 0) {
+      console.log('No dice in pool, cannot roll');
+      return;
+    }
 
+    console.log('Rolling dice pool:', poolEntries);
     setIsRolling(true);
     
     let allRolls: number[] = [];
@@ -187,6 +194,7 @@ export const DiceLogPanel = () => {
   };
 
   const handleAnimationComplete = () => {
+    console.log('Dice pool animation complete, resetting state');
     setShowAnimation(false);
     setIsRolling(false);
 

@@ -155,8 +155,12 @@ const CharacterView = ({
   };
 
   const rollDice = (statName: string, statValue: number, diceType: string = "d20") => {
-    if (isRolling) return;
+    if (isRolling) {
+      console.log('Already rolling, skipping stat roll...');
+      return;
+    }
     
+    console.log(`Initiating roll for ${statName}`);
     setIsRolling(true);
     const modifier = getModifier(statValue);
     const diceMax = parseInt(diceType.substring(1)) || 20;
@@ -179,8 +183,12 @@ const CharacterView = ({
   };
 
   const rollSkillCheck = (skillName: string, skillValue: number) => {
-    if (isRolling) return;
+    if (isRolling) {
+      console.log('Already rolling, skipping skill check...');
+      return;
+    }
     
+    console.log(`Initiating skill check for ${skillName}`);
     setIsRolling(true);
     const roll = Math.ceil(Math.random() * 20);
     const total = roll + skillValue;
@@ -201,6 +209,7 @@ const CharacterView = ({
   };
 
   const handleAnimationComplete = () => {
+    console.log('Animation complete, resetting isRolling state');
     setShowAnimation(false);
     setIsRolling(false);
 
