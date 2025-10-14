@@ -31,6 +31,13 @@ import { AnimatedStatContainer } from "./AnimatedStatContainer";
 import { ProfileCard } from "./ProfileCard";
 import { FavoritesCard } from "./FavoritesCard";
 
+interface FavoriteItem {
+  id: string;
+  name: string;
+  type: 'attack' | 'spell' | 'item';
+  description?: string;
+}
+
 interface CharacterViewProps {
   characterId?: string;
   formData: {
@@ -67,6 +74,7 @@ interface CharacterViewProps {
     hit_dice_remaining: number;
     hit_dice_total: number;
     portrait_url?: string;
+    favorites?: FavoriteItem[];
   };
   calculateHealth: () => number;
   calculateDefense: () => number;
@@ -484,8 +492,8 @@ const CharacterView = ({
       {/* Favorites Card */}
       <FavoritesCard
         classColor={classThemeColor}
-        favorites={[
-          // Example favorites - will be dynamic later
+        favorites={formData.favorites || [
+          // Default favorites if none exist
           { id: '1', name: 'Longsword', type: 'attack', description: '1d8 slashing damage' },
           { id: '2', name: 'Fireball', type: 'spell', description: '8d6 fire damage' },
           { id: '3', name: 'Healing Potion', type: 'item', description: 'Restore 2d4+2 HP' },
@@ -503,6 +511,10 @@ const CharacterView = ({
           { name: 'Perception', value: formData.skill_perception },
         ]}
         onSkillRoll={rollSkillCheck}
+        onRemoveFavorite={(itemId) => {
+          const updatedFavorites = (formData.favorites || []).filter(fav => fav.id !== itemId);
+          onFormDataChange?.({ favorites: updatedFavorites });
+        }}
       />
       
       {/* Main Content Area (Fills space between left card and chat) */}
