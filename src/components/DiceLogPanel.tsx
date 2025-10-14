@@ -30,6 +30,7 @@ export const DiceLogPanel = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const dockRef = useRef<HTMLDivElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
   const prevLogsLengthRef = useRef(logs.length);
 
   // Dice dock state
@@ -65,6 +66,20 @@ export const DiceLogPanel = () => {
     }
     prevLogsLengthRef.current = logs.length;
   }, [logs]);
+
+  // Click outside to collapse
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (isCollapsed) return; // Don't do anything if already collapsed
+      
+      if (panelRef.current && !panelRef.current.contains(event.target as Node)) {
+        setIsCollapsed(true);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isCollapsed]);
 
   // Apply dock inset padding to prevent overlap
   useEffect(() => {
@@ -417,7 +432,7 @@ export const DiceLogPanel = () => {
 
   return (
     <>
-      <div className="fixed right-0 top-0 bottom-0 z-40 w-72 lg:w-80 bg-card/95 backdrop-blur-md border-l border-primary/30 shadow-2xl flex flex-col">
+      <div ref={panelRef} className="fixed right-0 top-0 bottom-0 z-40 w-72 lg:w-80 bg-card/95 backdrop-blur-md border-l border-primary/30 shadow-2xl flex flex-col">
         <CardHeader className="p-3 border-b border-border/50 flex-shrink-0">
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-2 text-foreground font-cinzel text-sm">
