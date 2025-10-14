@@ -14,7 +14,9 @@ import {
   Dices,
   Activity,
   Heart,
-  Footprints
+  Footprints,
+  Sparkles,
+  Package
 } from "lucide-react";
 import {
   Tooltip,
@@ -665,7 +667,7 @@ const CharacterView = ({
         {/* Tabbed Content */}
         <Tabs defaultValue="skills" className="w-full">
           <TabsList 
-            className="grid w-full grid-cols-4 h-14 border-2 p-1"
+            className="grid w-full grid-cols-5 h-14 border-2 p-1"
             style={{
               backgroundColor: `hsl(${classThemeColor} / 0.1)`,
               borderColor: `hsl(${classThemeColor} / 0.3)`
@@ -682,11 +684,18 @@ const CharacterView = ({
               <span className="hidden sm:inline">Skills</span>
             </TabsTrigger>
             <TabsTrigger 
-              value="abilities"
+              value="features"
               className="font-semibold data-[state=active]:shadow-lg transition-all"
             >
-              <BookOpen className="w-4 h-4 mr-2" />
-              <span className="hidden sm:inline">Abilities</span>
+              <Sparkles className="w-4 h-4 mr-2" />
+              <span className="hidden sm:inline">Features</span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="inventory"
+              className="font-semibold data-[state=active]:shadow-lg transition-all"
+            >
+              <Package className="w-4 h-4 mr-2" />
+              <span className="hidden sm:inline">Inventory</span>
             </TabsTrigger>
             <TabsTrigger 
               value="spells"
@@ -756,77 +765,52 @@ const CharacterView = ({
             </div>
           </TabsContent>
 
-          {/* Abilities Tab */}
-          <TabsContent value="abilities" className="mt-6 space-y-4">
-            {formData.background && (
-              <Card className="bg-card/70 border-2 backdrop-blur-sm" style={{ borderColor: `hsl(${classThemeColor} / 0.3)` }}>
-                <CardHeader>
-                  <CardTitle className="text-xl font-cinzel" style={{ color: `hsl(${classThemeColor})` }}>
-                    Background
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">
-                    {formData.background}
-                  </p>
-                </CardContent>
-              </Card>
-            )}
-            
-            {formData.abilities && (
-              <Card className="bg-card/70 border-2 backdrop-blur-sm" style={{ borderColor: `hsl(${classThemeColor} / 0.3)` }}>
-                <CardHeader>
-                  <CardTitle className="text-xl font-cinzel" style={{ color: `hsl(${classThemeColor})` }}>
-                    Class Abilities
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">
-                    {formData.abilities}
-                  </p>
-                </CardContent>
-              </Card>
-            )}
+          {/* Features Tab */}
+          <TabsContent value="features" className="mt-6 space-y-4">
+            <Card className="bg-card/70 border-2 backdrop-blur-sm" style={{ borderColor: `hsl(${classThemeColor} / 0.3)` }}>
+              <CardContent className="py-16 text-center">
+                <button className="p-8 rounded-full transition-all duration-300 hover:scale-110 mb-4"
+                  style={{
+                    backgroundColor: `hsl(${classThemeColor} / 0.2)`,
+                    border: `2px dashed hsl(${classThemeColor})`,
+                  }}>
+                  <Sparkles className="w-12 h-12" style={{ color: `hsl(${classThemeColor})` }} />
+                </button>
+                <p className="text-muted-foreground font-medium">Click + to add custom features</p>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
-            {formData.powers && (
-              <Card className="bg-card/70 border-2 backdrop-blur-sm" style={{ borderColor: `hsl(${classThemeColor} / 0.3)` }}>
-                <CardHeader>
-                  <CardTitle className="text-xl font-cinzel" style={{ color: `hsl(${classThemeColor})` }}>
-                    Powers
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">
-                    {formData.powers}
-                  </p>
-                </CardContent>
-              </Card>
-            )}
+          {/* Inventory Tab */}
+          <TabsContent value="inventory" className="mt-6 space-y-4">
+            <Card className="bg-card/70 border-2 backdrop-blur-sm" style={{ borderColor: `hsl(${classThemeColor} / 0.3)` }}>
+              <CardContent className="py-16 text-center">
+                <button className="p-8 rounded-full transition-all duration-300 hover:scale-110 mb-4"
+                  style={{
+                    backgroundColor: `hsl(${classThemeColor} / 0.2)`,
+                    border: `2px dashed hsl(${classThemeColor})`,
+                  }}>
+                  <Package className="w-12 h-12" style={{ color: `hsl(${classThemeColor})` }} />
+                </button>
+                <p className="text-muted-foreground font-medium">Click + to add items to inventory</p>
+              </CardContent>
+            </Card>
           </TabsContent>
 
           {/* Spells Tab */}
-          <TabsContent value="spells" className="mt-6">
-            {formData.spells ? (
-              <Card className="bg-card/70 border-2 backdrop-blur-sm" style={{ borderColor: `hsl(${classThemeColor} / 0.3)` }}>
-                <CardHeader>
-                  <CardTitle className="text-xl font-cinzel" style={{ color: `hsl(${classThemeColor})` }}>
-                    Spell List
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">
-                    {formData.spells}
-                  </p>
-                </CardContent>
-              </Card>
-            ) : (
-              <Card className="bg-card/70 border-2 backdrop-blur-sm" style={{ borderColor: `hsl(${classThemeColor} / 0.3)` }}>
-                <CardContent className="py-16 text-center">
-                  <Wand2 className="w-16 h-16 mx-auto mb-4 opacity-30" style={{ color: `hsl(${classThemeColor})` }} />
-                  <p className="text-muted-foreground font-medium">No spells recorded</p>
-                </CardContent>
-              </Card>
-            )}
+          <TabsContent value="spells" className="mt-6 space-y-4">
+            <Card className="bg-card/70 border-2 backdrop-blur-sm" style={{ borderColor: `hsl(${classThemeColor} / 0.3)` }}>
+              <CardContent className="py-16 text-center">
+                <button className="p-8 rounded-full transition-all duration-300 hover:scale-110 mb-4"
+                  style={{
+                    backgroundColor: `hsl(${classThemeColor} / 0.2)`,
+                    border: `2px dashed hsl(${classThemeColor})`,
+                  }}>
+                  <Wand2 className="w-12 h-12" style={{ color: `hsl(${classThemeColor})` }} />
+                </button>
+                <p className="text-muted-foreground font-medium">Click + to add custom spells</p>
+              </CardContent>
+            </Card>
           </TabsContent>
 
           {/* Notes Tab */}
