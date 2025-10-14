@@ -84,6 +84,7 @@ const CharacterForm = ({ characterId }: CharacterFormProps) => {
     armor: 10,
     hit_dice_remaining: 1,
     hit_dice_total: 1,
+    favorites: [] as Array<{ id: string; name: string; type: 'attack' | 'spell' | 'item'; description?: string }>,
   });
 
   const handleClassChange = (classId: string, classData: any) => {
@@ -151,8 +152,12 @@ const CharacterForm = ({ characterId }: CharacterFormProps) => {
 
       if (error) throw error;
       if (data) {
-        setFormData(data);
-        initialDataRef.current = JSON.stringify(data);
+        const transformedData = {
+          ...data,
+          favorites: (data.favorites || []) as Array<{ id: string; name: string; type: 'attack' | 'spell' | 'item'; description?: string }>,
+        };
+        setFormData(transformedData);
+        initialDataRef.current = JSON.stringify(transformedData);
         
         // Check if current user is the owner
         if (user) {
@@ -541,7 +546,7 @@ const CharacterForm = ({ characterId }: CharacterFormProps) => {
                           <Input
                             id={stat}
                             type="number"
-                            value={formData[stat as keyof typeof formData]}
+                            value={formData[stat as 'strength' | 'dexterity' | 'intelligence' | 'will']}
                             onChange={(e) => setFormData({ ...formData, [stat]: parseInt(e.target.value) || 0 })}
                             className="bg-input border-border"
                           />
@@ -599,7 +604,7 @@ const CharacterForm = ({ characterId }: CharacterFormProps) => {
                           <Input
                             id={`skill_${skill}`}
                             type="number"
-                            value={formData[`skill_${skill}` as keyof typeof formData]}
+                            value={formData[`skill_${skill}` as 'skill_arcana' | 'skill_examination' | 'skill_finesse' | 'skill_influence' | 'skill_insight' | 'skill_might' | 'skill_lore' | 'skill_naturecraft' | 'skill_perception' | 'skill_stealth']}
                             onChange={(e) => setFormData({ ...formData, [`skill_${skill}`]: parseInt(e.target.value) || 0 })}
                             className="bg-input border-border"
                           />

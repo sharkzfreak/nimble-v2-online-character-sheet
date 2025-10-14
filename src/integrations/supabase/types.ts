@@ -149,6 +149,7 @@ export type Database = {
           description: string | null
           dexterity: number
           equipment: Json | null
+          favorites: Json | null
           hit_dice_remaining: number | null
           hit_dice_total: number | null
           hp_current: number | null
@@ -191,6 +192,7 @@ export type Database = {
           description?: string | null
           dexterity?: number
           equipment?: Json | null
+          favorites?: Json | null
           hit_dice_remaining?: number | null
           hit_dice_total?: number | null
           hp_current?: number | null
@@ -233,6 +235,7 @@ export type Database = {
           description?: string | null
           dexterity?: number
           equipment?: Json | null
+          favorites?: Json | null
           hit_dice_remaining?: number | null
           hit_dice_total?: number | null
           hp_current?: number | null
