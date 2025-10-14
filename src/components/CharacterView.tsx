@@ -55,6 +55,13 @@ interface JournalEntry {
   timestamp: string;
 }
 
+interface CustomItem {
+  id: string;
+  name: string;
+  description: string;
+  rollFormula?: string;
+}
+
 interface CharacterViewProps {
   characterId?: string;
   formData: {
@@ -93,6 +100,9 @@ interface CharacterViewProps {
     portrait_url?: string;
     favorites?: FavoriteItem[];
     journal_entries?: JournalEntry[];
+    custom_features?: CustomItem[];
+    custom_spells?: CustomItem[];
+    custom_inventory?: CustomItem[];
   };
   calculateHealth: () => number;
   calculateDefense: () => number;
@@ -134,6 +144,24 @@ const CharacterView = ({
   const [newJournalTitle, setNewJournalTitle] = useState("");
   const [newJournalContent, setNewJournalContent] = useState("");
   const [isJournalDialogOpen, setIsJournalDialogOpen] = useState(false);
+  
+  // Feature dialog state
+  const [isFeatureDialogOpen, setIsFeatureDialogOpen] = useState(false);
+  const [newFeatureName, setNewFeatureName] = useState("");
+  const [newFeatureDescription, setNewFeatureDescription] = useState("");
+  const [newFeatureFormula, setNewFeatureFormula] = useState("");
+  
+  // Spell dialog state
+  const [isSpellDialogOpen, setIsSpellDialogOpen] = useState(false);
+  const [newSpellName, setNewSpellName] = useState("");
+  const [newSpellDescription, setNewSpellDescription] = useState("");
+  const [newSpellFormula, setNewSpellFormula] = useState("");
+  
+  // Inventory dialog state
+  const [isInventoryDialogOpen, setIsInventoryDialogOpen] = useState(false);
+  const [newItemName, setNewItemName] = useState("");
+  const [newItemDescription, setNewItemDescription] = useState("");
+  const [newItemFormula, setNewItemFormula] = useState("");
 
   // Layout main content to span full width next to fixed card
   useEffect(() => {
@@ -786,50 +814,470 @@ const CharacterView = ({
 
           {/* Features Tab */}
           <TabsContent value="features" className="mt-6 space-y-4">
-            <Card className="bg-card/70 border-2 backdrop-blur-sm" style={{ borderColor: `hsl(${classThemeColor} / 0.3)` }}>
-              <CardContent className="py-16 text-center">
-                <button className="p-8 rounded-full transition-all duration-300 hover:scale-110 mb-4"
-                  style={{
-                    backgroundColor: `hsl(${classThemeColor} / 0.2)`,
-                    border: `2px dashed hsl(${classThemeColor})`,
-                  }}>
-                  <Sparkles className="w-12 h-12" style={{ color: `hsl(${classThemeColor})` }} />
-                </button>
-                <p className="text-muted-foreground font-medium">Click + to add custom features</p>
-              </CardContent>
-            </Card>
+            <div className="flex justify-center mb-6">
+              <Dialog open={isFeatureDialogOpen} onOpenChange={setIsFeatureDialogOpen}>
+                <DialogTrigger asChild>
+                  <button 
+                    className="p-8 rounded-full transition-all duration-300 hover:scale-110"
+                    style={{
+                      backgroundColor: `hsl(${classThemeColor} / 0.2)`,
+                      border: `2px dashed hsl(${classThemeColor})`,
+                    }}
+                  >
+                    <Plus className="w-12 h-12" style={{ color: `hsl(${classThemeColor})` }} />
+                  </button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[600px]">
+                  <DialogHeader>
+                    <DialogTitle className="font-cinzel" style={{ color: `hsl(${classThemeColor})` }}>
+                      New Feature
+                    </DialogTitle>
+                  </DialogHeader>
+                  <div className="space-y-4">
+                    <div>
+                      <label htmlFor="feature-name" className="text-sm font-medium mb-2 block">
+                        Name
+                      </label>
+                      <Input
+                        id="feature-name"
+                        value={newFeatureName}
+                        onChange={(e) => setNewFeatureName(e.target.value)}
+                        placeholder="Feature name..."
+                        className="w-full"
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="feature-description" className="text-sm font-medium mb-2 block">
+                        Description
+                      </label>
+                      <Textarea
+                        id="feature-description"
+                        value={newFeatureDescription}
+                        onChange={(e) => setNewFeatureDescription(e.target.value)}
+                        placeholder="Describe the feature..."
+                        className="min-h-[100px] w-full"
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="feature-formula" className="text-sm font-medium mb-2 block">
+                        Roll Formula (optional)
+                      </label>
+                      <Input
+                        id="feature-formula"
+                        value={newFeatureFormula}
+                        onChange={(e) => setNewFeatureFormula(e.target.value)}
+                        placeholder="e.g., 2d6+3"
+                        className="w-full font-mono"
+                      />
+                      <p className="text-xs text-muted-foreground mt-1">Examples: 1d20+5, 3d6, 2d8+2</p>
+                    </div>
+                    <div className="flex justify-end gap-2">
+                      <Button 
+                        variant="outline" 
+                        onClick={() => {
+                          setIsFeatureDialogOpen(false);
+                          setNewFeatureName("");
+                          setNewFeatureDescription("");
+                          setNewFeatureFormula("");
+                        }}
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        onClick={() => {
+                          if (newFeatureName.trim()) {
+                            const newFeature: CustomItem = {
+                              id: crypto.randomUUID(),
+                              name: newFeatureName,
+                              description: newFeatureDescription,
+                              rollFormula: newFeatureFormula || undefined,
+                            };
+                            onFormDataChange?.({
+                              custom_features: [...(formData.custom_features || []), newFeature],
+                            });
+                            setIsFeatureDialogOpen(false);
+                            setNewFeatureName("");
+                            setNewFeatureDescription("");
+                            setNewFeatureFormula("");
+                          }
+                        }}
+                        style={{
+                          backgroundColor: `hsl(${classThemeColor})`,
+                          color: 'hsl(var(--background))',
+                        }}
+                      >
+                        Add Feature
+                      </Button>
+                    </div>
+                  </div>
+                </DialogContent>
+              </Dialog>
+            </div>
+
+            {formData.custom_features && formData.custom_features.length > 0 ? (
+              <div className="space-y-3">
+                {formData.custom_features.map((feature) => (
+                  <Card key={feature.id} className="bg-card/70 border-2 backdrop-blur-sm" style={{ borderColor: `hsl(${classThemeColor} / 0.3)` }}>
+                    <CardHeader>
+                      <div className="flex items-start justify-between">
+                        <CardTitle className="text-lg font-cinzel" style={{ color: `hsl(${classThemeColor})` }}>
+                          {feature.name}
+                        </CardTitle>
+                        <div className="flex gap-2">
+                          {feature.rollFormula && (
+                            <button
+                              className="p-2 hover:bg-primary/20 rounded-md transition-colors"
+                              title="Roll"
+                            >
+                              <D20Icon className="w-4 h-4 text-primary" />
+                            </button>
+                          )}
+                          <button
+                            onClick={() => {
+                              const updated = (formData.custom_features || []).filter(f => f.id !== feature.id);
+                              onFormDataChange?.({ custom_features: updated });
+                            }}
+                            className="p-2 hover:bg-destructive/20 rounded-md transition-colors"
+                          >
+                            <X className="w-4 h-4 text-destructive" />
+                          </button>
+                        </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">
+                        {feature.description}
+                      </p>
+                      {feature.rollFormula && (
+                        <p className="text-xs text-primary font-mono mt-2">
+                          Roll: {feature.rollFormula}
+                        </p>
+                      )}
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <Card className="bg-card/70 border-2 backdrop-blur-sm" style={{ borderColor: `hsl(${classThemeColor} / 0.3)` }}>
+                <CardContent className="py-16 text-center">
+                  <Sparkles className="w-16 h-16 mx-auto mb-4 opacity-30" style={{ color: `hsl(${classThemeColor})` }} />
+                  <p className="text-muted-foreground font-medium">No features added yet</p>
+                  <p className="text-sm text-muted-foreground mt-2">Click the + button above to add your first feature</p>
+                </CardContent>
+              </Card>
+            )}
           </TabsContent>
 
           {/* Inventory Tab */}
           <TabsContent value="inventory" className="mt-6 space-y-4">
-            <Card className="bg-card/70 border-2 backdrop-blur-sm" style={{ borderColor: `hsl(${classThemeColor} / 0.3)` }}>
-              <CardContent className="py-16 text-center">
-                <button className="p-8 rounded-full transition-all duration-300 hover:scale-110 mb-4"
-                  style={{
-                    backgroundColor: `hsl(${classThemeColor} / 0.2)`,
-                    border: `2px dashed hsl(${classThemeColor})`,
-                  }}>
-                  <Package className="w-12 h-12" style={{ color: `hsl(${classThemeColor})` }} />
-                </button>
-                <p className="text-muted-foreground font-medium">Click + to add items to inventory</p>
-              </CardContent>
-            </Card>
+            <div className="flex justify-center mb-6">
+              <Dialog open={isInventoryDialogOpen} onOpenChange={setIsInventoryDialogOpen}>
+                <DialogTrigger asChild>
+                  <button 
+                    className="p-8 rounded-full transition-all duration-300 hover:scale-110"
+                    style={{
+                      backgroundColor: `hsl(${classThemeColor} / 0.2)`,
+                      border: `2px dashed hsl(${classThemeColor})`,
+                    }}
+                  >
+                    <Plus className="w-12 h-12" style={{ color: `hsl(${classThemeColor})` }} />
+                  </button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[600px]">
+                  <DialogHeader>
+                    <DialogTitle className="font-cinzel" style={{ color: `hsl(${classThemeColor})` }}>
+                      New Inventory Item
+                    </DialogTitle>
+                  </DialogHeader>
+                  <div className="space-y-4">
+                    <div>
+                      <label htmlFor="item-name" className="text-sm font-medium mb-2 block">
+                        Name
+                      </label>
+                      <Input
+                        id="item-name"
+                        value={newItemName}
+                        onChange={(e) => setNewItemName(e.target.value)}
+                        placeholder="Item name..."
+                        className="w-full"
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="item-description" className="text-sm font-medium mb-2 block">
+                        Description
+                      </label>
+                      <Textarea
+                        id="item-description"
+                        value={newItemDescription}
+                        onChange={(e) => setNewItemDescription(e.target.value)}
+                        placeholder="Describe the item..."
+                        className="min-h-[100px] w-full"
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="item-formula" className="text-sm font-medium mb-2 block">
+                        Roll Formula (optional)
+                      </label>
+                      <Input
+                        id="item-formula"
+                        value={newItemFormula}
+                        onChange={(e) => setNewItemFormula(e.target.value)}
+                        placeholder="e.g., 2d4+2"
+                        className="w-full font-mono"
+                      />
+                      <p className="text-xs text-muted-foreground mt-1">For potions or consumables with effects</p>
+                    </div>
+                    <div className="flex justify-end gap-2">
+                      <Button 
+                        variant="outline" 
+                        onClick={() => {
+                          setIsInventoryDialogOpen(false);
+                          setNewItemName("");
+                          setNewItemDescription("");
+                          setNewItemFormula("");
+                        }}
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        onClick={() => {
+                          if (newItemName.trim()) {
+                            const newItem: CustomItem = {
+                              id: crypto.randomUUID(),
+                              name: newItemName,
+                              description: newItemDescription,
+                              rollFormula: newItemFormula || undefined,
+                            };
+                            onFormDataChange?.({
+                              custom_inventory: [...(formData.custom_inventory || []), newItem],
+                            });
+                            setIsInventoryDialogOpen(false);
+                            setNewItemName("");
+                            setNewItemDescription("");
+                            setNewItemFormula("");
+                          }
+                        }}
+                        style={{
+                          backgroundColor: `hsl(${classThemeColor})`,
+                          color: 'hsl(var(--background))',
+                        }}
+                      >
+                        Add Item
+                      </Button>
+                    </div>
+                  </div>
+                </DialogContent>
+              </Dialog>
+            </div>
+
+            {formData.custom_inventory && formData.custom_inventory.length > 0 ? (
+              <div className="space-y-3">
+                {formData.custom_inventory.map((item) => (
+                  <Card key={item.id} className="bg-card/70 border-2 backdrop-blur-sm" style={{ borderColor: `hsl(${classThemeColor} / 0.3)` }}>
+                    <CardHeader>
+                      <div className="flex items-start justify-between">
+                        <CardTitle className="text-lg font-cinzel" style={{ color: `hsl(${classThemeColor})` }}>
+                          {item.name}
+                        </CardTitle>
+                        <div className="flex gap-2">
+                          {item.rollFormula && (
+                            <button
+                              className="p-2 hover:bg-primary/20 rounded-md transition-colors"
+                              title="Roll"
+                            >
+                              <D20Icon className="w-4 h-4 text-primary" />
+                            </button>
+                          )}
+                          <button
+                            onClick={() => {
+                              const updated = (formData.custom_inventory || []).filter(i => i.id !== item.id);
+                              onFormDataChange?.({ custom_inventory: updated });
+                            }}
+                            className="p-2 hover:bg-destructive/20 rounded-md transition-colors"
+                          >
+                            <X className="w-4 h-4 text-destructive" />
+                          </button>
+                        </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">
+                        {item.description}
+                      </p>
+                      {item.rollFormula && (
+                        <p className="text-xs text-primary font-mono mt-2">
+                          Roll: {item.rollFormula}
+                        </p>
+                      )}
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <Card className="bg-card/70 border-2 backdrop-blur-sm" style={{ borderColor: `hsl(${classThemeColor} / 0.3)` }}>
+                <CardContent className="py-16 text-center">
+                  <Package className="w-16 h-16 mx-auto mb-4 opacity-30" style={{ color: `hsl(${classThemeColor})` }} />
+                  <p className="text-muted-foreground font-medium">No items in inventory</p>
+                  <p className="text-sm text-muted-foreground mt-2">Click the + button above to add items</p>
+                </CardContent>
+              </Card>
+            )}
           </TabsContent>
 
           {/* Spells Tab */}
           <TabsContent value="spells" className="mt-6 space-y-4">
-            <Card className="bg-card/70 border-2 backdrop-blur-sm" style={{ borderColor: `hsl(${classThemeColor} / 0.3)` }}>
-              <CardContent className="py-16 text-center">
-                <button className="p-8 rounded-full transition-all duration-300 hover:scale-110 mb-4"
-                  style={{
-                    backgroundColor: `hsl(${classThemeColor} / 0.2)`,
-                    border: `2px dashed hsl(${classThemeColor})`,
-                  }}>
-                  <Wand2 className="w-12 h-12" style={{ color: `hsl(${classThemeColor})` }} />
-                </button>
-                <p className="text-muted-foreground font-medium">Click + to add custom spells</p>
-              </CardContent>
-            </Card>
+            <div className="flex justify-center mb-6">
+              <Dialog open={isSpellDialogOpen} onOpenChange={setIsSpellDialogOpen}>
+                <DialogTrigger asChild>
+                  <button 
+                    className="p-8 rounded-full transition-all duration-300 hover:scale-110"
+                    style={{
+                      backgroundColor: `hsl(${classThemeColor} / 0.2)`,
+                      border: `2px dashed hsl(${classThemeColor})`,
+                    }}
+                  >
+                    <Plus className="w-12 h-12" style={{ color: `hsl(${classThemeColor})` }} />
+                  </button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[600px]">
+                  <DialogHeader>
+                    <DialogTitle className="font-cinzel" style={{ color: `hsl(${classThemeColor})` }}>
+                      New Spell
+                    </DialogTitle>
+                  </DialogHeader>
+                  <div className="space-y-4">
+                    <div>
+                      <label htmlFor="spell-name" className="text-sm font-medium mb-2 block">
+                        Name
+                      </label>
+                      <Input
+                        id="spell-name"
+                        value={newSpellName}
+                        onChange={(e) => setNewSpellName(e.target.value)}
+                        placeholder="Spell name..."
+                        className="w-full"
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="spell-description" className="text-sm font-medium mb-2 block">
+                        Description
+                      </label>
+                      <Textarea
+                        id="spell-description"
+                        value={newSpellDescription}
+                        onChange={(e) => setNewSpellDescription(e.target.value)}
+                        placeholder="Describe the spell effects..."
+                        className="min-h-[100px] w-full"
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="spell-formula" className="text-sm font-medium mb-2 block">
+                        Damage/Effect Roll (optional)
+                      </label>
+                      <Input
+                        id="spell-formula"
+                        value={newSpellFormula}
+                        onChange={(e) => setNewSpellFormula(e.target.value)}
+                        placeholder="e.g., 8d6"
+                        className="w-full font-mono"
+                      />
+                      <p className="text-xs text-muted-foreground mt-1">Damage dice or healing amount</p>
+                    </div>
+                    <div className="flex justify-end gap-2">
+                      <Button 
+                        variant="outline" 
+                        onClick={() => {
+                          setIsSpellDialogOpen(false);
+                          setNewSpellName("");
+                          setNewSpellDescription("");
+                          setNewSpellFormula("");
+                        }}
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        onClick={() => {
+                          if (newSpellName.trim()) {
+                            const newSpell: CustomItem = {
+                              id: crypto.randomUUID(),
+                              name: newSpellName,
+                              description: newSpellDescription,
+                              rollFormula: newSpellFormula || undefined,
+                            };
+                            onFormDataChange?.({
+                              custom_spells: [...(formData.custom_spells || []), newSpell],
+                            });
+                            setIsSpellDialogOpen(false);
+                            setNewSpellName("");
+                            setNewSpellDescription("");
+                            setNewSpellFormula("");
+                          }
+                        }}
+                        style={{
+                          backgroundColor: `hsl(${classThemeColor})`,
+                          color: 'hsl(var(--background))',
+                        }}
+                      >
+                        Add Spell
+                      </Button>
+                    </div>
+                  </div>
+                </DialogContent>
+              </Dialog>
+            </div>
+
+            {formData.custom_spells && formData.custom_spells.length > 0 ? (
+              <div className="space-y-3">
+                {formData.custom_spells.map((spell) => (
+                  <Card key={spell.id} className="bg-card/70 border-2 backdrop-blur-sm" style={{ borderColor: `hsl(${classThemeColor} / 0.3)` }}>
+                    <CardHeader>
+                      <div className="flex items-start justify-between">
+                        <CardTitle className="text-lg font-cinzel" style={{ color: `hsl(${classThemeColor})` }}>
+                          {spell.name}
+                        </CardTitle>
+                        <div className="flex gap-2">
+                          {spell.rollFormula && (
+                            <button
+                              className="p-2 hover:bg-primary/20 rounded-md transition-colors"
+                              title="Roll"
+                            >
+                              <D20Icon className="w-4 h-4 text-primary" />
+                            </button>
+                          )}
+                          <button
+                            onClick={() => {
+                              const updated = (formData.custom_spells || []).filter(s => s.id !== spell.id);
+                              onFormDataChange?.({ custom_spells: updated });
+                            }}
+                            className="p-2 hover:bg-destructive/20 rounded-md transition-colors"
+                          >
+                            <X className="w-4 h-4 text-destructive" />
+                          </button>
+                        </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">
+                        {spell.description}
+                      </p>
+                      {spell.rollFormula && (
+                        <p className="text-xs text-primary font-mono mt-2">
+                          Damage: {spell.rollFormula}
+                        </p>
+                      )}
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <Card className="bg-card/70 border-2 backdrop-blur-sm" style={{ borderColor: `hsl(${classThemeColor} / 0.3)` }}>
+                <CardContent className="py-16 text-center">
+                  <Wand2 className="w-16 h-16 mx-auto mb-4 opacity-30" style={{ color: `hsl(${classThemeColor})` }} />
+                  <p className="text-muted-foreground font-medium">No spells added yet</p>
+                  <p className="text-sm text-muted-foreground mt-2">Click the + button above to add spells</p>
+                </CardContent>
+              </Card>
+            )}
           </TabsContent>
 
           {/* Journal Tab */}
