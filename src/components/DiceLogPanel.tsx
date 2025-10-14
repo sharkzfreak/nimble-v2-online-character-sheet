@@ -575,24 +575,33 @@ export const DiceLogPanel = () => {
                         {log.formula}
                       </div>
 
-                      {/* Result */}
-                      <div className="flex items-center gap-2 p-2 rounded bg-background/40 border border-border/20">
-                        <Dices className="w-4 h-4 text-primary flex-shrink-0" />
-                        <div className="flex items-baseline gap-1.5 flex-wrap">
-                          <span className="text-lg font-bold text-primary font-cinzel">
-                            {log.raw_result}
-                          </span>
+                      {/* Result with Dice Visual */}
+                      <div className="flex items-center gap-3 p-2 rounded bg-background/40 border border-border/20">
+                        {/* Dice Icon with Value */}
+                        <div className="relative flex-shrink-0">
+                          <div className="w-12 h-12 text-primary/80">
+                            <DiceIcon type={log.formula.match(/d\d+/)?.[0] || 'd20'} />
+                          </div>
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <span className="text-sm font-bold text-primary font-cinzel drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
+                              {log.raw_result}
+                            </span>
+                          </div>
+                        </div>
+                        
+                        {/* Modifier and Total */}
+                        <div className="flex items-baseline gap-2 flex-wrap">
                           {log.modifier !== 0 && (
                             <>
-                              <span className="text-xs text-muted-foreground font-medium">
+                              <span className="text-lg font-bold text-muted-foreground font-cinzel">
                                 {log.modifier > 0 ? '+' : ''}{log.modifier}
                               </span>
-                              <span className="text-xs text-muted-foreground">=</span>
-                              <span className="text-base font-bold text-foreground font-cinzel">
-                                {log.total}
-                              </span>
+                              <span className="text-sm text-muted-foreground">=</span>
                             </>
                           )}
+                          <span className="text-xl font-bold text-foreground font-cinzel">
+                            {log.total}
+                          </span>
                         </div>
                       </div>
                     </div>
