@@ -3,6 +3,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
 import { 
   Shield, 
   Zap, 
@@ -16,7 +21,10 @@ import {
   Heart,
   Footprints,
   Sparkles,
-  Package
+  Package,
+  ChevronDown,
+  Plus,
+  X
 } from "lucide-react";
 import {
   Tooltip,
@@ -38,6 +46,13 @@ interface FavoriteItem {
   name: string;
   type: 'attack' | 'spell' | 'item';
   description?: string;
+}
+
+interface JournalEntry {
+  id: string;
+  title: string;
+  content: string;
+  timestamp: string;
 }
 
 interface CharacterViewProps {
@@ -77,6 +92,7 @@ interface CharacterViewProps {
     hit_dice_total: number;
     portrait_url?: string;
     favorites?: FavoriteItem[];
+    journal_entries?: JournalEntry[];
   };
   calculateHealth: () => number;
   calculateDefense: () => number;
@@ -115,6 +131,9 @@ const CharacterView = ({
     rollType: string;
     individualRolls: Array<{ value: number; sides: number }>;
   } | null>(null);
+  const [newJournalTitle, setNewJournalTitle] = useState("");
+  const [newJournalContent, setNewJournalContent] = useState("");
+  const [isJournalDialogOpen, setIsJournalDialogOpen] = useState(false);
 
   // Layout main content to span full width next to fixed card
   useEffect(() => {
@@ -705,11 +724,11 @@ const CharacterView = ({
               <span className="hidden sm:inline">Spells</span>
             </TabsTrigger>
             <TabsTrigger 
-              value="notes"
+              value="journal"
               className="font-semibold data-[state=active]:shadow-lg transition-all"
             >
               <FileText className="w-4 h-4 mr-2" />
-              <span className="hidden sm:inline">Notes</span>
+              <span className="hidden sm:inline">Journal</span>
             </TabsTrigger>
           </TabsList>
 
@@ -813,43 +832,141 @@ const CharacterView = ({
             </Card>
           </TabsContent>
 
-          {/* Notes Tab */}
-          <TabsContent value="notes" className="mt-6 space-y-4">
-            {formData.description && (
-              <Card className="bg-card/70 border-2 backdrop-blur-sm" style={{ borderColor: `hsl(${classThemeColor} / 0.3)` }}>
-                <CardHeader>
-                  <CardTitle className="text-xl font-cinzel" style={{ color: `hsl(${classThemeColor})` }}>
-                    Description
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">
-                    {formData.description}
-                  </p>
-                </CardContent>
-              </Card>
-            )}
+          {/* Journal Tab */}
+          <TabsContent value="journal" className="mt-6 space-y-4">
+            <div className="flex justify-center mb-6">
+              <Dialog open={isJournalDialogOpen} onOpenChange={setIsJournalDialogOpen}>
+                <DialogTrigger asChild>
+                  <button 
+                    className="p-8 rounded-full transition-all duration-300 hover:scale-110"
+                    style={{
+                      backgroundColor: `hsl(${classThemeColor} / 0.2)`,
+                      border: `2px dashed hsl(${classThemeColor})`,
+                    }}
+                  >
+                    <Plus className="w-12 h-12" style={{ color: `hsl(${classThemeColor})` }} />
+                  </button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[600px]">
+                  <DialogHeader>
+                    <DialogTitle className="font-cinzel" style={{ color: `hsl(${classThemeColor})` }}>
+                      New Journal Entry
+                    </DialogTitle>
+                  </DialogHeader>
+                  <div className="space-y-4">
+                    <div>
+                      <label htmlFor="journal-title" className="text-sm font-medium mb-2 block">
+                        Title
+                      </label>
+                      <Input
+                        id="journal-title"
+                        value={newJournalTitle}
+                        onChange={(e) => setNewJournalTitle(e.target.value)}
+                        placeholder="Entry title..."
+                        className="w-full"
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="journal-content" className="text-sm font-medium mb-2 block">
+                        Content
+                      </label>
+                      <Textarea
+                        id="journal-content"
+                        value={newJournalContent}
+                        onChange={(e) => setNewJournalContent(e.target.value)}
+                        placeholder="Write your journal entry..."
+                        className="min-h-[200px] w-full"
+                      />
+                    </div>
+                    <div className="flex justify-end gap-2">
+                      <Button 
+                        variant="outline" 
+                        onClick={() => {
+                          setIsJournalDialogOpen(false);
+                          setNewJournalTitle("");
+                          setNewJournalContent("");
+                        }}
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        onClick={() => {
+                          if (newJournalTitle.trim() && newJournalContent.trim()) {
+                            const newEntry: JournalEntry = {
+                              id: crypto.randomUUID(),
+                              title: newJournalTitle,
+                              content: newJournalContent,
+                              timestamp: new Date().toISOString(),
+                            };
+                            onFormDataChange?.({
+                              journal_entries: [...(formData.journal_entries || []), newEntry],
+                            });
+                            setIsJournalDialogOpen(false);
+                            setNewJournalTitle("");
+                            setNewJournalContent("");
+                          }
+                        }}
+                        style={{
+                          backgroundColor: `hsl(${classThemeColor})`,
+                          color: 'hsl(var(--background))',
+                        }}
+                      >
+                        Add Entry
+                      </Button>
+                    </div>
+                  </div>
+                </DialogContent>
+              </Dialog>
+            </div>
 
-            {formData.notes && (
-              <Card className="bg-card/70 border-2 backdrop-blur-sm" style={{ borderColor: `hsl(${classThemeColor} / 0.3)` }}>
-                <CardHeader>
-                  <CardTitle className="text-xl font-cinzel" style={{ color: `hsl(${classThemeColor})` }}>
-                    Notes
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">
-                    {formData.notes}
-                  </p>
-                </CardContent>
-              </Card>
-            )}
-            
-            {!formData.description && !formData.notes && (
+            {formData.journal_entries && formData.journal_entries.length > 0 ? (
+              <div className="space-y-3">
+                {formData.journal_entries.map((entry) => (
+                  <Collapsible key={entry.id}>
+                    <Card className="bg-card/70 border-2 backdrop-blur-sm" style={{ borderColor: `hsl(${classThemeColor} / 0.3)` }}>
+                      <CollapsibleTrigger className="w-full">
+                        <CardHeader className="flex flex-row items-center justify-between hover:bg-muted/30 transition-colors cursor-pointer">
+                          <div className="flex items-center gap-3 flex-1">
+                            <ChevronDown className="w-5 h-5 transition-transform duration-200 ui-expanded:rotate-180" />
+                            <div className="text-left">
+                              <CardTitle className="text-lg font-cinzel" style={{ color: `hsl(${classThemeColor})` }}>
+                                {entry.title}
+                              </CardTitle>
+                              <p className="text-xs text-muted-foreground mt-1">
+                                {new Date(entry.timestamp).toLocaleDateString()} at {new Date(entry.timestamp).toLocaleTimeString()}
+                              </p>
+                            </div>
+                          </div>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              const updatedEntries = (formData.journal_entries || []).filter(e => e.id !== entry.id);
+                              onFormDataChange?.({ journal_entries: updatedEntries });
+                            }}
+                            className="p-2 hover:bg-destructive/20 rounded-md transition-colors"
+                          >
+                            <X className="w-4 h-4 text-destructive" />
+                          </button>
+                        </CardHeader>
+                      </CollapsibleTrigger>
+                      <CollapsibleContent>
+                        <CardContent className="pt-0">
+                          <Separator className="mb-4" style={{ backgroundColor: `hsl(${classThemeColor} / 0.2)` }} />
+                          <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">
+                            {entry.content}
+                          </p>
+                        </CardContent>
+                      </CollapsibleContent>
+                    </Card>
+                  </Collapsible>
+                ))}
+              </div>
+            ) : (
               <Card className="bg-card/70 border-2 backdrop-blur-sm" style={{ borderColor: `hsl(${classThemeColor} / 0.3)` }}>
                 <CardContent className="py-16 text-center">
                   <FileText className="w-16 h-16 mx-auto mb-4 opacity-30" style={{ color: `hsl(${classThemeColor})` }} />
-                  <p className="text-muted-foreground font-medium">No notes recorded</p>
+                  <p className="text-muted-foreground font-medium">No journal entries yet</p>
+                  <p className="text-sm text-muted-foreground mt-2">Click the + button above to create your first entry</p>
                 </CardContent>
               </Card>
             )}

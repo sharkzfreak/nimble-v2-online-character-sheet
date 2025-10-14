@@ -85,6 +85,7 @@ const CharacterForm = ({ characterId }: CharacterFormProps) => {
     hit_dice_remaining: 1,
     hit_dice_total: 1,
     favorites: [] as Array<{ id: string; name: string; type: 'attack' | 'spell' | 'item'; description?: string }>,
+    journal_entries: [] as Array<{ id: string; title: string; content: string; timestamp: string }>,
   });
 
   const handleClassChange = (classId: string, classData: any) => {
@@ -155,6 +156,7 @@ const CharacterForm = ({ characterId }: CharacterFormProps) => {
         const transformedData = {
           ...data,
           favorites: (data.favorites || []) as Array<{ id: string; name: string; type: 'attack' | 'spell' | 'item'; description?: string }>,
+          journal_entries: (data.journal_entries || []) as Array<{ id: string; title: string; content: string; timestamp: string }>,
         };
         setFormData(transformedData);
         initialDataRef.current = JSON.stringify(transformedData);
