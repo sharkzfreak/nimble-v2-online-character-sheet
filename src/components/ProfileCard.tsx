@@ -111,7 +111,7 @@ export const ProfileCard = ({
           style={{
             left: `${i * pipWidth}%`,
             width: `${pipWidth - 2}%`,
-            backgroundColor: isAvailable ? `hsl(${classColor})` : 'hsl(var(--muted))',
+            backgroundColor: isAvailable ? 'hsl(0 84% 60%)' : 'hsl(var(--muted))',
           }}
           onClick={() => handleSpendHitDie(i)}
           onContextMenu={(e) => {
@@ -281,7 +281,7 @@ export const ProfileCard = ({
                     <Shield
                       className="w-28 h-28 transition-all duration-300 hover:scale-110 relative z-10"
                       style={{
-                        color: `hsl(${classColor})`,
+                        color: 'hsl(0 0% 100%)',
                         fill: `hsl(${classColor} / 0.15)`,
                       }}
                       strokeWidth={1.5}
