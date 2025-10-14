@@ -48,7 +48,7 @@ export function DiceLogProvider({ children }: { children: ReactNode }) {
         .from("dice_logs")
         .select("*")
         .eq("user_id", user.id)
-        .order("created_at", { ascending: false })
+        .order("created_at", { ascending: true })
         .limit(50);
 
       if (error) throw error;
@@ -77,7 +77,7 @@ export function DiceLogProvider({ children }: { children: ReactNode }) {
       if (error) throw error;
 
       if (data) {
-        setLogs(prev => [data, ...prev].slice(0, 50)); // Keep only recent 50
+        setLogs(prev => [...prev, data].slice(-50)); // Keep only recent 50, newest at end
       }
     } catch (error) {
       console.error("Error adding dice log:", error);
