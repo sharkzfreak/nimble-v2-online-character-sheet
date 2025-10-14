@@ -529,7 +529,7 @@ export const DiceLogPanel = () => {
                   <p className="text-xs mt-1 opacity-70">Start rolling!</p>
                 </div>
               ) : (
-                logs.map((log, index) => {
+                [...logs].reverse().map((log, index) => {
                   const rollInfo = getRollTypeInfo(log.roll_type, log.raw_result, log.total);
                   const RollIcon = rollInfo.icon;
                   
