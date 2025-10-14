@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Dices, Trash2, ChevronLeft, ChevronRight, Zap, AlertTriangle, Star, MessageSquare, Target, Plus, Minus, TrendingUp, TrendingDown } from "lucide-react";
+import { Dices, Trash2, ChevronLeft, ChevronRight, Zap, AlertTriangle, Star, MessageSquare, Target, Plus, Minus, TrendingUp, TrendingDown, Lock, LockOpen } from "lucide-react";
 import { useDiceLog } from "@/contexts/DiceLogContext";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
@@ -28,6 +28,7 @@ const diceTypes: DiceType[] = [
 export const DiceLogPanel = () => {
   const { logs, clearLogs, isLoading, addLog, animationsEnabled, toggleAnimations } = useDiceLog();
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isLocked, setIsLocked] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const dockRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -70,7 +71,7 @@ export const DiceLogPanel = () => {
   // Click outside to collapse
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (isCollapsed) return; // Don't do anything if already collapsed
+      if (isCollapsed || isLocked) return; // Don't do anything if already collapsed or locked
       
       if (panelRef.current && !panelRef.current.contains(event.target as Node)) {
         setIsCollapsed(true);
@@ -79,7 +80,7 @@ export const DiceLogPanel = () => {
 
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [isCollapsed]);
+  }, [isCollapsed, isLocked]);
 
   // Apply dock inset padding to prevent overlap
   useEffect(() => {
@@ -454,6 +455,27 @@ export const DiceLogPanel = () => {
               </TooltipProvider>
             </CardTitle>
             <div className="flex items-center gap-1">
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setIsLocked(!isLocked)}
+                      className="h-7 w-7"
+                    >
+                      {isLocked ? (
+                        <Lock className="w-3.5 h-3.5 text-primary" />
+                      ) : (
+                        <LockOpen className="w-3.5 h-3.5" />
+                      )}
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>{isLocked ? 'Unlock to auto-close' : 'Lock to keep open'}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
               {logs.length > 0 && (
                 <Button
                   variant="ghost"
