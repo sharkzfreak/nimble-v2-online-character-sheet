@@ -119,7 +119,7 @@ export const ProfileCard = ({
   return (
     <aside
       id="profileCard"
-      className="absolute z-30 min-w-[320px] w-[340px] max-w-[360px] rounded-r-xl border-r-2 border-t-2 border-b-2 shadow-2xl backdrop-blur-sm md:block hidden"
+      className="absolute z-30 min-w-[320px] w-[340px] max-w-[360px] rounded-r-xl border-r-2 border-t-2 border-b-2 shadow-2xl backdrop-blur-sm md:block hidden mt-4"
       style={{
         left: '0',
         top: '0',
@@ -197,9 +197,9 @@ export const ProfileCard = ({
         </div>
 
         {/* Bars Row: HP (left) | Hit Dice (right) */}
-        <div className="bars-row mt-3 grid grid-cols-2 gap-4 items-center">
+        <div className="bars-row mt-3 grid grid-cols-2 gap-4 items-center justify-items-center">
           {/* HP Left */}
-          <div className="hp-wrap relative z-0 flex flex-col items-end mr-[-12px]">
+          <div className="hp-wrap relative z-0 flex flex-col items-center">
             <Popover open={editingHP} onOpenChange={setEditingHP}>
               <PopoverTrigger asChild>
                 <div className="relative cursor-pointer w-[clamp(100px,100%,140px)] group">

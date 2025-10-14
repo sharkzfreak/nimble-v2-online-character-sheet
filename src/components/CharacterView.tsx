@@ -428,7 +428,7 @@ const CharacterView = ({
       />
       
       {/* Main Content Area (Fills space between left card and chat) */}
-      <div id="sheetContainer" className="px-4 sm:px-6 md:px-8 py-4">
+      <div id="sheetContainer" className="px-4 sm:px-6 md:px-8 py-4 mt-4">
         <div 
           className="space-y-8 animate-fade-in"
           style={{
