@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Shield, Plus, Minus } from "lucide-react";
+import { Shield, Upload, Sparkles } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -9,6 +9,11 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+
 
 interface ProfileCardProps {
   characterName: string;
@@ -19,9 +24,12 @@ interface ProfileCardProps {
   armor: number;
   hit_dice_remaining: number;
   hit_dice_total: number;
+  characterId?: string;
+  portraitUrl?: string;
   onHPChange?: (current: number, max: number, temp: number) => void;
   onArmorChange?: (armor: number) => void;
   onHitDiceChange?: (remaining: number, total: number) => void;
+  onPortraitChange?: (url: string) => void;
 }
 
 export const ProfileCard = ({
@@ -33,9 +41,12 @@ export const ProfileCard = ({
   armor,
   hit_dice_remaining,
   hit_dice_total,
+  characterId,
+  portraitUrl,
   onHPChange,
   onArmorChange,
   onHitDiceChange,
+  onPortraitChange,
 }: ProfileCardProps) => {
   const [editingHP, setEditingHP] = useState(false);
   const [tempHPCurrent, setTempHPCurrent] = useState(hp_current);
@@ -45,6 +56,10 @@ export const ProfileCard = ({
   const [editingHD, setEditingHD] = useState(false);
   const [tempHDRemaining, setTempHDRemaining] = useState(hit_dice_remaining);
   const [tempHDTotal, setTempHDTotal] = useState(hit_dice_total);
+  const [imageDialog, setImageDialog] = useState(false);
+  const [aiPrompt, setAiPrompt] = useState("");
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
 
   const hpPercentage = Math.min((hp_current / hp_max) * 100, 100);
   const tempHPPercentage = Math.min((hp_temp / hp_max) * 100, 100);
@@ -97,6 +112,97 @@ export const ProfileCard = ({
     setEditingHD(true);
   };
 
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !characterId) return;
+
+    setIsUploading(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Not authenticated');
+
+      const fileExt = file.name.split('.').pop();
+      const filePath = `${user.id}/${characterId}.${fileExt}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('character-images')
+        .upload(filePath, file, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      const { data } = supabase.storage
+        .from('character-images')
+        .getPublicUrl(filePath);
+
+      onPortraitChange?.(data.publicUrl);
+      setImageDialog(false);
+      toast.success('Portrait uploaded successfully!');
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      toast.error('Failed to upload image');
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleAIGenerate = async () => {
+    if (!aiPrompt.trim()) {
+      toast.error('Please enter a description');
+      return;
+    }
+
+    setIsGenerating(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-character-image', {
+        body: { prompt: aiPrompt }
+      });
+
+      if (error) throw error;
+      
+      if (data.error) {
+        if (data.error.includes('Rate limits')) {
+          toast.error('Rate limits exceeded, please try again later.');
+        } else if (data.error.includes('Payment required')) {
+          toast.error('Payment required, please add funds to your workspace.');
+        } else {
+          toast.error(data.error);
+        }
+        return;
+      }
+
+      if (data.imageUrl && characterId) {
+        // Convert base64 to blob
+        const response = await fetch(data.imageUrl);
+        const blob = await response.blob();
+
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error('Not authenticated');
+
+        const filePath = `${user.id}/${characterId}.png`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('character-images')
+          .upload(filePath, blob, { upsert: true });
+
+        if (uploadError) throw uploadError;
+
+        const { data: publicUrlData } = supabase.storage
+          .from('character-images')
+          .getPublicUrl(filePath);
+
+        onPortraitChange?.(publicUrlData.publicUrl);
+        setImageDialog(false);
+        setAiPrompt("");
+        toast.success('Portrait generated successfully!');
+      }
+    } catch (error) {
+      console.error('Error generating image:', error);
+      toast.error('Failed to generate image');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
   const renderHitDicePips = () => {
     const pips = [];
     const pipWidth = 100 / hit_dice_total;
@@ -136,27 +242,114 @@ export const ProfileCard = ({
     >
       {/* Portrait */}
       <div className="p-5">
-        <div
-          className="relative w-full h-[220px] sm:h-[180px] rounded-md overflow-hidden border-4 transition-all duration-300"
-          style={{
-            backgroundColor: `hsl(${classColor})`,
-            borderColor: `hsl(${classColor} / 0.8)`,
-            boxShadow: `0 8px 32px hsl(${classColor} / 0.4), inset 0 0 60px rgba(255,255,255,0.1)`,
-          }}
-          aria-label="Character portrait"
-        >
-          {/* Gradient overlay for faded center */}
-          <div
-            className="absolute inset-0"
-            style={{
-              background: `radial-gradient(circle at center, hsl(${classColor} / 0.4) 0%, hsl(${classColor} / 0.7) 60%, hsl(${classColor}) 100%)`,
-            }}
-          />
-          {/* Placeholder for portrait image */}
-          <div className="absolute inset-0 flex items-center justify-center text-8xl font-bold font-cinzel opacity-40">
-            {characterName?.[0] || "?"}
-          </div>
-        </div>
+        <Dialog open={imageDialog} onOpenChange={setImageDialog}>
+          <DialogTrigger asChild>
+            <div
+              className="relative w-full h-[220px] sm:h-[180px] rounded-md overflow-hidden border-4 transition-all duration-300 cursor-pointer group"
+              style={{
+                backgroundColor: `hsl(${classColor})`,
+                borderColor: `hsl(${classColor} / 0.8)`,
+                boxShadow: `0 8px 32px hsl(${classColor} / 0.4), inset 0 0 60px rgba(255,255,255,0.1)`,
+              }}
+              aria-label="Character portrait"
+            >
+              {/* Portrait image or placeholder */}
+              {portraitUrl ? (
+                <>
+                  <img 
+                    src={portraitUrl} 
+                    alt={characterName}
+                    className="absolute inset-0 w-full h-full object-cover"
+                  />
+                  {/* Hover overlay */}
+                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                    <Upload className="w-6 h-6 text-white" />
+                    <Sparkles className="w-6 h-6 text-white" />
+                  </div>
+                </>
+              ) : (
+                <>
+                  {/* Gradient overlay for faded center */}
+                  <div
+                    className="absolute inset-0"
+                    style={{
+                      background: `radial-gradient(circle at center, hsl(${classColor} / 0.4) 0%, hsl(${classColor} / 0.7) 60%, hsl(${classColor}) 100%)`,
+                    }}
+                  />
+                  {/* Placeholder */}
+                  <div className="absolute inset-0 flex flex-col items-center justify-center">
+                    <div className="text-8xl font-bold font-cinzel opacity-40 mb-2">
+                      {characterName?.[0] || "?"}
+                    </div>
+                    <div className="opacity-0 group-hover:opacity-100 transition-opacity flex gap-2 text-white">
+                      <Upload className="w-5 h-5" />
+                      <Sparkles className="w-5 h-5" />
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Character Portrait</DialogTitle>
+              <DialogDescription>
+                Upload your own image or generate one with AI
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 mt-4">
+              {/* Upload Section */}
+              <div>
+                <label className="block text-sm font-medium mb-2">Upload Image</label>
+                <Input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileUpload}
+                  disabled={isUploading}
+                  className="cursor-pointer"
+                />
+              </div>
+
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-background px-2 text-muted-foreground">Or</span>
+                </div>
+              </div>
+
+              {/* AI Generation Section */}
+              <div>
+                <label className="block text-sm font-medium mb-2">Generate with AI</label>
+                <Textarea
+                  placeholder="Describe your character (e.g., 'A brave elven warrior with silver hair and blue eyes')"
+                  value={aiPrompt}
+                  onChange={(e) => setAiPrompt(e.target.value)}
+                  className="min-h-[100px]"
+                  disabled={isGenerating}
+                />
+                <Button
+                  onClick={handleAIGenerate}
+                  disabled={isGenerating || !aiPrompt.trim()}
+                  className="w-full mt-2"
+                >
+                  {isGenerating ? (
+                    <>
+                      <Sparkles className="w-4 h-4 mr-2 animate-spin" />
+                      Generating...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="w-4 h-4 mr-2" />
+                      Generate Portrait
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
 
       {/* Vitals HUD - Centered Shield with Horizontal Bars */}

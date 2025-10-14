@@ -160,6 +160,7 @@ export type Database = {
           name: string
           notes: string | null
           player: string | null
+          portrait_url: string | null
           powers: string | null
           race: string | null
           skill_arcana: number | null
@@ -201,6 +202,7 @@ export type Database = {
           name: string
           notes?: string | null
           player?: string | null
+          portrait_url?: string | null
           powers?: string | null
           race?: string | null
           skill_arcana?: number | null
@@ -242,6 +244,7 @@ export type Database = {
           name?: string
           notes?: string | null
           player?: string | null
+          portrait_url?: string | null
           powers?: string | null
           race?: string | null
           skill_arcana?: number | null

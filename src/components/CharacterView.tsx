@@ -66,6 +66,7 @@ interface CharacterViewProps {
     armor: number;
     hit_dice_remaining: number;
     hit_dice_total: number;
+    portrait_url?: string;
   };
   calculateHealth: () => number;
   calculateDefense: () => number;
@@ -412,6 +413,8 @@ const CharacterView = ({
         armor={formData.armor}
         hit_dice_remaining={formData.hit_dice_remaining}
         hit_dice_total={formData.hit_dice_total}
+        characterId={characterId}
+        portraitUrl={formData.portrait_url}
         onHPChange={(current, max, temp) => {
           onFormDataChange?.({
             hp_current: current,
@@ -427,6 +430,9 @@ const CharacterView = ({
             hit_dice_remaining: remaining,
             hit_dice_total: total,
           });
+        }}
+        onPortraitChange={(url) => {
+          onFormDataChange?.({ portrait_url: url });
         }}
       />
 
