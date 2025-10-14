@@ -292,7 +292,7 @@ export const ProfileCard = ({
             </TooltipProvider>
 
             {/* Hit Dice Bar (Right) */}
-            <div className="relative flex justify-start items-center">
+            <div className="relative flex justify-start items-center mt-2">
               <div
                 className="relative h-[18px] w-full max-w-[140px] rounded-full bg-muted/30 overflow-hidden border cursor-pointer group ml-[-14px] z-0"
                 style={{ borderColor: `hsl(${classColor} / 0.3)` }}
