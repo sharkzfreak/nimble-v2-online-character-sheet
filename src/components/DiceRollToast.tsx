@@ -57,46 +57,8 @@ const DiceIcon = ({ type }: { type: string }) => {
   }
 };
 
-// Render dice face with pips for d6, numbers for others
+// Render dice face with numbers
 const DiceFace = ({ value, sides }: { value: number; sides: number }) => {
-  if (sides === 6 && value >= 1 && value <= 6) {
-    // D6 with traditional pip layout
-    const pipPositions: Record<number, string[]> = {
-      1: ['center'],
-      2: ['top-left', 'bottom-right'],
-      3: ['top-left', 'center', 'bottom-right'],
-      4: ['top-left', 'top-right', 'bottom-left', 'bottom-right'],
-      5: ['top-left', 'top-right', 'center', 'bottom-left', 'bottom-right'],
-      6: ['top-left', 'top-right', 'middle-left', 'middle-right', 'bottom-left', 'bottom-right'],
-    };
-
-    const positions = pipPositions[value] || [];
-    const pipCoords: Record<string, { cx: number; cy: number }> = {
-      'top-left': { cx: 8, cy: 8 },
-      'top-right': { cx: 16, cy: 8 },
-      'middle-left': { cx: 8, cy: 12 },
-      'center': { cx: 12, cy: 12 },
-      'middle-right': { cx: 16, cy: 12 },
-      'bottom-left': { cx: 8, cy: 16 },
-      'bottom-right': { cx: 16, cy: 16 },
-    };
-
-    return (
-      <svg viewBox="0 0 24 24" className="absolute inset-0 w-full h-full pointer-events-none">
-        {positions.map((pos, idx) => (
-          <circle
-            key={idx}
-            cx={pipCoords[pos].cx}
-            cy={pipCoords[pos].cy}
-            r="1.5"
-            fill="currentColor"
-          />
-        ))}
-      </svg>
-    );
-  }
-
-  // For all other dice, show the number
   return (
     <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
       <span className="text-base font-bold font-cinzel drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
