@@ -42,6 +42,9 @@ export const ProfileCard = ({
   const [tempHPMax, setTempHPMax] = useState(hp_max);
   const [tempHPTemp, setTempHPTemp] = useState(hp_temp);
   const [spendingDie, setSpendingDie] = useState<number | null>(null);
+  const [editingHD, setEditingHD] = useState(false);
+  const [tempHDRemaining, setTempHDRemaining] = useState(hit_dice_remaining);
+  const [tempHDTotal, setTempHDTotal] = useState(hit_dice_total);
 
   const hpPercentage = Math.min((hp_current / hp_max) * 100, 100);
   const tempHPPercentage = Math.min((hp_temp / hp_max) * 100, 100);
@@ -78,20 +81,20 @@ export const ProfileCard = ({
     setEditingHP(false);
   };
 
-  const handleSpendHitDie = (index: number) => {
-    if (index < hit_dice_remaining) {
-      setSpendingDie(index);
-      setTimeout(() => {
-        onHitDiceChange?.(hit_dice_remaining - 1, hit_dice_total);
-        setSpendingDie(null);
-      }, 300);
+  const handleSpendHitDie = () => {
+    if (hit_dice_remaining > 0) {
+      onHitDiceChange?.(hit_dice_remaining - 1, hit_dice_total);
     }
   };
 
-  const handleRestoreHitDie = (e: React.MouseEvent, index: number) => {
-    if (e.altKey && index >= hit_dice_remaining && hit_dice_remaining < hit_dice_total) {
-      onHitDiceChange?.(hit_dice_remaining + 1, hit_dice_total);
-    }
+  const handleHDSave = () => {
+    onHitDiceChange?.(tempHDRemaining, tempHDTotal);
+    setEditingHD(false);
+  };
+
+  const handleHDRightClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setEditingHD(true);
   };
 
   const renderHitDicePips = () => {
@@ -100,25 +103,16 @@ export const ProfileCard = ({
     
     for (let i = 0; i < hit_dice_total; i++) {
       const isAvailable = i < hit_dice_remaining;
-      const isSpending = spendingDie === i;
       
       pips.push(
         <div
           key={i}
-          className={`absolute top-0 bottom-0 transition-all duration-300 cursor-pointer rounded-full ${
-            isSpending ? 'opacity-0 scale-50' : 'opacity-100'
-          }`}
+          className="absolute top-0 bottom-0 transition-all duration-300 rounded-full"
           style={{
             left: `${i * pipWidth}%`,
             width: `${pipWidth - 2}%`,
             backgroundColor: isAvailable ? 'hsl(0 84% 60%)' : 'hsl(var(--muted))',
           }}
-          onClick={() => handleSpendHitDie(i)}
-          onContextMenu={(e) => {
-            e.preventDefault();
-            handleRestoreHitDie(e, i);
-          }}
-          role="button"
           aria-label={`Hit die ${i + 1} ${isAvailable ? 'available' : 'spent'}`}
           aria-pressed={isAvailable}
         />
@@ -305,20 +299,66 @@ export const ProfileCard = ({
 
             {/* Hit Dice Bar (Right) */}
             <div className="relative flex justify-start items-center mt-2">
-              <div
-                className="relative h-[18px] w-full max-w-[140px] rounded-full bg-muted/30 overflow-hidden border cursor-pointer group ml-[-14px] z-0"
-                style={{ borderColor: `hsl(${classColor} / 0.3)` }}
-                role="button"
-                aria-label="Hit dice bar"
-              >
-                {renderHitDicePips()}
-                {/* HD Text - shows on hover */}
-                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                  <span className="text-[9px] font-bold text-foreground drop-shadow-md">
-                    {hit_dice_remaining}/{hit_dice_total}
-                  </span>
-                </div>
-              </div>
+              <Popover open={editingHD} onOpenChange={setEditingHD}>
+                <PopoverTrigger asChild>
+                  <div
+                    className="relative h-[18px] w-full max-w-[140px] rounded-full bg-muted/30 overflow-hidden border cursor-pointer group ml-[-14px] z-0"
+                    style={{ borderColor: `hsl(${classColor} / 0.3)` }}
+                    role="button"
+                    aria-label="Hit dice bar"
+                    onClick={handleSpendHitDie}
+                    onContextMenu={handleHDRightClick}
+                  >
+                    {renderHitDicePips()}
+                    {/* HD Text - shows on hover */}
+                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                      <span className="text-[9px] font-bold text-foreground drop-shadow-md">
+                        {hit_dice_remaining}/{hit_dice_total}
+                      </span>
+                    </div>
+                  </div>
+                </PopoverTrigger>
+                <PopoverContent className="w-64">
+                  <div className="space-y-4">
+                    <h3 className="font-semibold text-sm">Edit Hit Dice</h3>
+                    <div className="space-y-2">
+                      <label className="text-xs font-medium">Current Hit Dice</label>
+                      <Input
+                        type="number"
+                        value={tempHDRemaining}
+                        onChange={(e) => setTempHDRemaining(parseInt(e.target.value) || 0)}
+                        className="h-8"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-xs font-medium">Max Hit Dice</label>
+                      <Input
+                        type="number"
+                        value={tempHDTotal}
+                        onChange={(e) => setTempHDTotal(parseInt(e.target.value) || 0)}
+                        className="h-8"
+                      />
+                    </div>
+                    <div className="flex gap-2">
+                      <Button onClick={handleHDSave} size="sm" className="flex-1">
+                        Save
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setEditingHD(false);
+                          setTempHDRemaining(hit_dice_remaining);
+                          setTempHDTotal(hit_dice_total);
+                        }}
+                        className="flex-1"
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  </div>
+                </PopoverContent>
+              </Popover>
             </div>
           </div>
         </div>
