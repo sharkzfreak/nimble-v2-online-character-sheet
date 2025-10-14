@@ -103,12 +103,11 @@ const CharacterView = ({
     rollType: string;
   } | null>(null);
 
-  // Layout main content between left card and chat panel
+  // Layout main content to span full width next to fixed card
   useEffect(() => {
-    const layoutBetweenLeftCardAndChat = () => {
+    const layoutFullWidth = () => {
       const card = document.getElementById('profileCard');
       const sheet = document.getElementById('sheetContainer');
-      const chat = document.querySelector('.chat-panel') as HTMLElement;
 
       if (!sheet || !card) return;
 
@@ -123,33 +122,22 @@ const CharacterView = ({
       }
 
       const cardW = card.offsetWidth || 0;
-      const chatW = chat ? chat.offsetWidth || 0 : 0;
       const gapLeft = 24;   // space between card and sheet
-      const gapRight = 24;  // space between sheet and chat
-      const maxW = 1100;    // max width for main content
-
-      // Align top edges
-      const sheetTop = sheet.getBoundingClientRect().top + window.scrollY;
-      card.style.top = `${sheetTop}px`;
 
       // Left align main container right next to the fixed card
       sheet.style.marginLeft = `${cardW + gapLeft}px`;
 
-      // Calculate usable width between left card and chat
-      const usable = window.innerWidth - cardW - chatW - gapLeft - gapRight;
-
-      // Clamp width so it doesn't exceed maxW but never overflow available space
-      const finalW = Math.min(Math.max(usable, 600), maxW); // min 600 for readability
-      sheet.style.width = `${finalW}px`;
-      sheet.style.maxWidth = `${maxW}px`;
+      // Make content span remaining width
+      sheet.style.width = `calc(100vw - ${cardW + gapLeft}px)`;
+      sheet.style.maxWidth = 'none';
     };
 
     // Initial alignment and on resize
-    layoutBetweenLeftCardAndChat();
-    window.addEventListener('resize', layoutBetweenLeftCardAndChat);
+    layoutFullWidth();
+    window.addEventListener('resize', layoutFullWidth);
     
     return () => {
-      window.removeEventListener('resize', layoutBetweenLeftCardAndChat);
+      window.removeEventListener('resize', layoutFullWidth);
     };
   }, []);
 
