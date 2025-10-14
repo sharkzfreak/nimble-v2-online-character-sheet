@@ -153,7 +153,7 @@ export const ProfileCard = ({
 
     setIsGenerating(true);
     try {
-      const { data, error } = await supabase.functions.invoke('generate-character-image', {
+      const { data, error } = await supabase.functions.invoke('generate-character-portrait', {
         body: { prompt: aiPrompt }
       });
 
