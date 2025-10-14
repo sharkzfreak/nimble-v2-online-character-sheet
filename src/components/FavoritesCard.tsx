@@ -1,10 +1,12 @@
-import { Star, Swords, Wand2, Package } from "lucide-react";
+import { useState } from "react";
+import { Star, Swords, Wand2, Package, Dices } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
 interface FavoriteItem {
   id: string;
@@ -13,15 +15,26 @@ interface FavoriteItem {
   description?: string;
 }
 
+interface SkillData {
+  name: string;
+  value: number;
+}
+
 interface FavoritesCardProps {
   classColor: string;
   favorites?: FavoriteItem[];
+  skills: SkillData[];
+  onSkillRoll?: (skillName: string, skillValue: number) => void;
 }
 
 export const FavoritesCard = ({
   classColor,
   favorites = [],
+  skills,
+  onSkillRoll,
 }: FavoritesCardProps) => {
+  const [activeTab, setActiveTab] = useState<'favorites' | 'skills'>('favorites');
+
   const getItemIcon = (type: FavoriteItem['type']) => {
     switch (type) {
       case 'attack':
@@ -45,75 +58,106 @@ export const FavoritesCard = ({
         boxShadow: `0 8px 32px hsl(${classColor} / 0.3)`,
       }}
     >
-      {/* Header */}
-      <div
-        className="px-4 py-3 border-b-2 flex items-center gap-2"
-        style={{
-          background: `linear-gradient(135deg, hsl(${classColor} / 0.15), hsl(${classColor} / 0.05))`,
-          borderColor: `hsl(${classColor} / 0.3)`,
-        }}
-      >
-        <Star
-          className="w-5 h-5"
-          style={{ color: `hsl(${classColor})`, fill: `hsl(${classColor} / 0.3)` }}
-        />
-        <h3
-          className="text-sm font-bold uppercase tracking-wider font-cinzel"
-          style={{ color: `hsl(${classColor})` }}
+      <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'favorites' | 'skills')} className="w-full">
+        {/* Header with Tabs */}
+        <div
+          className="px-4 py-3 border-b-2"
+          style={{
+            background: `linear-gradient(135deg, hsl(${classColor} / 0.15), hsl(${classColor} / 0.05))`,
+            borderColor: `hsl(${classColor} / 0.3)`,
+          }}
         >
-          Favorites
-        </h3>
-      </div>
+          <TabsList className="w-full grid grid-cols-2 h-8">
+            <TabsTrigger value="favorites" className="text-xs">
+              <Star className="w-3 h-3 mr-1" />
+              Favorites
+            </TabsTrigger>
+            <TabsTrigger value="skills" className="text-xs">
+              <Dices className="w-3 h-3 mr-1" />
+              Skills
+            </TabsTrigger>
+          </TabsList>
+        </div>
 
-      {/* Favorites List */}
-      <div className="p-3 space-y-1 max-h-[300px] overflow-y-auto">
-        {favorites.length === 0 ? (
-          <div className="text-center py-8 text-muted-foreground text-sm">
-            <Star className="w-8 h-8 mx-auto mb-2 opacity-30" />
-            <p>No favorites yet</p>
-            <p className="text-xs mt-1">Star items to add them here</p>
+        {/* Favorites Content */}
+        <TabsContent value="favorites" className="m-0">
+          <div className="p-3 space-y-1 max-h-[300px] overflow-y-auto">
+            {favorites.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground text-sm">
+                <Star className="w-8 h-8 mx-auto mb-2 opacity-30" />
+                <p>No favorites yet</p>
+                <p className="text-xs mt-1">Star items to add them here</p>
+              </div>
+            ) : (
+              favorites.map((item) => {
+                const Icon = getItemIcon(item.type);
+                return (
+                  <TooltipProvider key={item.id}>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button
+                          className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-muted/40 transition-all duration-200 text-left group"
+                          style={{
+                            borderLeft: `3px solid hsl(${classColor} / 0.5)`,
+                          }}
+                        >
+                          <Icon
+                            className="w-4 h-4 flex-shrink-0"
+                            style={{ color: `hsl(${classColor})` }}
+                          />
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium truncate">{item.name}</p>
+                            <p className="text-xs text-muted-foreground capitalize">{item.type}</p>
+                          </div>
+                          <Star
+                            className="w-3 h-3 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                            style={{ 
+                              color: `hsl(${classColor})`,
+                              fill: `hsl(${classColor})`
+                            }}
+                          />
+                        </button>
+                      </TooltipTrigger>
+                      {item.description && (
+                        <TooltipContent className="max-w-xs">
+                          <p className="text-xs">{item.description}</p>
+                        </TooltipContent>
+                      )}
+                    </Tooltip>
+                  </TooltipProvider>
+                );
+              })
+            )}
           </div>
-        ) : (
-          favorites.map((item) => {
-            const Icon = getItemIcon(item.type);
-            return (
-              <TooltipProvider key={item.id}>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button
-                      className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-muted/40 transition-all duration-200 text-left group"
-                      style={{
-                        borderLeft: `3px solid hsl(${classColor} / 0.5)`,
-                      }}
-                    >
-                      <Icon
-                        className="w-4 h-4 flex-shrink-0"
-                        style={{ color: `hsl(${classColor})` }}
-                      />
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium truncate">{item.name}</p>
-                        <p className="text-xs text-muted-foreground capitalize">{item.type}</p>
-                      </div>
-                      <Star
-                        className="w-3 h-3 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                        style={{ 
-                          color: `hsl(${classColor})`,
-                          fill: `hsl(${classColor})`
-                        }}
-                      />
-                    </button>
-                  </TooltipTrigger>
-                  {item.description && (
-                    <TooltipContent className="max-w-xs">
-                      <p className="text-xs">{item.description}</p>
-                    </TooltipContent>
-                  )}
-                </Tooltip>
-              </TooltipProvider>
-            );
-          })
-        )}
-      </div>
+        </TabsContent>
+
+        {/* Skills Content */}
+        <TabsContent value="skills" className="m-0">
+          <div className="p-3 space-y-1 max-h-[300px] overflow-y-auto">
+            {skills.map((skill) => (
+              <button
+                key={skill.name}
+                onClick={() => onSkillRoll?.(skill.name, skill.value)}
+                className="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:bg-muted/40 transition-all duration-200 group"
+                style={{
+                  borderLeft: `3px solid hsl(${classColor} / 0.5)`,
+                }}
+              >
+                <span className="text-sm font-medium">{skill.name}</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-bold text-foreground min-w-[2rem] text-right">
+                    {skill.value >= 0 ? `+${skill.value}` : skill.value}
+                  </span>
+                  <Dices 
+                    className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity"
+                    style={{ color: `hsl(${classColor})` }}
+                  />
+                </div>
+              </button>
+            ))}
+          </div>
+        </TabsContent>
+      </Tabs>
     </aside>
   );
 };

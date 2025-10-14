@@ -439,6 +439,19 @@ const CharacterView = ({
           { id: '2', name: 'Fireball', type: 'spell', description: '8d6 fire damage' },
           { id: '3', name: 'Healing Potion', type: 'item', description: 'Restore 2d4+2 HP' },
         ]}
+        skills={[
+          { name: 'Might', value: formData.skill_might },
+          { name: 'Finesse', value: formData.skill_finesse },
+          { name: 'Stealth', value: formData.skill_stealth },
+          { name: 'Arcana', value: formData.skill_arcana },
+          { name: 'Examination', value: formData.skill_examination },
+          { name: 'Lore', value: formData.skill_lore },
+          { name: 'Insight', value: formData.skill_insight },
+          { name: 'Influence', value: formData.skill_influence },
+          { name: 'Naturecraft', value: formData.skill_naturecraft },
+          { name: 'Perception', value: formData.skill_perception },
+        ]}
+        onSkillRoll={rollSkillCheck}
       />
       
       {/* Main Content Area (Fills space between left card and chat) */}
