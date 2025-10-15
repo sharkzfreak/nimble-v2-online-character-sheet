@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Shield, Upload, Sparkles } from "lucide-react";
+import { Shield, Upload, Sparkles, Sigma } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -30,6 +30,9 @@ interface ProfileCardProps {
   onArmorChange?: (armor: number) => void;
   onHitDiceChange?: (remaining: number, total: number) => void;
   onPortraitChange?: (url: string) => void;
+  onHPFormulaClick?: () => void;
+  onArmorFormulaClick?: () => void;
+  onSpeedFormulaClick?: () => void;
 }
 
 export const ProfileCard = ({
@@ -47,6 +50,9 @@ export const ProfileCard = ({
   onArmorChange,
   onHitDiceChange,
   onPortraitChange,
+  onHPFormulaClick,
+  onArmorFormulaClick,
+  onSpeedFormulaClick,
 }: ProfileCardProps) => {
   const [editingHP, setEditingHP] = useState(false);
   const [tempHPCurrent, setTempHPCurrent] = useState(hp_current);
@@ -401,11 +407,22 @@ export const ProfileCard = ({
                         }}
                       />
                     )}
-                    {/* HP Text - shows on hover */}
-                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                    {/* HP Text & Formula Icon - shows on hover */}
+                    <div className="absolute inset-0 flex items-center justify-between px-2 opacity-0 group-hover:opacity-100 transition-opacity">
                       <span className="text-[9px] font-bold text-foreground drop-shadow-md">
                         {hp_current}/{hp_max}
                       </span>
+                      {onHPFormulaClick && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onHPFormulaClick();
+                          }}
+                          className="hover:scale-110 transition-transform"
+                        >
+                          <Sigma className="w-3 h-3 text-foreground drop-shadow-md" />
+                        </button>
+                      )}
                     </div>
                   </div>
                 </PopoverTrigger>
@@ -487,13 +504,26 @@ export const ProfileCard = ({
                           strokeWidth={1.5}
                         />
                         <div
-                          className="absolute inset-0 flex items-center justify-center text-3xl font-bold font-cinzel pointer-events-none z-20"
+                          className="absolute inset-0 flex flex-col items-center justify-center z-20"
                           style={{
                             color: 'hsl(0 0% 100%)',
                             textShadow: '0 2px 8px rgba(0,0,0,0.8)',
                           }}
                         >
-                          {armor}
+                          <div className="text-3xl font-bold font-cinzel">
+                            {armor}
+                          </div>
+                          {onArmorFormulaClick && (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onArmorFormulaClick();
+                              }}
+                              className="mt-1 hover:scale-110 transition-transform pointer-events-auto"
+                            >
+                              <Sigma className="w-3 h-3" style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.8))' }} />
+                            </button>
+                          )}
                         </div>
                       </div>
                     </PopoverTrigger>

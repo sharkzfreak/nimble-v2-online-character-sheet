@@ -24,7 +24,8 @@ import {
   ChevronDown,
   Plus,
   X,
-  TrendingUp
+  TrendingUp,
+  Sigma
 } from "lucide-react";
 import { D20Icon } from "@/components/icons/D20Icon";
 import {
@@ -43,6 +44,10 @@ import { ProfileCard } from "./ProfileCard";
 import { FavoritesCard } from "./FavoritesCard";
 import { LevelUpWizard } from "./levelup/LevelUpWizard";
 import { FeaturesTimeline } from "./FeaturesTimeline";
+import { FormulaInspector, FormulaBreakdown } from "./FormulaInspector";
+import { calculateHPFormula, calculateArmorFormula, calculateSpeedFormula } from "@/utils/formulaCalculations";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/hooks/use-toast";
 
 interface FavoriteItem {
   id: string;
@@ -168,6 +173,10 @@ const CharacterView = ({
   
   // Level-up wizard state
   const [isLevelUpWizardOpen, setIsLevelUpWizardOpen] = useState(false);
+  
+  // Formula inspector state
+  const [formulaInspectorOpen, setFormulaInspectorOpen] = useState(false);
+  const [currentFormula, setCurrentFormula] = useState<FormulaBreakdown | null>(null);
 
   // Layout main content to span full width next to fixed card
   useEffect(() => {
@@ -318,6 +327,75 @@ const CharacterView = ({
         individual_rolls: pendingRoll.individualRolls,
       });
       setPendingRoll(null);
+    }
+  };
+
+  const showFormulaInspector = (type: 'hp' | 'armor' | 'speed') => {
+    let breakdown: FormulaBreakdown;
+    
+    const character = {
+      level: formData.level,
+      class: formData.class,
+      str_mod: formData.str_mod,
+      dex_mod: formData.dex_mod,
+      int_mod: formData.int_mod,
+      will_mod: formData.will_mod,
+      hp_max: formData.hp_max,
+      armor: formData.armor,
+      equipment: undefined,
+      custom_features: formData.custom_features,
+    };
+    
+    switch (type) {
+      case 'hp':
+        breakdown = calculateHPFormula(character);
+        break;
+      case 'armor':
+        breakdown = calculateArmorFormula(character);
+        break;
+      case 'speed':
+        breakdown = calculateSpeedFormula(character);
+        break;
+    }
+    
+    setCurrentFormula(breakdown);
+    setFormulaInspectorOpen(true);
+  };
+
+  const handleResetOverride = async () => {
+    if (!currentFormula || !characterId) return;
+
+    const updates: any = {};
+    
+    if (currentFormula.stat === 'HP Max') {
+      updates.hp_max = currentFormula.computedValue;
+    } else if (currentFormula.stat === 'Armor') {
+      updates.armor = currentFormula.computedValue;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('characters')
+        .update(updates)
+        .eq('id', characterId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Override Removed",
+        description: `${currentFormula.stat} reset to computed value.`,
+      });
+
+      setFormulaInspectorOpen(false);
+      
+      // Update local form data
+      onFormDataChange?.(updates);
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
     }
   };
 
@@ -533,6 +611,9 @@ const CharacterView = ({
         onPortraitChange={(url) => {
           onFormDataChange?.({ portrait_url: url });
         }}
+        onHPFormulaClick={() => showFormulaInspector('hp')}
+        onArmorFormulaClick={() => showFormulaInspector('armor')}
+        onSpeedFormulaClick={() => showFormulaInspector('speed')}
       />
 
       {/* Favorites Card */}
@@ -1497,6 +1578,13 @@ const CharacterView = ({
             }}
           />
         )}
+
+        <FormulaInspector
+          open={formulaInspectorOpen}
+          onOpenChange={setFormulaInspectorOpen}
+          breakdown={currentFormula}
+          onResetOverride={handleResetOverride}
+        />
         </div>
       </div>
 
