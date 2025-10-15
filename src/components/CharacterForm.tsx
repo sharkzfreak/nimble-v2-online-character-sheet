@@ -12,6 +12,7 @@ import { Loader2, Save, ArrowLeft, BookOpen, Trash2, CheckCircle2, Cloud, CloudO
 import { ClassSelector } from "@/components/ClassSelector";
 import { RuleTooltip } from "@/components/RuleTooltip";
 import CharacterView from "@/components/CharacterView";
+import { FavoriteItem } from "@/types/rollable";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -84,12 +85,12 @@ const CharacterForm = ({ characterId }: CharacterFormProps) => {
     armor: 10,
     hit_dice_remaining: 1,
     hit_dice_total: 1,
-    favorites: [] as Array<{ id: string; name: string; type: 'attack' | 'spell' | 'item'; description?: string }>,
+    favorites: [] as FavoriteItem[],
     journal_entries: [] as Array<{ id: string; title: string; content: string; timestamp: string }>,
     level_history: [] as Array<{ from: number; to: number; at: string; changes: Record<string, any> }>,
-    custom_features: [] as Array<{ id: string; name: string; description: string; rollFormula?: string }>,
-    custom_spells: [] as Array<{ id: string; name: string; description: string; rollFormula?: string }>,
-    custom_inventory: [] as Array<{ id: string; name: string; description: string; rollFormula?: string }>,
+    custom_features: [] as Array<{ id: string; name: string; description?: string; rollFormula?: string; actions?: any }>,
+    custom_spells: [] as Array<{ id: string; name: string; description?: string; rollFormula?: string; actions?: any }>,
+    custom_inventory: [] as Array<{ id: string; name: string; description?: string; rollFormula?: string; actions?: any }>,
   });
 
   const handleClassChange = (classId: string, classData: any) => {
@@ -194,6 +195,10 @@ const CharacterForm = ({ characterId }: CharacterFormProps) => {
 
       const characterData = {
         ...formData,
+        favorites: formData.favorites as any,
+        custom_features: formData.custom_features as any,
+        custom_spells: formData.custom_spells as any,
+        custom_inventory: formData.custom_inventory as any,
         user_id: user.id,
       };
 
@@ -224,6 +229,10 @@ const CharacterForm = ({ characterId }: CharacterFormProps) => {
 
       const characterData = {
         ...formData,
+        favorites: formData.favorites as any,
+        custom_features: formData.custom_features as any,
+        custom_spells: formData.custom_spells as any,
+        custom_inventory: formData.custom_inventory as any,
         user_id: user.id,
       };
 
@@ -284,6 +293,10 @@ const CharacterForm = ({ characterId }: CharacterFormProps) => {
 
       const characterData = {
         ...formData,
+        favorites: formData.favorites as any,
+        custom_features: formData.custom_features as any,
+        custom_spells: formData.custom_spells as any,
+        custom_inventory: formData.custom_inventory as any,
         user_id: user.id,
       };
 

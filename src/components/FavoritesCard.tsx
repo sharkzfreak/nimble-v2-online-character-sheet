@@ -9,12 +9,7 @@ import {
 } from "@/components/ui/tooltip";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
-interface FavoriteItem {
-  id: string;
-  name: string;
-  type: 'attack' | 'spell' | 'item';
-  description?: string;
-}
+import { FavoriteItem } from '@/types/rollable';
 
 interface SkillData {
   name: string;

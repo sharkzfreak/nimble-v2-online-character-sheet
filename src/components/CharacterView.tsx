@@ -25,7 +25,8 @@ import {
   Plus,
   X,
   TrendingUp,
-  Sigma
+  Sigma,
+  Star
 } from "lucide-react";
 import { D20Icon } from "@/components/icons/D20Icon";
 import {
@@ -46,15 +47,11 @@ import { LevelUpWizard } from "./levelup/LevelUpWizard";
 import { FeaturesTimeline } from "./FeaturesTimeline";
 import { FormulaInspector, FormulaBreakdown } from "./FormulaInspector";
 import { calculateHPFormula, calculateArmorFormula, calculateSpeedFormula } from "@/utils/formulaCalculations";
+import { FeatureCard } from "./FeatureCard";
+import { FavoriteItem, ActionSpec, AdvMode, FeatureLike } from "@/types/rollable";
+import { rollAction, formatRollResult } from "@/utils/rollEngine";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-
-interface FavoriteItem {
-  id: string;
-  name: string;
-  type: 'attack' | 'spell' | 'item';
-  description?: string;
-}
 
 interface JournalEntry {
   id: string;
@@ -63,10 +60,7 @@ interface JournalEntry {
   timestamp: string;
 }
 
-interface CustomItem {
-  id: string;
-  name: string;
-  description: string;
+interface CustomItem extends FeatureLike {
   rollFormula?: string;
 }
 
@@ -177,6 +171,9 @@ const CharacterView = ({
   // Formula inspector state
   const [formulaInspectorOpen, setFormulaInspectorOpen] = useState(false);
   const [currentFormula, setCurrentFormula] = useState<FormulaBreakdown | null>(null);
+  
+  // Favorites tab state
+  const [favoritesTabActive, setFavoritesTabActive] = useState(false);
 
   // Layout main content to span full width next to fixed card
   useEffect(() => {
@@ -374,7 +371,7 @@ const CharacterView = ({
     }
 
     try {
-      const { error } = await supabase
+      const { error} = await supabase
         .from('characters')
         .update(updates)
         .eq('id', characterId);
@@ -397,6 +394,100 @@ const CharacterView = ({
         variant: "destructive",
       });
     }
+  };
+
+  // Handle rollable action execution
+  const handleRollAction = (
+    action: ActionSpec,
+    rollIndex: number,
+    advMode: AdvMode,
+    situational: number,
+    itemName: string
+  ) => {
+    if (isRolling) return;
+    setIsRolling(true);
+
+    const binding = action.rolls[rollIndex];
+    const character = {
+      str_mod: formData.str_mod,
+      dex_mod: formData.dex_mod,
+      int_mod: formData.int_mod,
+      will_mod: formData.will_mod,
+    };
+
+    const result = rollAction(binding, {
+      character,
+      advMode,
+      situational,
+    });
+
+    const formattedLog = formatRollResult(action.label, binding, result);
+
+    const pendingRollData = {
+      characterName: formData.name || 'Unknown',
+      formula: result.formula,
+      rawResult: result.rawResult,
+      modifier: result.modifier,
+      total: result.total,
+      rollType: binding.kind,
+      individualRolls: result.rolls,
+    };
+
+    if (animationsEnabled) {
+      setShowAnimation(true);
+      setPendingRoll(pendingRollData);
+    } else {
+      addLog({
+        character_name: pendingRollData.characterName,
+        character_id: characterId,
+        formula: pendingRollData.formula,
+        raw_result: pendingRollData.rawResult,
+        modifier: pendingRollData.modifier,
+        total: pendingRollData.total,
+        roll_type: pendingRollData.rollType,
+        individual_rolls: pendingRollData.individualRolls,
+      });
+      setIsRolling(false);
+    }
+
+    // Show formatted result toast
+    toast({
+      title: `${itemName} — ${action.label}`,
+      description: formattedLog,
+      duration: 5000,
+    });
+  };
+
+  // Toggle favorite
+  const handleToggleFavorite = (item: CustomItem, type: 'feature' | 'spell' | 'item') => {
+    const favorites = formData.favorites || [];
+    const existingIndex = favorites.findIndex(fav => fav.id === item.id);
+
+    let updatedFavorites: FavoriteItem[];
+    if (existingIndex >= 0) {
+      // Remove from favorites
+      updatedFavorites = favorites.filter(fav => fav.id !== item.id);
+      toast({ title: "Removed from favorites", description: `${item.name} removed` });
+    } else {
+      // Add to favorites
+      updatedFavorites = [
+        ...favorites,
+        {
+          id: item.id,
+          name: item.name,
+          type,
+          description: item.description,
+          actions: item.actions,
+        },
+      ];
+      toast({ title: "Added to favorites", description: `${item.name} added` });
+    }
+
+    onFormDataChange?.({ favorites: updatedFavorites });
+  };
+
+  const isFavorited = (itemId: string): boolean => {
+    return (formData.favorites || []).some(fav => fav.id === itemId);
   };
 
   // Get class theme color
@@ -802,12 +893,19 @@ const CharacterView = ({
         {/* Tabbed Content */}
         <Tabs defaultValue="skills" className="w-full">
           <TabsList 
-            className="grid w-full grid-cols-5 h-14 border-2 p-1"
+            className="grid w-full grid-cols-6 h-14 border-2 p-1"
             style={{
               backgroundColor: `hsl(${classThemeColor} / 0.1)`,
               borderColor: `hsl(${classThemeColor} / 0.3)`
             }}
           >
+            <TabsTrigger 
+              value="favorites"
+              className="font-semibold data-[state=active]:shadow-lg transition-all"
+            >
+              <Star className="w-4 h-4 mr-2" />
+              <span className="hidden sm:inline">Favorites</span>
+            </TabsTrigger>
             <TabsTrigger 
               value="skills" 
               className="font-semibold data-[state=active]:shadow-lg transition-all"
@@ -847,6 +945,38 @@ const CharacterView = ({
               <span className="hidden sm:inline">Journal</span>
             </TabsTrigger>
           </TabsList>
+
+          {/* Favorites Tab */}
+          <TabsContent value="favorites" className="mt-6 space-y-4">
+            {(formData.favorites || []).length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {(formData.favorites || []).map((fav) => (
+                  <FeatureCard
+                    key={fav.id}
+                    feature={fav}
+                    type={fav.type}
+                    onRollAction={(action, rollIndex, advMode, situational) =>
+                      handleRollAction(action, rollIndex, advMode, situational, fav.name)
+                    }
+                    onToggleFavorite={() => {
+                      const updatedFavorites = (formData.favorites || []).filter(f => f.id !== fav.id);
+                      onFormDataChange?.({ favorites: updatedFavorites });
+                    }}
+                    isFavorited={true}
+                    showType={true}
+                  />
+                ))}
+              </div>
+            ) : (
+              <Card className="bg-card/70 border-2 backdrop-blur-sm" style={{ borderColor: `hsl(${classThemeColor} / 0.3)` }}>
+                <CardContent className="py-16 text-center">
+                  <Star className="w-16 h-16 mx-auto mb-4 opacity-30" style={{ color: `hsl(${classThemeColor})` }} />
+                  <p className="text-muted-foreground font-medium">No favorites yet</p>
+                  <p className="text-sm text-muted-foreground mt-2">Star ⭐ items from Features, Spells, or Inventory to quick-access them here</p>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
 
           {/* Skills Tab - Nimble V2 Skills */}
           <TabsContent value="skills" className="mt-6 space-y-4">
@@ -1013,46 +1143,18 @@ const CharacterView = ({
             </div>
 
             {formData.custom_features && formData.custom_features.length > 0 ? (
-              <div className="space-y-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {formData.custom_features.map((feature) => (
-                  <Card key={feature.id} className="bg-card/70 border-2 backdrop-blur-sm" style={{ borderColor: `hsl(${classThemeColor} / 0.3)` }}>
-                    <CardHeader>
-                      <div className="flex items-start justify-between">
-                        <CardTitle className="text-lg font-cinzel" style={{ color: `hsl(${classThemeColor})` }}>
-                          {feature.name}
-                        </CardTitle>
-                        <div className="flex gap-2">
-                          {feature.rollFormula && (
-                            <button
-                              className="p-2 hover:bg-primary/20 rounded-md transition-colors"
-                              title="Roll"
-                            >
-                              <D20Icon className="w-4 h-4 text-primary" />
-                            </button>
-                          )}
-                          <button
-                            onClick={() => {
-                              const updated = (formData.custom_features || []).filter(f => f.id !== feature.id);
-                              onFormDataChange?.({ custom_features: updated });
-                            }}
-                            className="p-2 hover:bg-destructive/20 rounded-md transition-colors"
-                          >
-                            <X className="w-4 h-4 text-destructive" />
-                          </button>
-                        </div>
-                      </div>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">
-                        {feature.description}
-                      </p>
-                      {feature.rollFormula && (
-                        <p className="text-xs text-primary font-mono mt-2">
-                          Roll: {feature.rollFormula}
-                        </p>
-                      )}
-                    </CardContent>
-                  </Card>
+                  <FeatureCard
+                    key={feature.id}
+                    feature={feature}
+                    type="feature"
+                    onRollAction={(action, rollIndex, advMode, situational) =>
+                      handleRollAction(action, rollIndex, advMode, situational, feature.name)
+                    }
+                    onToggleFavorite={() => handleToggleFavorite(feature, 'feature')}
+                    isFavorited={isFavorited(feature.id)}
+                  />
                 ))}
               </div>
             ) : (
@@ -1169,46 +1271,18 @@ const CharacterView = ({
             </div>
 
             {formData.custom_inventory && formData.custom_inventory.length > 0 ? (
-              <div className="space-y-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {formData.custom_inventory.map((item) => (
-                  <Card key={item.id} className="bg-card/70 border-2 backdrop-blur-sm" style={{ borderColor: `hsl(${classThemeColor} / 0.3)` }}>
-                    <CardHeader>
-                      <div className="flex items-start justify-between">
-                        <CardTitle className="text-lg font-cinzel" style={{ color: `hsl(${classThemeColor})` }}>
-                          {item.name}
-                        </CardTitle>
-                        <div className="flex gap-2">
-                          {item.rollFormula && (
-                            <button
-                              className="p-2 hover:bg-primary/20 rounded-md transition-colors"
-                              title="Roll"
-                            >
-                              <D20Icon className="w-4 h-4 text-primary" />
-                            </button>
-                          )}
-                          <button
-                            onClick={() => {
-                              const updated = (formData.custom_inventory || []).filter(i => i.id !== item.id);
-                              onFormDataChange?.({ custom_inventory: updated });
-                            }}
-                            className="p-2 hover:bg-destructive/20 rounded-md transition-colors"
-                          >
-                            <X className="w-4 h-4 text-destructive" />
-                          </button>
-                        </div>
-                      </div>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">
-                        {item.description}
-                      </p>
-                      {item.rollFormula && (
-                        <p className="text-xs text-primary font-mono mt-2">
-                          Roll: {item.rollFormula}
-                        </p>
-                      )}
-                    </CardContent>
-                  </Card>
+                  <FeatureCard
+                    key={item.id}
+                    feature={item}
+                    type="item"
+                    onRollAction={(action, rollIndex, advMode, situational) =>
+                      handleRollAction(action, rollIndex, advMode, situational, item.name)
+                    }
+                    onToggleFavorite={() => handleToggleFavorite(item, 'item')}
+                    isFavorited={isFavorited(item.id)}
+                  />
                 ))}
               </div>
             ) : (
