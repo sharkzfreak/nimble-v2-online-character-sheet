@@ -146,8 +146,12 @@ export type Database = {
           class: string | null
           class_id: string | null
           created_at: string | null
+          custom_features: Json | null
+          custom_inventory: Json | null
+          custom_spells: Json | null
           description: string | null
           dexterity: number
+          dice_presets: Json | null
           equipment: Json | null
           favorites: Json | null
           hit_dice_remaining: number | null
@@ -157,6 +161,7 @@ export type Database = {
           hp_temp: number | null
           id: string
           intelligence: number
+          is_draft: boolean | null
           journal_entries: Json | null
           level: number
           name: string
@@ -190,8 +195,12 @@ export type Database = {
           class?: string | null
           class_id?: string | null
           created_at?: string | null
+          custom_features?: Json | null
+          custom_inventory?: Json | null
+          custom_spells?: Json | null
           description?: string | null
           dexterity?: number
+          dice_presets?: Json | null
           equipment?: Json | null
           favorites?: Json | null
           hit_dice_remaining?: number | null
@@ -201,6 +210,7 @@ export type Database = {
           hp_temp?: number | null
           id?: string
           intelligence?: number
+          is_draft?: boolean | null
           journal_entries?: Json | null
           level?: number
           name: string
@@ -234,8 +244,12 @@ export type Database = {
           class?: string | null
           class_id?: string | null
           created_at?: string | null
+          custom_features?: Json | null
+          custom_inventory?: Json | null
+          custom_spells?: Json | null
           description?: string | null
           dexterity?: number
+          dice_presets?: Json | null
           equipment?: Json | null
           favorites?: Json | null
           hit_dice_remaining?: number | null
@@ -245,6 +259,7 @@ export type Database = {
           hp_temp?: number | null
           id?: string
           intelligence?: number
+          is_draft?: boolean | null
           journal_entries?: Json | null
           level?: number
           name?: string

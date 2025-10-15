@@ -9,6 +9,7 @@ import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import CharacterNew from "./pages/CharacterNew";
 import CharacterEdit from "./pages/CharacterEdit";
+import CharacterBuilder from "./pages/CharacterBuilder";
 import RulesCodex from "./pages/RulesCodex";
 import AdminSeed from "./pages/AdminSeed";
 import NotFound from "./pages/NotFound";
@@ -28,6 +29,7 @@ const App = () => {
             <Route path="/auth" element={<Auth />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/character/new" element={<CharacterNew />} />
+            <Route path="/character/builder" element={<CharacterBuilder />} />
             <Route path="/character/:id" element={<CharacterEdit />} />
             <Route path="/codex" element={<RulesCodex />} />
             <Route path="/admin/seed" element={<AdminSeed />} />

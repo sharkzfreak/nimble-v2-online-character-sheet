@@ -126,7 +126,7 @@ const Dashboard = () => {
               <p className="text-muted-foreground mb-6 text-center">
                 Start your adventure by creating your first character
               </p>
-              <Button onClick={() => navigate("/character/new")} variant="hero" size="lg" className="hover-scale animate-scale-in">
+              <Button onClick={() => navigate("/character/builder")} variant="hero" size="lg" className="hover-scale animate-scale-in">
                 <Plus className="mr-2 h-5 w-5" />
                 Create Your First Character
               </Button>
@@ -135,7 +135,7 @@ const Dashboard = () => {
         ) : (
           <>
             <div className="flex justify-end mb-6">
-              <Button onClick={() => navigate("/character/new")} variant="hero" className="hover-scale">
+              <Button onClick={() => navigate("/character/builder")} variant="hero" className="hover-scale">
                 <Plus className="mr-2 h-4 w-4" />
                 Create New Character
               </Button>
