@@ -50,6 +50,7 @@ import { calculateHPFormula, calculateArmorFormula, calculateSpeedFormula } from
 import { FeatureCard } from "./FeatureCard";
 import { FavoriteItem, ActionSpec, AdvMode, FeatureLike } from "@/types/rollable";
 import { rollAction, formatRollResult } from "@/utils/rollEngine";
+import { getFeaturesAtLevel } from "@/config/classFeatures";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 
@@ -458,29 +459,57 @@ const CharacterView = ({
     });
   };
 
+  // Get class features from config
+  const classFeatures: FeatureLike[] = formData.class 
+    ? getFeaturesAtLevel(formData.class, formData.level).map(cf => ({
+        id: cf.id,
+        name: cf.name,
+        description: cf.description,
+        actions: [], // Can be populated with rollable actions later
+      }))
+    : [];
+
+  const customFeatures = (formData.custom_features as FeatureLike[]) || [];
+  const customSpells = (formData.custom_spells as FeatureLike[]) || [];
+  const customInventory = (formData.custom_inventory as FeatureLike[]) || [];
+
   // Toggle favorite
-  const handleToggleFavorite = (item: CustomItem, type: 'feature' | 'spell' | 'item') => {
+  const handleToggleFavorite = (featureId: string) => {
     const favorites = formData.favorites || [];
-    const existingIndex = favorites.findIndex(fav => fav.id === item.id);
+    const existingIndex = favorites.findIndex(fav => fav.id === featureId);
+
+    // Find the item in all possible sources
+    const allFeatures = [...classFeatures, ...customFeatures];
+    const allSpells = customSpells;
+    const allItems = customInventory;
+    
+    const foundFeature = allFeatures.find(f => f.id === featureId);
+    const foundSpell = allSpells.find(s => s.id === featureId);
+    const foundItem = allItems.find(i => i.id === featureId);
+    
+    const item = foundFeature || foundSpell || foundItem;
+    const type = foundFeature ? 'feature' : foundSpell ? 'spell' : 'item';
 
     let updatedFavorites: FavoriteItem[];
     if (existingIndex >= 0) {
       // Remove from favorites
-      updatedFavorites = favorites.filter(fav => fav.id !== item.id);
-      toast({ title: "Removed from favorites", description: `${item.name} removed` });
-    } else {
+      updatedFavorites = favorites.filter(fav => fav.id !== featureId);
+      toast({ title: "Removed from favorites", description: `${favorites[existingIndex].name} removed` });
+    } else if (item) {
       // Add to favorites
       updatedFavorites = [
         ...favorites,
         {
           id: item.id,
           name: item.name,
-          type,
+          type: type as 'attack' | 'feature' | 'spell' | 'item',
           description: item.description,
           actions: item.actions,
         },
       ];
       toast({ title: "Added to favorites", description: `${item.name} added` });
+    } else {
+      return;
     }
 
     onFormDataChange?.({ favorites: updatedFavorites });
@@ -893,19 +922,12 @@ const CharacterView = ({
         {/* Tabbed Content */}
         <Tabs defaultValue="skills" className="w-full">
           <TabsList 
-            className="grid w-full grid-cols-6 h-14 border-2 p-1"
+            className="grid w-full grid-cols-5 h-14 border-2 p-1"
             style={{
               backgroundColor: `hsl(${classThemeColor} / 0.1)`,
               borderColor: `hsl(${classThemeColor} / 0.3)`
             }}
           >
-            <TabsTrigger 
-              value="favorites"
-              className="font-semibold data-[state=active]:shadow-lg transition-all"
-            >
-              <Star className="w-4 h-4 mr-2" />
-              <span className="hidden sm:inline">Favorites</span>
-            </TabsTrigger>
             <TabsTrigger 
               value="skills" 
               className="font-semibold data-[state=active]:shadow-lg transition-all"
@@ -1142,9 +1164,9 @@ const CharacterView = ({
               </Dialog>
             </div>
 
-            {formData.custom_features && formData.custom_features.length > 0 ? (
+            {(classFeatures.length > 0 || (formData.custom_features && formData.custom_features.length > 0)) ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {formData.custom_features.map((feature) => (
+                {classFeatures.map((feature) => (
                   <FeatureCard
                     key={feature.id}
                     feature={feature}
@@ -1152,7 +1174,19 @@ const CharacterView = ({
                     onRollAction={(action, rollIndex, advMode, situational) =>
                       handleRollAction(action, rollIndex, advMode, situational, feature.name)
                     }
-                    onToggleFavorite={() => handleToggleFavorite(feature, 'feature')}
+                    onToggleFavorite={() => handleToggleFavorite(feature.id)}
+                    isFavorited={isFavorited(feature.id)}
+                  />
+                ))}
+                {formData.custom_features?.map((feature) => (
+                  <FeatureCard
+                    key={feature.id}
+                    feature={feature}
+                    type="feature"
+                    onRollAction={(action, rollIndex, advMode, situational) =>
+                      handleRollAction(action, rollIndex, advMode, situational, feature.name)
+                    }
+                    onToggleFavorite={() => handleToggleFavorite(feature.id)}
                     isFavorited={isFavorited(feature.id)}
                   />
                 ))}
@@ -1161,8 +1195,8 @@ const CharacterView = ({
               <Card className="bg-card/70 border-2 backdrop-blur-sm" style={{ borderColor: `hsl(${classThemeColor} / 0.3)` }}>
                 <CardContent className="py-16 text-center">
                   <Sparkles className="w-16 h-16 mx-auto mb-4 opacity-30" style={{ color: `hsl(${classThemeColor})` }} />
-                  <p className="text-muted-foreground font-medium">No features added yet</p>
-                  <p className="text-sm text-muted-foreground mt-2">Click the + button above to add your first feature</p>
+                  <p className="text-muted-foreground font-medium">No features yet</p>
+                  <p className="text-sm text-muted-foreground mt-2">Class features will appear here automatically</p>
                 </CardContent>
               </Card>
             )}
@@ -1280,7 +1314,7 @@ const CharacterView = ({
                     onRollAction={(action, rollIndex, advMode, situational) =>
                       handleRollAction(action, rollIndex, advMode, situational, item.name)
                     }
-                    onToggleFavorite={() => handleToggleFavorite(item, 'item')}
+                    onToggleFavorite={() => handleToggleFavorite(item.id)}
                     isFavorited={isFavorited(item.id)}
                   />
                 ))}
