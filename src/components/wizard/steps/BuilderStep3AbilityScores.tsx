@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Check, RotateCcw, Sparkles } from "lucide-react";
 import { NIMBLE_STAT_ARRAYS, StatName } from "@/config/nimbleArrays";
-import { DndContext, DragEndEvent, DragOverlay, DragStartEvent, useSensor, useSensors, PointerSensor, KeyboardSensor } from "@dnd-kit/core";
+import { DndContext, DragEndEvent, DragOverlay, DragStartEvent, useSensor, useSensors, PointerSensor, KeyboardSensor, useDraggable, useDroppable } from "@dnd-kit/core";
 import { toast } from "@/hooks/use-toast";
 
 interface BuilderStepProps {
@@ -197,12 +197,22 @@ export const BuilderStep3AbilityScores = ({ formData, setFormData }: BuilderStep
   };
 
   const DraggableChip = ({ chip }: { chip: ModChip }) => {
+    const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
+      id: chip.id,
+    });
+
+    const style = transform ? {
+      transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
+      opacity: isDragging ? 0.5 : 1,
+    } : undefined;
+
     return (
       <div
+        ref={setNodeRef}
+        style={style}
+        {...listeners}
+        {...attributes}
         className="px-4 py-2 bg-primary text-primary-foreground rounded-lg font-bold text-lg cursor-grab active:cursor-grabbing shadow-md hover:shadow-lg transition-shadow"
-        role="button"
-        aria-grabbed="false"
-        tabIndex={0}
       >
         {formatMod(chip.value)}
       </div>
@@ -212,19 +222,23 @@ export const BuilderStep3AbilityScores = ({ formData, setFormData }: BuilderStep
   const StatDropZone = ({ stat }: { stat: typeof STAT_LABELS[0] }) => {
     const value = formData[stat.key];
     const hasValue = value !== 0;
+    
+    const { setNodeRef, isOver } = useDroppable({
+      id: stat.key,
+    });
 
     return (
       <div className="flex flex-col items-center gap-2">
         <Label className="text-sm font-medium text-muted-foreground">{stat.label}</Label>
         <div
+          ref={setNodeRef}
           className={`w-24 h-24 rounded-lg border-2 border-dashed flex items-center justify-center transition-all ${
             hasValue
               ? 'border-primary bg-primary/10'
+              : isOver
+              ? 'border-primary bg-primary/20'
               : 'border-muted-foreground/30 hover:border-primary/50 hover:bg-muted/50'
           }`}
-          aria-dropeffect="move"
-          role="button"
-          tabIndex={0}
         >
           {hasValue ? (
             <span className="text-3xl font-bold text-primary">{formatMod(value)}</span>
@@ -328,13 +342,7 @@ export const BuilderStep3AbilityScores = ({ formData, setFormData }: BuilderStep
                   <Label className="text-sm font-medium">Available Modifiers:</Label>
                   <div className="flex gap-3 flex-wrap p-4 bg-muted/30 rounded-lg min-h-[80px]">
                     {availableChips.map((chip) => (
-                      <div
-                        key={chip.id}
-                        draggable
-                        onDragStart={() => setActiveId(chip.id)}
-                      >
-                        <DraggableChip chip={chip} />
-                      </div>
+                      <DraggableChip key={chip.id} chip={chip} />
                     ))}
                   </div>
                 </div>
@@ -344,13 +352,7 @@ export const BuilderStep3AbilityScores = ({ formData, setFormData }: BuilderStep
                 <Label className="text-sm font-medium">Your Stats:</Label>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-muted/10 rounded-lg">
                   {STAT_LABELS.map((stat) => (
-                    <div
-                      key={stat.key}
-                      onDragOver={(e) => e.preventDefault()}
-                      onDrop={() => {}}
-                    >
-                      <StatDropZone stat={stat} />
-                    </div>
+                    <StatDropZone key={stat.key} stat={stat} />
                   ))}
                 </div>
               </div>

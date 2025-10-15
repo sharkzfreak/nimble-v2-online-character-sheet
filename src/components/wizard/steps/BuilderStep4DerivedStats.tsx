@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { WizardFormData } from "../CharacterBuilder";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -14,13 +15,22 @@ export const BuilderStep4DerivedStats = ({ formData, setFormData }: BuilderStepP
   const baseHP = 10 + formData.str_mod + (formData.level * 5);
   const baseArmor = 10 + formData.dex_mod;
 
-  // Auto-calculate on component mount/update
-  if (formData.hp_max !== baseHP) {
-    setFormData({ ...formData, hp_max: baseHP, hp_current: baseHP });
-  }
-  if (formData.armor !== baseArmor) {
-    setFormData({ ...formData, armor: baseArmor });
-  }
+  // Auto-calculate on component mount/update using useEffect
+  useEffect(() => {
+    const updates: Partial<WizardFormData> = {};
+    
+    if (formData.hp_max !== baseHP) {
+      updates.hp_max = baseHP;
+      updates.hp_current = baseHP;
+    }
+    if (formData.armor !== baseArmor) {
+      updates.armor = baseArmor;
+    }
+    
+    if (Object.keys(updates).length > 0) {
+      setFormData({ ...formData, ...updates });
+    }
+  }, [baseHP, baseArmor]);
 
   return (
     <div className="space-y-6 animate-fade-in">

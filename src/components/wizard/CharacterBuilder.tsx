@@ -263,8 +263,11 @@ export const CharacterBuilder = () => {
         },
       ];
 
+      // Prepare character data, excluding class_features which isn't a DB column
+      const { class_features, ...restFormData } = formData;
+      
       const characterData = {
-        ...formData,
+        ...restFormData,
         user_id: user.id,
         is_draft: false,
         dice_presets: dicePresets,
