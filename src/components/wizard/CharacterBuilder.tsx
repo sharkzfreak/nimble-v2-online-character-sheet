@@ -263,8 +263,8 @@ export const CharacterBuilder = () => {
         },
       ];
 
-      // Prepare character data, excluding class_features which isn't a DB column
-      const { class_features, ...restFormData } = formData;
+      // Prepare character data, excluding fields that aren't DB columns
+      const { class_features, stat_array_id, stat_array_values, ...restFormData } = formData;
       
       const characterData = {
         ...restFormData,
