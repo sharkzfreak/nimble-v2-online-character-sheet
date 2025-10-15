@@ -32,6 +32,19 @@ export interface WizardFormData {
   dex_mod: number;
   int_mod: number;
   will_mod: number;
+  stat_array_id: string | null;
+  stat_array_values: number[];
+  class_features: Array<{
+    id: string;
+    name: string;
+    level: number;
+    description: string;
+    requires_choice: boolean;
+    choice_type?: 'single' | 'multi';
+    choice_count?: number;
+    options?: Array<{ id: string; name: string; description?: string }>;
+    selection?: string[];
+  }>;
   hp_max: number;
   hp_current: number;
   armor: number;
@@ -87,6 +100,9 @@ export const CharacterBuilder = () => {
     dex_mod: 0,
     int_mod: 0,
     will_mod: 0,
+    stat_array_id: null,
+    stat_array_values: [],
+    class_features: [],
     hp_max: 0,
     hp_current: 0,
     armor: 10,
@@ -191,8 +207,27 @@ export const CharacterBuilder = () => {
           toast({ title: "Class required", description: "Please select a class", variant: "destructive" });
           return false;
         }
+        // Validate all required feature choices are made
+        const incompleteFeatures = formData.class_features.filter(f => {
+          if (!f.requires_choice) return false;
+          const selectionCount = f.selection?.length || 0;
+          const requiredCount = f.choice_count || 1;
+          return selectionCount !== requiredCount;
+        });
+        if (incompleteFeatures.length > 0) {
+          toast({ 
+            title: "Feature choices required", 
+            description: `Please complete all feature selections (${incompleteFeatures[0].name})`, 
+            variant: "destructive" 
+          });
+          return false;
+        }
         return true;
       case 3: // Stat Array
+        if (!formData.stat_array_id) {
+          toast({ title: "Array required", description: "Please select a stat array", variant: "destructive" });
+          return false;
+        }
         const mods = [formData.str_mod, formData.dex_mod, formData.int_mod, formData.will_mod];
         if (mods.some(m => m === null || m === undefined)) {
           toast({ title: "Array incomplete", description: "Please assign all stat modifiers", variant: "destructive" });
