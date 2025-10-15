@@ -414,3 +414,8 @@ export const getClassFeatures = (className: string): ClassFeature[] => {
 export const getFeaturesAtLevel = (className: string, level: number): ClassFeature[] => {
   return getClassFeatures(className).filter(f => f.level <= level);
 };
+
+// Helper to get features unlocked between two levels
+export const getFeaturesBetweenLevels = (className: string, fromLevel: number, toLevel: number): ClassFeature[] => {
+  return getClassFeatures(className).filter(f => f.level > fromLevel && f.level <= toLevel);
+};

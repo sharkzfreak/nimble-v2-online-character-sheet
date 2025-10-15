@@ -23,7 +23,8 @@ import {
   Package,
   ChevronDown,
   Plus,
-  X
+  X,
+  TrendingUp
 } from "lucide-react";
 import { D20Icon } from "@/components/icons/D20Icon";
 import {
@@ -40,6 +41,8 @@ import { DiceRollAnimation } from "./DiceRollAnimation";
 import { AnimatedStatContainer } from "./AnimatedStatContainer";
 import { ProfileCard } from "./ProfileCard";
 import { FavoritesCard } from "./FavoritesCard";
+import { LevelUpWizard } from "./levelup/LevelUpWizard";
+import { FeaturesTimeline } from "./FeaturesTimeline";
 
 interface FavoriteItem {
   id: string;
@@ -162,6 +165,9 @@ const CharacterView = ({
   const [newItemName, setNewItemName] = useState("");
   const [newItemDescription, setNewItemDescription] = useState("");
   const [newItemFormula, setNewItemFormula] = useState("");
+  
+  // Level-up wizard state
+  const [isLevelUpWizardOpen, setIsLevelUpWizardOpen] = useState(false);
 
   // Layout main content to span full width next to fixed card
   useEffect(() => {
@@ -597,18 +603,28 @@ const CharacterView = ({
                   
                   {/* Single Identity Line */}
                   <div className="flex flex-wrap items-center gap-3 text-lg md:text-xl">
-                    <Badge 
-                      variant="secondary" 
-                      className="text-base font-semibold px-3 py-1"
-                      style={{
-                        backgroundColor: `hsl(${classThemeColor} / 0.15)`,
-                        borderColor: `hsl(${classThemeColor} / 0.4)`,
-                        color: `hsl(var(--foreground))`,
-                        border: '1px solid'
-                      }}
-                    >
-                      Level {formData.level}
-                    </Badge>
+                    <div className="flex items-center gap-2">
+                      <Badge 
+                        variant="secondary" 
+                        className="text-base font-semibold px-3 py-1"
+                        style={{
+                          backgroundColor: `hsl(${classThemeColor} / 0.15)`,
+                          borderColor: `hsl(${classThemeColor} / 0.4)`,
+                          color: `hsl(var(--foreground))`,
+                          border: '1px solid'
+                        }}
+                      >
+                        Level {formData.level}
+                      </Badge>
+                      <Button
+                        size="sm"
+                        onClick={() => setIsLevelUpWizardOpen(true)}
+                        className="bg-gradient-to-r from-primary to-accent hover:opacity-90"
+                      >
+                        <TrendingUp className="w-4 h-4 mr-1" />
+                        Level Up
+                      </Button>
+                    </div>
                     
                     {formData.class && (
                       <>
@@ -801,7 +817,21 @@ const CharacterView = ({
 
           {/* Features Tab */}
           <TabsContent value="features" className="mt-6 space-y-4">
-            <div className="flex justify-center mb-6">
+            <FeaturesTimeline
+              className={formData.class}
+              currentLevel={formData.level}
+              classFeatures={formData.custom_features?.map((f, i) => ({
+                id: f.id,
+                name: f.name,
+                level: 1,
+                description: f.description,
+                requires_choice: false,
+                selection: [],
+              })) || []}
+              onLevelUpClick={() => setIsLevelUpWizardOpen(true)}
+            />
+
+            <div className="flex justify-center mb-6 mt-6">
               <Dialog open={isFeatureDialogOpen} onOpenChange={setIsFeatureDialogOpen}>
                 <DialogTrigger asChild>
                   <button 
@@ -1427,6 +1457,44 @@ const CharacterView = ({
           <DiceRollToast
             {...diceRoll}
             onClose={() => setDiceRoll(null)}
+          />
+        )}
+
+        {/* Level Up Wizard */}
+        {characterId && (
+          <LevelUpWizard
+            open={isLevelUpWizardOpen}
+            onOpenChange={setIsLevelUpWizardOpen}
+            character={{
+              id: characterId,
+              level: formData.level,
+              class: formData.class,
+              str_mod: formData.str_mod,
+              dex_mod: formData.dex_mod,
+              hp_max: formData.hp_max,
+              hp_current: formData.hp_current,
+              class_features: formData.custom_features?.map((f, i) => ({
+                id: f.id,
+                name: f.name,
+                level: 1,
+                description: f.description,
+                requires_choice: false,
+                selection: [],
+              })) || [],
+            }}
+            onLevelUpComplete={(updates) => {
+              onFormDataChange?.({
+                level: updates.level,
+                hp_max: updates.hp_max,
+                hp_current: updates.hp_current,
+                custom_features: updates.class_features.map((f: any) => ({
+                  id: f.id,
+                  name: f.name,
+                  description: f.description,
+                  rollFormula: undefined,
+                })),
+              });
+            }}
           />
         )}
         </div>

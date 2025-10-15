@@ -166,6 +166,7 @@ export type Database = {
           is_draft: boolean | null
           journal_entries: Json | null
           level: number
+          level_history: Json | null
           name: string
           notes: string | null
           player: string | null
@@ -219,6 +220,7 @@ export type Database = {
           is_draft?: boolean | null
           journal_entries?: Json | null
           level?: number
+          level_history?: Json | null
           name: string
           notes?: string | null
           player?: string | null
@@ -272,6 +274,7 @@ export type Database = {
           is_draft?: boolean | null
           journal_entries?: Json | null
           level?: number
+          level_history?: Json | null
           name?: string
           notes?: string | null
           player?: string | null

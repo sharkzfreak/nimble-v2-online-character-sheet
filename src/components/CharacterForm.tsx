@@ -86,6 +86,10 @@ const CharacterForm = ({ characterId }: CharacterFormProps) => {
     hit_dice_total: 1,
     favorites: [] as Array<{ id: string; name: string; type: 'attack' | 'spell' | 'item'; description?: string }>,
     journal_entries: [] as Array<{ id: string; title: string; content: string; timestamp: string }>,
+    level_history: [] as Array<{ from: number; to: number; at: string; changes: Record<string, any> }>,
+    custom_features: [] as Array<{ id: string; name: string; description: string; rollFormula?: string }>,
+    custom_spells: [] as Array<{ id: string; name: string; description: string; rollFormula?: string }>,
+    custom_inventory: [] as Array<{ id: string; name: string; description: string; rollFormula?: string }>,
   });
 
   const handleClassChange = (classId: string, classData: any) => {
@@ -157,6 +161,10 @@ const CharacterForm = ({ characterId }: CharacterFormProps) => {
           ...data,
           favorites: (data.favorites || []) as Array<{ id: string; name: string; type: 'attack' | 'spell' | 'item'; description?: string }>,
           journal_entries: ((data as any).journal_entries || []) as Array<{ id: string; title: string; content: string; timestamp: string }>,
+          level_history: (data.level_history || []) as Array<{ from: number; to: number; at: string; changes: Record<string, any> }>,
+          custom_features: (data.custom_features || []) as Array<{ id: string; name: string; description: string; rollFormula?: string }>,
+          custom_spells: (data.custom_spells || []) as Array<{ id: string; name: string; description: string; rollFormula?: string }>,
+          custom_inventory: (data.custom_inventory || []) as Array<{ id: string; name: string; description: string; rollFormula?: string }>,
         };
         setFormData(transformedData);
         initialDataRef.current = JSON.stringify(transformedData);

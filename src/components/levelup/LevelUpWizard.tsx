@@ -8,7 +8,7 @@ import { LevelUpSummary } from "./LevelUpSummary";
 import { LevelUpFeatureStep } from "./LevelUpFeatureStep";
 import { LevelUpHPStep } from "./LevelUpHPStep";
 import { LevelUpReview } from "./LevelUpReview";
-import { getClassFeatures, getFeaturesAtLevel } from "@/config/classFeatures";
+import { getFeaturesBetweenLevels } from "@/config/classFeatures";
 import { ClassFeature } from "@/config/classFeatures";
 
 interface LevelUpWizardProps {
@@ -51,8 +51,7 @@ export const LevelUpWizard = ({ open, onOpenChange, character, onLevelUpComplete
   useEffect(() => {
     if (open) {
       const targetLevel = character.level + 1;
-      const allFeatures = getClassFeatures(character.class);
-      const newFeatures = allFeatures.filter(f => f.level === targetLevel);
+      const newFeatures = getFeaturesBetweenLevels(character.class, character.level, targetLevel);
       
       // Calculate HP increase based on class
       const baseHPIncrease = 6 + character.str_mod; // Basic calculation, adjust per class
