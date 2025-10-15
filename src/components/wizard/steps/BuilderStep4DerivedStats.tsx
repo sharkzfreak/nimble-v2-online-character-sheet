@@ -11,9 +11,8 @@ interface BuilderStepProps {
 }
 
 export const BuilderStep4DerivedStats = ({ formData, setFormData }: BuilderStepProps) => {
-  const statMod = (stat: number) => Math.floor((stat - 10) / 2);
-  const baseHP = 10 + statMod(formData.strength) + (formData.level * 5);
-  const baseArmor = 10 + statMod(formData.dexterity);
+  const baseHP = 10 + formData.str_mod + (formData.level * 5);
+  const baseArmor = 10 + formData.dex_mod;
 
   // Auto-calculate on component mount/update
   if (formData.hp_max !== baseHP) {
@@ -56,7 +55,7 @@ export const BuilderStep4DerivedStats = ({ formData, setFormData }: BuilderStepP
                 })}
               />
               <p className="text-xs text-muted-foreground">
-                Base: 10 + STR mod ({statMod(formData.strength)}) + Level × 5 = {baseHP}
+                Base: 10 + STR mod ({formData.str_mod >= 0 ? '+' : ''}{formData.str_mod}) + Level × 5 = {baseHP}
               </p>
             </div>
           </CardContent>
@@ -79,7 +78,7 @@ export const BuilderStep4DerivedStats = ({ formData, setFormData }: BuilderStepP
                 onChange={(e) => setFormData({ ...formData, armor: parseInt(e.target.value) || 10 })}
               />
               <p className="text-xs text-muted-foreground">
-                Base: 10 + DEX mod ({statMod(formData.dexterity)}) = {baseArmor}
+                Base: 10 + DEX mod ({formData.dex_mod >= 0 ? '+' : ''}{formData.dex_mod}) = {baseArmor}
               </p>
             </div>
           </CardContent>
@@ -92,25 +91,25 @@ export const BuilderStep4DerivedStats = ({ formData, setFormData }: BuilderStepP
             <div>
               <div className="text-sm text-muted-foreground mb-1">STR Mod</div>
               <div className="text-2xl font-bold text-primary">
-                {statMod(formData.strength) >= 0 ? '+' : ''}{statMod(formData.strength)}
+                {formData.str_mod >= 0 ? '+' : ''}{formData.str_mod}
               </div>
             </div>
             <div>
               <div className="text-sm text-muted-foreground mb-1">DEX Mod</div>
               <div className="text-2xl font-bold text-primary">
-                {statMod(formData.dexterity) >= 0 ? '+' : ''}{statMod(formData.dexterity)}
+                {formData.dex_mod >= 0 ? '+' : ''}{formData.dex_mod}
               </div>
             </div>
             <div>
               <div className="text-sm text-muted-foreground mb-1">INT Mod</div>
               <div className="text-2xl font-bold text-primary">
-                {statMod(formData.intelligence) >= 0 ? '+' : ''}{statMod(formData.intelligence)}
+                {formData.int_mod >= 0 ? '+' : ''}{formData.int_mod}
               </div>
             </div>
             <div>
               <div className="text-sm text-muted-foreground mb-1">WILL Mod</div>
               <div className="text-2xl font-bold text-primary">
-                {statMod(formData.will) >= 0 ? '+' : ''}{statMod(formData.will)}
+                {formData.will_mod >= 0 ? '+' : ''}{formData.will_mod}
               </div>
             </div>
           </div>

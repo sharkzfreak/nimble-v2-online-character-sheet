@@ -70,10 +70,10 @@ interface CharacterViewProps {
     campaign: string;
     description: string;
     level: number;
-    strength: number;
-    dexterity: number;
-    intelligence: number;
-    will: number;
+    str_mod: number;
+    dex_mod: number;
+    int_mod: number;
+    will_mod: number;
     skill_arcana: number;
     skill_examination: number;
     skill_finesse: number;
@@ -203,16 +203,11 @@ const CharacterView = ({
     };
   }, []);
 
-  const getModifier = (stat: number): number => {
-    return Math.floor((stat - 10) / 2);
-  };
-
-  const getModifierString = (stat: number): string => {
-    const mod = getModifier(stat);
+  const getModifierString = (mod: number): string => {
     return mod >= 0 ? `+${mod}` : `${mod}`;
   };
 
-  const rollDice = (statName: string, statValue: number, diceType: string = "d20") => {
+  const rollDice = (statName: string, modifier: number, diceType: string = "d20") => {
     if (isRolling) {
       console.log('Already rolling, skipping stat roll...');
       return;
@@ -220,7 +215,6 @@ const CharacterView = ({
     
     console.log(`Initiating roll for ${statName}`);
     setIsRolling(true);
-    const modifier = getModifier(statValue);
     const diceMax = parseInt(diceType.substring(1)) || 20;
     const roll = Math.ceil(Math.random() * diceMax);
     const total = roll + modifier;
@@ -341,18 +335,18 @@ const CharacterView = ({
 
   const AbilityBadge = ({ 
     name, 
-    value, 
+    modifier, 
     color,
     abbreviation,
     tooltip 
   }: { 
     name: string; 
-    value: number; 
+    modifier: number; 
     color: string;
     abbreviation: string;
     tooltip?: string;
   }) => {
-    const modifier = getModifierString(value);
+    const modString = getModifierString(modifier);
     const diceType = ruleset?.dice_system?.save?.dice || "d20";
     
     return (
@@ -369,14 +363,13 @@ const CharacterView = ({
                 }}
               >
                 <div className="text-xs font-bold uppercase tracking-wider opacity-80 font-cinzel">{abbreviation}</div>
-                <div className="text-4xl md:text-5xl font-bold my-1" style={{ color: `hsl(${color})` }}>{modifier}</div>
-                <div className="text-sm opacity-70 font-medium">{value}</div>
+                <div className="text-5xl md:text-6xl font-bold" style={{ color: `hsl(${color})` }}>{modString}</div>
                 
                 {/* Dice Roll Button */}
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    rollDice(name, value, diceType);
+                    rollDice(name, modifier, diceType);
                   }}
                   className="absolute -bottom-2 -right-2 p-2.5 rounded-full transition-all duration-300 hover:scale-110"
                   style={{
@@ -391,8 +384,8 @@ const CharacterView = ({
           </TooltipTrigger>
           <TooltipContent className="bg-card border-border max-w-xs">
             <p className="font-semibold font-cinzel">{name}</p>
-            <p className="text-xs text-muted-foreground">Base: {value} | Modifier: {modifier}</p>
-            <p className="text-xs text-muted-foreground mt-1">Roll: {diceType} + {modifier} for saves</p>
+            <p className="text-xs text-muted-foreground">Modifier: {modString}</p>
+            <p className="text-xs text-muted-foreground mt-1">Roll: {diceType}{modifier !== 0 ? modString : ''} for saves</p>
             {tooltip && <p className="text-xs text-muted-foreground mt-1">{tooltip}</p>}
           </TooltipContent>
         </Tooltip>
@@ -444,15 +437,13 @@ const CharacterView = ({
     color, 
     modifier, 
     skills,
-    icon: Icon,
-    statValue
+    icon: Icon
   }: { 
     title: string; 
     color: string;
     modifier: string;
     skills: { name: string; value: number; proficient?: boolean }[];
     icon?: any;
-    statValue: number;
   }) => (
     <div 
       className="rounded-xl border-2 overflow-hidden shadow-xl transition-all duration-300 hover:shadow-2xl"
@@ -491,17 +482,17 @@ const CharacterView = ({
           <SkillItem 
             key={idx} 
             {...skill}
-            statValue={statValue}
+            statValue={0}
           />
         ))}
       </div>
     </div>
   );
 
-  const strengthMod = getModifierString(formData.strength);
-  const dexterityMod = getModifierString(formData.dexterity);
-  const intelligenceMod = getModifierString(formData.intelligence);
-  const willMod = getModifierString(formData.will);
+  const strengthMod = getModifierString(formData.str_mod);
+  const dexterityMod = getModifierString(formData.dex_mod);
+  const intelligenceMod = getModifierString(formData.int_mod);
+  const willMod = getModifierString(formData.will_mod);
 
   return (
     <div className="min-h-screen bg-background relative">
@@ -682,28 +673,28 @@ const CharacterView = ({
               <AbilityBadge 
                 name="Strength" 
                 abbreviation="STR" 
-                value={formData.strength} 
+                modifier={formData.str_mod} 
                 color="var(--ability-str)"
                 tooltip="Physical power and athletic prowess"
               />
               <AbilityBadge 
                 name="Dexterity" 
                 abbreviation="DEX" 
-                value={formData.dexterity} 
+                modifier={formData.dex_mod} 
                 color="var(--ability-dex)"
                 tooltip="Agility, reflexes, and coordination"
               />
               <AbilityBadge 
                 name="Intelligence" 
                 abbreviation="INT" 
-                value={formData.intelligence} 
+                modifier={formData.int_mod} 
                 color="var(--ability-int)"
                 tooltip="Reasoning, memory, and analytical ability"
               />
               <AbilityBadge 
                 name="Will" 
                 abbreviation="WILL" 
-                value={formData.will} 
+                modifier={formData.will_mod} 
                 color="var(--ability-wis)"
                 tooltip="Mental fortitude and force of personality"
               />
@@ -768,7 +759,6 @@ const CharacterView = ({
                 color="var(--ability-str)"
                 modifier={strengthMod}
                 icon={Swords}
-                statValue={formData.strength}
                 skills={[
                   { name: "Might", value: formData.skill_might, proficient: formData.skill_might > 0 }
                 ]}
@@ -778,7 +768,6 @@ const CharacterView = ({
                 color="var(--ability-dex)"
                 modifier={dexterityMod}
                 icon={Target}
-                statValue={formData.dexterity}
                 skills={[
                   { name: "Finesse", value: formData.skill_finesse, proficient: formData.skill_finesse > 0 },
                   { name: "Stealth", value: formData.skill_stealth, proficient: formData.skill_stealth > 0 }
@@ -789,7 +778,6 @@ const CharacterView = ({
                 color="var(--ability-int)"
                 modifier={intelligenceMod}
                 icon={BookOpen}
-                statValue={formData.intelligence}
                 skills={[
                   { name: "Arcana", value: formData.skill_arcana, proficient: formData.skill_arcana > 0 },
                   { name: "Examination", value: formData.skill_examination, proficient: formData.skill_examination > 0 },
@@ -801,7 +789,6 @@ const CharacterView = ({
                 color="var(--ability-wis)"
                 modifier={willMod}
                 icon={Wand2}
-                statValue={formData.will}
                 skills={[
                   { name: "Insight", value: formData.skill_insight, proficient: formData.skill_insight > 0 },
                   { name: "Influence", value: formData.skill_influence, proficient: formData.skill_influence > 0 },

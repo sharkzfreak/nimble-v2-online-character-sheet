@@ -2,10 +2,10 @@ import { useState } from "react";
 import { WizardFormData } from "../CharacterBuilder";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Dices } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Check } from "lucide-react";
+import { NIMBLE_STAT_ARRAYS, StatName } from "@/config/nimbleArrays";
 import { toast } from "@/hooks/use-toast";
 
 interface BuilderStepProps {
@@ -14,227 +14,207 @@ interface BuilderStepProps {
   ruleset: any;
 }
 
-type StatName = 'strength' | 'dexterity' | 'intelligence' | 'will';
-
-const POINT_BUY_POINTS = 27;
-const POINT_BUY_COSTS: { [key: number]: number } = {
-  8: 0, 9: 1, 10: 2, 11: 3, 12: 4, 13: 5, 14: 7, 15: 9,
-};
-
-const STANDARD_ARRAY = [15, 14, 13, 12, 10, 8];
+const STAT_LABELS: { key: 'str_mod' | 'dex_mod' | 'int_mod' | 'will_mod'; label: string; color: string }[] = [
+  { key: 'str_mod', label: 'STR', color: 'var(--ability-str)' },
+  { key: 'dex_mod', label: 'DEX', color: 'var(--ability-dex)' },
+  { key: 'int_mod', label: 'INT', color: 'var(--ability-int)' },
+  { key: 'will_mod', label: 'WILL', color: 'var(--ability-wis)' },
+];
 
 export const BuilderStep3AbilityScores = ({ formData, setFormData }: BuilderStepProps) => {
-  const [method, setMethod] = useState<'point-buy' | 'array' | 'roll'>('point-buy');
-  const [availablePoints, setAvailablePoints] = useState(POINT_BUY_POINTS);
-  const [arrayValues, setArrayValues] = useState([...STANDARD_ARRAY]);
-  const [rolledValues, setRolledValues] = useState<number[]>([]);
+  const [selectedArrayId, setSelectedArrayId] = useState<string | null>(null);
+  const [availableMods, setAvailableMods] = useState<number[]>([]);
 
-  const statMod = (stat: number) => Math.floor((stat - 10) / 2);
+  const handleArraySelect = (arrayId: string) => {
+    const array = NIMBLE_STAT_ARRAYS.find(a => a.id === arrayId);
+    if (!array) return;
 
-  const calculatePointsUsed = () => {
-    const stats = [formData.strength, formData.dexterity, formData.intelligence, formData.will];
-    return stats.reduce((total, stat) => total + (POINT_BUY_COSTS[stat] || 0), 0);
+    setSelectedArrayId(arrayId);
+    setAvailableMods([...array.modifiers]);
+    
+    // Reset all assignments
+    setFormData({
+      ...formData,
+      str_mod: 0,
+      dex_mod: 0,
+      int_mod: 0,
+      will_mod: 0,
+    });
   };
 
-  const handlePointBuyChange = (stat: StatName, value: number) => {
-    const newValue = Math.max(8, Math.min(15, value));
-    const currentPoints = calculatePointsUsed();
-    const currentCost = POINT_BUY_COSTS[formData[stat]] || 0;
-    const newCost = POINT_BUY_COSTS[newValue] || 0;
-    const pointDiff = newCost - currentCost;
-
-    if (currentPoints - currentCost + newCost <= POINT_BUY_POINTS) {
-      setFormData({ ...formData, [stat]: newValue });
-      setAvailablePoints(POINT_BUY_POINTS - (currentPoints + pointDiff));
-    } else {
-      toast({ title: "Not enough points", description: "You don't have enough points for this increase", variant: "destructive" });
+  const handleModAssign = (statKey: StatName, modValue: number) => {
+    // Check if this mod is available
+    if (!availableMods.includes(modValue)) {
+      toast({ 
+        title: "Modifier not available", 
+        description: "This modifier has already been assigned",
+        variant: "destructive" 
+      });
+      return;
     }
-  };
 
-  const handleArrayAssign = (stat: StatName, index: number) => {
-    const value = arrayValues[index];
-    setFormData({ ...formData, [stat]: value });
-    setArrayValues(arrayValues.filter((_, i) => i !== index));
-  };
-
-  const rollDice = (count: number, sides: number, dropLowest: boolean = false): number => {
-    const rolls = Array.from({ length: count }, () => Math.floor(Math.random() * sides) + 1);
-    if (dropLowest) {
-      rolls.sort((a, b) => a - b);
-      rolls.shift();
+    // Remove the current stat's value from available if it had one
+    const currentValue = formData[statKey];
+    let newAvailable = [...availableMods];
+    
+    if (currentValue !== 0) {
+      newAvailable.push(currentValue);
     }
-    return rolls.reduce((a, b) => a + b, 0);
+    
+    // Remove the new value from available
+    const modIndex = newAvailable.indexOf(modValue);
+    if (modIndex > -1) {
+      newAvailable.splice(modIndex, 1);
+    }
+
+    setAvailableMods(newAvailable);
+    setFormData({
+      ...formData,
+      [statKey]: modValue,
+    });
   };
 
-  const handleRoll = () => {
-    const rolls = Array.from({ length: 4 }, () => rollDice(4, 6, true));
-    setRolledValues(rolls);
-    toast({ title: "Rolled!", description: "Assign these values to your stats" });
+  const formatMod = (mod: number) => {
+    return mod >= 0 ? `+${mod}` : `${mod}`;
   };
 
-  const handleRolledAssign = (stat: StatName, value: number) => {
-    setFormData({ ...formData, [stat]: value });
-    setRolledValues(rolledValues.filter(v => v !== value));
+  const isArrayComplete = () => {
+    return availableMods.length === 0 && selectedArrayId !== null;
   };
-
-  const stats: { name: StatName; label: string; color: string }[] = [
-    { name: 'strength', label: 'STR', color: 'var(--ability-str)' },
-    { name: 'dexterity', label: 'DEX', color: 'var(--ability-dex)' },
-    { name: 'intelligence', label: 'INT', color: 'var(--ability-int)' },
-    { name: 'will', label: 'WILL', color: 'var(--ability-wis)' },
-  ];
 
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="text-center space-y-2">
         <h2 className="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-          Ability Scores
+          Choose Stat Array (Mods Only)
         </h2>
         <p className="text-muted-foreground">
-          Determine your character's core attributes
+          Select one of the three official Nimble arrays, then assign each modifier
         </p>
       </div>
 
-      <Tabs value={method} onValueChange={(v) => setMethod(v as any)} className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="point-buy">Point Buy</TabsTrigger>
-          <TabsTrigger value="array">Standard Array</TabsTrigger>
-          <TabsTrigger value="roll">Roll</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="point-buy" className="space-y-4 mt-4">
-          <Card>
+      {/* Array Selection Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {NIMBLE_STAT_ARRAYS.map((array) => (
+          <Card
+            key={array.id}
+            className={`cursor-pointer transition-all ${
+              selectedArrayId === array.id
+                ? "ring-2 ring-primary bg-primary/5"
+                : "hover:bg-muted/50"
+            }`}
+            onClick={() => handleArraySelect(array.id)}
+          >
             <CardHeader>
-              <CardTitle>Point Buy ({POINT_BUY_POINTS - calculatePointsUsed()} points remaining)</CardTitle>
-              <CardDescription>Customize your stats with {POINT_BUY_POINTS} points (8-15 range)</CardDescription>
+              <CardTitle className="flex items-center justify-between">
+                {array.name}
+                {selectedArrayId === array.id && (
+                  <Check className="w-5 h-5 text-primary" />
+                )}
+              </CardTitle>
+              <CardDescription>{array.description}</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
-              {stats.map((stat) => (
-                <div key={stat.name} className="flex items-center gap-4">
-                  <Label className="w-16">{stat.label}</Label>
-                  <Input
-                    type="number"
-                    min={8}
-                    max={15}
-                    value={formData[stat.name]}
-                    onChange={(e) => handlePointBuyChange(stat.name, parseInt(e.target.value) || 8)}
-                    className="w-20"
-                  />
-                  <div className="flex items-center gap-2">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handlePointBuyChange(stat.name, formData[stat.name] - 1)}
-                    >
-                      -
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handlePointBuyChange(stat.name, formData[stat.name] + 1)}
-                    >
-                      +
-                    </Button>
-                  </div>
-                  <span className="text-sm text-muted-foreground">
-                    Mod: {statMod(formData[stat.name]) >= 0 ? '+' : ''}{statMod(formData[stat.name])}
-                  </span>
-                </div>
-              ))}
+            <CardContent>
+              <div className="flex gap-2 justify-center flex-wrap">
+                {array.modifiers.map((mod, idx) => (
+                  <Badge
+                    key={idx}
+                    variant="outline"
+                    className="text-lg font-bold px-3 py-1"
+                  >
+                    {formatMod(mod)}
+                  </Badge>
+                ))}
+              </div>
             </CardContent>
           </Card>
-        </TabsContent>
+        ))}
+      </div>
 
-        <TabsContent value="array" className="space-y-4 mt-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Standard Array</CardTitle>
-              <CardDescription>Assign these values: {arrayValues.join(', ')}</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {stats.map((stat) => (
-                <div key={stat.name} className="flex items-center gap-4">
-                  <Label className="w-16">{stat.label}</Label>
-                  <div className="text-2xl font-bold w-12">{formData[stat.name]}</div>
-                  <div className="flex gap-2 flex-wrap">
-                    {arrayValues.map((value, index) => (
-                      <Button
-                        key={index}
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleArrayAssign(stat.name, index)}
-                      >
-                        {value}
-                      </Button>
-                    ))}
+      {/* Assignment Section */}
+      {selectedArrayId && (
+        <Card className="mt-6">
+          <CardHeader>
+            <CardTitle>Assign Modifiers to Stats</CardTitle>
+            <CardDescription>
+              Click a modifier below each stat to assign it
+              {availableMods.length > 0 && (
+                <span className="ml-2 text-primary font-medium">
+                  ({availableMods.length} remaining)
+                </span>
+              )}
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {STAT_LABELS.map((stat) => (
+              <div key={stat.key} className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label className="text-lg font-semibold">{stat.label}</Label>
+                  <div className="text-3xl font-bold text-primary">
+                    {formData[stat.key] !== 0 ? formatMod(formData[stat.key]) : "—"}
                   </div>
                 </div>
-              ))}
-            </CardContent>
-          </Card>
-        </TabsContent>
+                
+                <div className="flex gap-2 flex-wrap">
+                  {selectedArrayId && NIMBLE_STAT_ARRAYS
+                    .find(a => a.id === selectedArrayId)
+                    ?.modifiers.map((mod, idx) => {
+                      const isAssigned = formData[stat.key] === mod;
+                      const isAvailable = availableMods.includes(mod) || isAssigned;
+                      
+                      return (
+                        <Button
+                          key={idx}
+                          type="button"
+                          variant={isAssigned ? "default" : "outline"}
+                          size="sm"
+                          disabled={!isAvailable && !isAssigned}
+                          onClick={() => handleModAssign(stat.key, mod)}
+                          className={isAssigned ? "ring-2 ring-primary" : ""}
+                        >
+                          {formatMod(mod)}
+                        </Button>
+                      );
+                    })
+                  }
+                </div>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      )}
 
-        <TabsContent value="roll" className="space-y-4 mt-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Roll for Stats</CardTitle>
-              <CardDescription>Roll 4d6 drop lowest for each stat</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <Button type="button" onClick={handleRoll} className="w-full">
-                <Dices className="mr-2 h-4 w-4" />
-                Roll Stats
-              </Button>
-
-              {rolledValues.length > 0 && (
-                <div className="p-4 bg-muted rounded-lg">
-                  <p className="text-sm text-muted-foreground mb-2">Rolled values: {rolledValues.join(', ')}</p>
+      {/* Summary */}
+      {selectedArrayId && (
+        <Card className={isArrayComplete() ? "bg-primary/5 border-primary/20" : ""}>
+          <CardContent className="pt-6">
+            <div className="space-y-2">
+              <div className="text-sm font-medium text-muted-foreground">
+                Current Assignment:
+              </div>
+              <div className="flex gap-4 justify-center flex-wrap">
+                {STAT_LABELS.map((stat) => (
+                  <div key={stat.key} className="text-center">
+                    <div className="text-xs text-muted-foreground mb-1">{stat.label}</div>
+                    <div className="text-2xl font-bold text-primary">
+                      {formData[stat.key] !== 0 ? formatMod(formData[stat.key]) : "—"}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              
+              {isArrayComplete() && (
+                <div className="mt-4 text-center">
+                  <Badge variant="default" className="text-sm">
+                    <Check className="w-4 h-4 mr-1" />
+                    Array Complete
+                  </Badge>
                 </div>
               )}
-
-              {stats.map((stat) => (
-                <div key={stat.name} className="flex items-center gap-4">
-                  <Label className="w-16">{stat.label}</Label>
-                  <div className="text-2xl font-bold w-12">{formData[stat.name]}</div>
-                  <div className="flex gap-2 flex-wrap">
-                    {rolledValues.map((value, index) => (
-                      <Button
-                        key={index}
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleRolledAssign(stat.name, value)}
-                      >
-                        {value}
-                      </Button>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Current Stats</CardTitle>
-        </CardHeader>
-        <CardContent className="grid grid-cols-4 gap-4">
-          {stats.map((stat) => (
-            <div key={stat.name} className="text-center p-4 bg-muted rounded-lg">
-              <div className="text-xs text-muted-foreground mb-1">{stat.label}</div>
-              <div className="text-3xl font-bold">{formData[stat.name]}</div>
-              <div className="text-sm text-primary">
-                {statMod(formData[stat.name]) >= 0 ? '+' : ''}{statMod(formData[stat.name])}
-              </div>
             </div>
-          ))}
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 };

@@ -10,12 +10,12 @@ interface BuilderStepProps {
 }
 
 export const BuilderStep10Review = ({ formData }: BuilderStepProps) => {
-  const statMod = (stat: number) => Math.floor((stat - 10) / 2);
+  const formatMod = (mod: number) => (mod >= 0 ? `+${mod}` : `${mod}`);
   
   const validations = [
     { label: "Character Name", valid: !!formData.name, value: formData.name || "Not set" },
     { label: "Class", valid: !!formData.class, value: formData.class || "Not set" },
-    { label: "Ability Scores", valid: formData.strength >= 3 && formData.dexterity >= 3 && formData.intelligence >= 3 && formData.will >= 3, value: "Set" },
+    { label: "Stat Modifiers", valid: formData.str_mod !== 0 || formData.dex_mod !== 0 || formData.int_mod !== 0 || formData.will_mod !== 0, value: "Assigned" },
     { label: "HP & Armor", valid: formData.hp_max > 0 && formData.armor > 0, value: `${formData.hp_max} HP, ${formData.armor} AC` },
   ];
 
@@ -98,35 +98,32 @@ export const BuilderStep10Review = ({ formData }: BuilderStepProps) => {
 
         <Card>
           <CardHeader>
-            <CardTitle>Core Stats</CardTitle>
+            <CardTitle>Stat Modifiers</CardTitle>
+            <CardDescription>Nimble v2 uses modifiers only</CardDescription>
           </CardHeader>
           <CardContent className="grid grid-cols-2 gap-3">
             <div className="text-center p-3 bg-muted rounded">
-              <div className="text-xs text-muted-foreground">STR</div>
-              <div className="text-2xl font-bold">{formData.strength}</div>
-              <div className="text-xs text-primary">
-                {statMod(formData.strength) >= 0 ? '+' : ''}{statMod(formData.strength)}
+              <div className="text-xs text-muted-foreground mb-1">STR</div>
+              <div className="text-3xl font-bold text-primary">
+                {formatMod(formData.str_mod)}
               </div>
             </div>
             <div className="text-center p-3 bg-muted rounded">
-              <div className="text-xs text-muted-foreground">DEX</div>
-              <div className="text-2xl font-bold">{formData.dexterity}</div>
-              <div className="text-xs text-primary">
-                {statMod(formData.dexterity) >= 0 ? '+' : ''}{statMod(formData.dexterity)}
+              <div className="text-xs text-muted-foreground mb-1">DEX</div>
+              <div className="text-3xl font-bold text-primary">
+                {formatMod(formData.dex_mod)}
               </div>
             </div>
             <div className="text-center p-3 bg-muted rounded">
-              <div className="text-xs text-muted-foreground">INT</div>
-              <div className="text-2xl font-bold">{formData.intelligence}</div>
-              <div className="text-xs text-primary">
-                {statMod(formData.intelligence) >= 0 ? '+' : ''}{statMod(formData.intelligence)}
+              <div className="text-xs text-muted-foreground mb-1">INT</div>
+              <div className="text-3xl font-bold text-primary">
+                {formatMod(formData.int_mod)}
               </div>
             </div>
             <div className="text-center p-3 bg-muted rounded">
-              <div className="text-xs text-muted-foreground">WILL</div>
-              <div className="text-2xl font-bold">{formData.will}</div>
-              <div className="text-xs text-primary">
-                {statMod(formData.will) >= 0 ? '+' : ''}{statMod(formData.will)}
+              <div className="text-xs text-muted-foreground mb-1">WILL</div>
+              <div className="text-3xl font-bold text-primary">
+                {formatMod(formData.will_mod)}
               </div>
             </div>
           </CardContent>

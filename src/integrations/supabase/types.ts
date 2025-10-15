@@ -150,6 +150,7 @@ export type Database = {
           custom_inventory: Json | null
           custom_spells: Json | null
           description: string | null
+          dex_mod: number | null
           dexterity: number
           dice_presets: Json | null
           equipment: Json | null
@@ -160,6 +161,7 @@ export type Database = {
           hp_max: number | null
           hp_temp: number | null
           id: string
+          int_mod: number | null
           intelligence: number
           is_draft: boolean | null
           journal_entries: Json | null
@@ -181,11 +183,13 @@ export type Database = {
           skill_perception: number | null
           skill_stealth: number | null
           spells: string | null
+          str_mod: number | null
           strength: number
           subclass_id: string | null
           updated_at: string | null
           user_id: string
           will: number
+          will_mod: number | null
         }
         Insert: {
           abilities?: string | null
@@ -199,6 +203,7 @@ export type Database = {
           custom_inventory?: Json | null
           custom_spells?: Json | null
           description?: string | null
+          dex_mod?: number | null
           dexterity?: number
           dice_presets?: Json | null
           equipment?: Json | null
@@ -209,6 +214,7 @@ export type Database = {
           hp_max?: number | null
           hp_temp?: number | null
           id?: string
+          int_mod?: number | null
           intelligence?: number
           is_draft?: boolean | null
           journal_entries?: Json | null
@@ -230,11 +236,13 @@ export type Database = {
           skill_perception?: number | null
           skill_stealth?: number | null
           spells?: string | null
+          str_mod?: number | null
           strength?: number
           subclass_id?: string | null
           updated_at?: string | null
           user_id: string
           will?: number
+          will_mod?: number | null
         }
         Update: {
           abilities?: string | null
@@ -248,6 +256,7 @@ export type Database = {
           custom_inventory?: Json | null
           custom_spells?: Json | null
           description?: string | null
+          dex_mod?: number | null
           dexterity?: number
           dice_presets?: Json | null
           equipment?: Json | null
@@ -258,6 +267,7 @@ export type Database = {
           hp_max?: number | null
           hp_temp?: number | null
           id?: string
+          int_mod?: number | null
           intelligence?: number
           is_draft?: boolean | null
           journal_entries?: Json | null
@@ -279,11 +289,13 @@ export type Database = {
           skill_perception?: number | null
           skill_stealth?: number | null
           spells?: string | null
+          str_mod?: number | null
           strength?: number
           subclass_id?: string | null
           updated_at?: string | null
           user_id?: string
           will?: number
+          will_mod?: number | null
         }
         Relationships: [
           {

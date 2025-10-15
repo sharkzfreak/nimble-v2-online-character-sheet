@@ -55,10 +55,10 @@ const CharacterForm = ({ characterId }: CharacterFormProps) => {
     campaign: "",
     description: "",
     level: 1,
-    strength: 10,
-    dexterity: 10,
-    intelligence: 10,
-    will: 10,
+    str_mod: 0,
+    dex_mod: 0,
+    int_mod: 0,
+    will_mod: 0,
     skill_arcana: 0,
     skill_examination: 0,
     skill_finesse: 0,
@@ -340,10 +340,10 @@ const CharacterForm = ({ characterId }: CharacterFormProps) => {
     }
   };
 
-  const calculateHealth = () => formData.strength * 5;
-  const calculateDefense = () => Math.floor((formData.dexterity + formData.will) / 2);
-  const calculateInitiative = () => formData.dexterity;
-  const calculateCarryWeight = () => formData.strength * 10;
+  const calculateHealth = () => formData.str_mod * formData.level + 10;
+  const calculateDefense = () => 10 + Math.max(formData.dex_mod, formData.will_mod);
+  const calculateInitiative = () => formData.dex_mod;
+  const calculateCarryWeight = () => (10 + formData.str_mod) * 10;
 
   const handleToggleMode = () => {
     if (isEditing && isDirty && characterId) {
@@ -542,14 +542,19 @@ const CharacterForm = ({ characterId }: CharacterFormProps) => {
                       <RuleTooltip ruleName="Core Stats" category="character_creation" />
                     </h3>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                      {["strength", "dexterity", "intelligence", "will"].map((stat) => (
-                        <div key={stat} className="space-y-2">
-                          <Label htmlFor={stat} className="capitalize">{stat}</Label>
+                      {[
+                        { key: 'str_mod', label: 'STR' },
+                        { key: 'dex_mod', label: 'DEX' },
+                        { key: 'int_mod', label: 'INT' },
+                        { key: 'will_mod', label: 'WILL' }
+                      ].map((stat) => (
+                        <div key={stat.key} className="space-y-2">
+                          <Label htmlFor={stat.key}>{stat.label} Modifier</Label>
                           <Input
-                            id={stat}
+                            id={stat.key}
                             type="number"
-                            value={formData[stat as 'strength' | 'dexterity' | 'intelligence' | 'will']}
-                            onChange={(e) => setFormData({ ...formData, [stat]: parseInt(e.target.value) || 0 })}
+                            value={formData[stat.key as 'str_mod' | 'dex_mod' | 'int_mod' | 'will_mod']}
+                            onChange={(e) => setFormData({ ...formData, [stat.key]: parseInt(e.target.value) || 0 })}
                             className="bg-input border-border"
                           />
                         </div>

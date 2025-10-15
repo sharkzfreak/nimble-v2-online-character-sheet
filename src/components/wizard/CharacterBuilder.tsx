@@ -28,10 +28,10 @@ export interface WizardFormData {
   class_id: string | null;
   subclass_id: string | null;
   portrait_url: string;
-  strength: number;
-  dexterity: number;
-  intelligence: number;
-  will: number;
+  str_mod: number;
+  dex_mod: number;
+  int_mod: number;
+  will_mod: number;
   hp_max: number;
   hp_current: number;
   armor: number;
@@ -58,7 +58,7 @@ export interface WizardFormData {
 const STEPS = [
   { id: 1, title: "Identity", component: BuilderStep1Identity },
   { id: 2, title: "Class", component: BuilderStep2Class },
-  { id: 3, title: "Ability Scores", component: BuilderStep3AbilityScores },
+  { id: 3, title: "Stat Array", component: BuilderStep3AbilityScores },
   { id: 4, title: "Derived Stats", component: BuilderStep4DerivedStats },
   { id: 5, title: "Skills", component: BuilderStep5Skills },
   { id: 6, title: "Features", component: BuilderStep6Features },
@@ -83,10 +83,10 @@ export const CharacterBuilder = () => {
     class_id: null,
     subclass_id: null,
     portrait_url: "",
-    strength: 10,
-    dexterity: 10,
-    intelligence: 10,
-    will: 10,
+    str_mod: 0,
+    dex_mod: 0,
+    int_mod: 0,
+    will_mod: 0,
     hp_max: 0,
     hp_current: 0,
     armor: 10,
@@ -192,10 +192,10 @@ export const CharacterBuilder = () => {
           return false;
         }
         return true;
-      case 3: // Ability Scores
-        const stats = [formData.strength, formData.dexterity, formData.intelligence, formData.will];
-        if (stats.some(s => s < 3 || s > 20)) {
-          toast({ title: "Invalid stats", description: "Stats must be between 3 and 20", variant: "destructive" });
+      case 3: // Stat Array
+        const mods = [formData.str_mod, formData.dex_mod, formData.int_mod, formData.will_mod];
+        if (mods.some(m => m === null || m === undefined)) {
+          toast({ title: "Array incomplete", description: "Please assign all stat modifiers", variant: "destructive" });
           return false;
         }
         return true;
@@ -210,22 +210,21 @@ export const CharacterBuilder = () => {
       if (!user) throw new Error("No user found");
 
       // Generate dice presets
-      const statMod = (stat: number) => Math.floor((stat - 10) / 2);
       const dicePresets = [
         {
           id: "initiative",
           name: "Initiative",
-          formula: `1d20${statMod(formData.dexterity) >= 0 ? '+' : ''}${statMod(formData.dexterity)}`,
+          formula: `1d20${formData.dex_mod >= 0 ? '+' : ''}${formData.dex_mod}`,
         },
         {
           id: "attack",
           name: "Attack",
-          formula: `1d20${Math.max(statMod(formData.strength), statMod(formData.dexterity)) >= 0 ? '+' : ''}${Math.max(statMod(formData.strength), statMod(formData.dexterity))}`,
+          formula: `1d20${Math.max(formData.str_mod, formData.dex_mod) >= 0 ? '+' : ''}${Math.max(formData.str_mod, formData.dex_mod)}`,
         },
         {
           id: "damage",
           name: "Damage",
-          formula: `1d8${statMod(formData.strength) >= 0 ? '+' : ''}${statMod(formData.strength)}`,
+          formula: `1d8${formData.str_mod >= 0 ? '+' : ''}${formData.str_mod}`,
         },
       ];
 

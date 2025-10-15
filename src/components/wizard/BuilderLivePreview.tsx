@@ -9,7 +9,7 @@ interface BuilderLivePreviewProps {
 }
 
 export const BuilderLivePreview = ({ formData, ruleset }: BuilderLivePreviewProps) => {
-  const statMod = (stat: number) => Math.floor((stat - 10) / 2);
+  const formatMod = (mod: number) => (mod >= 0 ? `+${mod}` : `${mod}`);
   
   const classColor = ruleset?.classes.find(c => c.name === formData.class)?.name 
     ? `var(--class-${formData.class.toLowerCase()})` 
@@ -46,10 +46,10 @@ export const BuilderLivePreview = ({ formData, ruleset }: BuilderLivePreviewProp
           <h4 className="font-semibold text-sm">Core Stats</h4>
         </CardHeader>
         <CardContent className="grid grid-cols-2 gap-2">
-          <StatCircle label="STR" value={formData.strength} mod={statMod(formData.strength)} />
-          <StatCircle label="DEX" value={formData.dexterity} mod={statMod(formData.dexterity)} />
-          <StatCircle label="INT" value={formData.intelligence} mod={statMod(formData.intelligence)} />
-          <StatCircle label="WILL" value={formData.will} mod={statMod(formData.will)} />
+          <StatCircle label="STR" mod={formData.str_mod} />
+          <StatCircle label="DEX" mod={formData.dex_mod} />
+          <StatCircle label="INT" mod={formData.int_mod} />
+          <StatCircle label="WILL" mod={formData.will_mod} />
         </CardContent>
       </Card>
 
@@ -79,11 +79,10 @@ export const BuilderLivePreview = ({ formData, ruleset }: BuilderLivePreviewProp
   );
 };
 
-const StatCircle = ({ label, value, mod }: { label: string; value: number; mod: number }) => (
+const StatCircle = ({ label, mod }: { label: string; mod: number }) => (
   <div className="flex flex-col items-center p-2 bg-muted rounded-lg">
     <span className="text-xs text-muted-foreground mb-1">{label}</span>
-    <span className="text-2xl font-bold">{value}</span>
-    <span className="text-xs text-primary">
+    <span className="text-2xl font-bold text-primary">
       {mod >= 0 ? "+" : ""}{mod}
     </span>
   </div>
