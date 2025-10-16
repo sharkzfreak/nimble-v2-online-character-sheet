@@ -48,6 +48,8 @@ import { FeaturesTimeline } from "./FeaturesTimeline";
 import { FormulaInspector, FormulaBreakdown } from "./FormulaInspector";
 import { calculateHPFormula, calculateArmorFormula, calculateSpeedFormula } from "@/utils/formulaCalculations";
 import { FeatureCard } from "./FeatureCard";
+import { CollapsibleFeatureItem } from "./CollapsibleFeatureItem";
+import { AbilityCircle } from "./AbilityCircle";
 import { FavoriteItem, ActionSpec, AdvMode, FeatureLike } from "@/types/rollable";
 import { rollAction, formatRollResult } from "@/utils/rollEngine";
 import { getFeaturesAtLevel } from "@/config/classFeatures";
@@ -176,45 +178,6 @@ const CharacterView = ({
   // Favorites tab state
   const [favoritesTabActive, setFavoritesTabActive] = useState(false);
 
-  // Layout main content to span full width next to fixed card
-  useEffect(() => {
-    const layoutFullWidth = () => {
-      const card = document.getElementById('profileCard');
-      const sheet = document.getElementById('sheetContainer');
-
-      if (!sheet || !card) return;
-
-      // Check if we're on mobile/tablet breakpoint
-      const isMobile = window.innerWidth < 900;
-      
-      if (isMobile) {
-        sheet.style.marginLeft = '0';
-        sheet.style.width = '100%';
-        sheet.style.maxWidth = '100%';
-        return;
-      }
-
-      const cardW = card.offsetWidth || 0;
-      const cardLeft = 16; // left offset of card
-      const gapLeft = 24;   // space between card and sheet
-
-      // Left align main container right next to the fixed card
-      sheet.style.marginLeft = `${cardW + cardLeft + gapLeft}px`;
-
-      // Make content span remaining width with right padding to prevent horizontal scroll
-      const totalOffset = cardW + cardLeft + gapLeft + 24; // +24 for right padding
-      sheet.style.width = `calc(100vw - ${totalOffset}px)`;
-      sheet.style.maxWidth = `calc(100vw - ${totalOffset}px)`;
-    };
-
-    // Initial alignment and on resize
-    layoutFullWidth();
-    window.addEventListener('resize', layoutFullWidth);
-    
-    return () => {
-      window.removeEventListener('resize', layoutFullWidth);
-    };
-  }, []);
 
   const getModifierString = (mod: number): string => {
     return mod >= 0 ? `+${mod}` : `${mod}`;
@@ -537,65 +500,6 @@ const CharacterView = ({
 
   const classThemeColor = getClassColor(formData.class);
 
-  const AbilityBadge = ({ 
-    name, 
-    modifier, 
-    color,
-    abbreviation,
-    tooltip 
-  }: { 
-    name: string; 
-    modifier: number; 
-    color: string;
-    abbreviation: string;
-    tooltip?: string;
-  }) => {
-    const modString = getModifierString(modifier);
-    const diceType = ruleset?.dice_system?.save?.dice || "d20";
-    
-    return (
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <div className="flex flex-col items-center group">
-              <div 
-                className="relative w-28 h-28 md:w-32 md:h-32 rounded-full flex flex-col items-center justify-center border-4 transition-all duration-300 hover:scale-110 cursor-pointer"
-                style={{
-                  backgroundColor: `hsl(${color} / 0.15)`,
-                  borderColor: `hsl(${color})`,
-                  boxShadow: `0 0 30px hsl(${color} / 0.5), inset 0 0 20px hsl(${color} / 0.15)`
-                }}
-              >
-                <div className="text-xs font-bold uppercase tracking-wider opacity-80 font-cinzel">{abbreviation}</div>
-                <div className="text-5xl md:text-6xl font-bold" style={{ color: `hsl(${color})` }}>{modString}</div>
-                
-                {/* Dice Roll Button */}
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    rollDice(name, modifier, diceType);
-                  }}
-                  className="absolute -bottom-2 -right-2 p-2.5 rounded-full transition-all duration-300 hover:scale-110"
-                  style={{
-                    backgroundColor: `hsl(${color})`,
-                    boxShadow: `0 4px 12px hsl(${color} / 0.5)`
-                  }}
-                >
-                  <D20Icon className="w-5 h-5 text-background" />
-                </button>
-              </div>
-            </div>
-          </TooltipTrigger>
-          <TooltipContent className="bg-card border-border max-w-xs">
-            <p className="font-semibold font-cinzel">{name}</p>
-            <p className="text-xs text-muted-foreground">Modifier: {modString}</p>
-            <p className="text-xs text-muted-foreground mt-1">Roll: {diceType}{modifier !== 0 ? modString : ''} for saves</p>
-            {tooltip && <p className="text-xs text-muted-foreground mt-1">{tooltip}</p>}
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
-    );
-  };
 
 
   const SkillItem = ({ 
@@ -699,9 +603,10 @@ const CharacterView = ({
   const willMod = getModifierString(formData.will_mod);
 
   return (
-    <div className="min-h-screen bg-background relative">
-      {/* Profile Card (Fixed Left - Flush) */}
-      <ProfileCard
+    <div className="min-h-screen bg-background p-4">
+      <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr_400px] gap-4 max-w-[2000px] mx-auto">
+        {/* Left Column - Profile Card */}
+        <ProfileCard
         characterName={formData.name}
         classColor={classThemeColor}
         hp_current={formData.hp_current}
@@ -764,16 +669,8 @@ const CharacterView = ({
         }}
       />
       
-      {/* Main Content Area (Fills space between left card and chat) */}
-      <div id="sheetContainer" className="px-4 sm:px-6 md:px-8 py-4 mt-4">
-        <div 
-          className="space-y-8 animate-fade-in"
-          style={{
-            background: `radial-gradient(ellipse at top, hsl(${classThemeColor} / 0.15), transparent 50%), 
-                         radial-gradient(ellipse at bottom, hsl(${classThemeColor} / 0.1), transparent 50%),
-                         hsl(var(--background))`
-          }}
-        >
+      {/* Middle Column - Character Sheet */}
+      <div className="space-y-6 overflow-auto">
         
         {/* Character Header */}
         <Card
@@ -887,33 +784,41 @@ const CharacterView = ({
             {/* ROW 2: Core Ability Stats */}
             <Separator className="my-6" style={{ backgroundColor: `hsl(${classThemeColor} / 0.3)` }} />
             <div className="flex justify-between gap-2 md:gap-4 lg:gap-6 px-2 md:px-4">
-              <AbilityBadge 
+              <AbilityCircle 
                 name="Strength" 
                 abbreviation="STR" 
                 modifier={formData.str_mod} 
                 color="var(--ability-str)"
                 tooltip="Physical power and athletic prowess"
+                onAbilityCheck={() => rollSkillCheck("Strength", formData.str_mod)}
+                onSavingThrow={() => rollDice("Strength Save", formData.str_mod)}
               />
-              <AbilityBadge 
+              <AbilityCircle 
                 name="Dexterity" 
                 abbreviation="DEX" 
                 modifier={formData.dex_mod} 
                 color="var(--ability-dex)"
                 tooltip="Agility, reflexes, and coordination"
+                onAbilityCheck={() => rollSkillCheck("Dexterity", formData.dex_mod)}
+                onSavingThrow={() => rollDice("Dexterity Save", formData.dex_mod)}
               />
-              <AbilityBadge 
+              <AbilityCircle 
                 name="Intelligence" 
                 abbreviation="INT" 
                 modifier={formData.int_mod} 
                 color="var(--ability-int)"
                 tooltip="Reasoning, memory, and analytical ability"
+                onAbilityCheck={() => rollSkillCheck("Intelligence", formData.int_mod)}
+                onSavingThrow={() => rollDice("Intelligence Save", formData.int_mod)}
               />
-              <AbilityBadge 
+              <AbilityCircle 
                 name="Will" 
                 abbreviation="WILL" 
                 modifier={formData.will_mod} 
                 color="var(--ability-wis)"
                 tooltip="Mental fortitude and force of personality"
+                onAbilityCheck={() => rollSkillCheck("Will", formData.will_mod)}
+                onSavingThrow={() => rollDice("Will Save", formData.will_mod)}
               />
             </div>
           </CardContent>
@@ -1694,10 +1599,10 @@ const CharacterView = ({
           onResetOverride={handleResetOverride}
         />
         </div>
-      </div>
 
-      {/* Right Side Panel */}
+      {/* Right Column - Dice Log Panel */}
       <DiceLogPanel />
+      </div>
     </div>
   );
 };

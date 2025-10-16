@@ -248,10 +248,8 @@ export const ProfileCard = ({
   return (
     <aside
       id="profileCard"
-      className="absolute z-30 w-[280px] rounded-r-xl border-r-2 border-t-2 border-b-2 shadow-2xl backdrop-blur-sm md:block hidden mt-4"
+      className="rounded-xl border-2 shadow-2xl backdrop-blur-sm h-fit sticky top-4"
       style={{
-        left: '16px',
-        top: '0',
         background: `linear-gradient(135deg, hsl(${classColor} / 0.1), hsl(var(--card)))`,
         borderColor: `hsl(${classColor} / 0.4)`,
         boxShadow: `0 8px 32px hsl(${classColor} / 0.3)`,
