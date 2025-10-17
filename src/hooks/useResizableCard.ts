@@ -6,9 +6,8 @@ interface CardSize {
   height?: number;
 }
 
-const MIN_WIDTH = 260;
-const MIN_HEIGHT = 180;
-const MAX_HEIGHT_VH = 0.8;
+const MIN_WIDTH = 200;
+const MIN_HEIGHT = 150;
 
 export function useResizableCard(characterId: string, cardId: string) {
   const [size, setSize] = useState<CardSize>({});
@@ -82,10 +81,9 @@ export function useResizableCard(characterId: string, cardId: string) {
       const dy = e.clientY - startY;
       
       const parentWidth = cardRef.current.parentElement?.clientWidth || window.innerWidth;
-      const maxHeight = window.innerHeight * MAX_HEIGHT_VH;
       
       const newWidth = Math.max(MIN_WIDTH, Math.min(startW + dx, parentWidth));
-      const newHeight = Math.max(MIN_HEIGHT, Math.min(startH + dy, maxHeight));
+      const newHeight = Math.max(MIN_HEIGHT, startH + dy);
       
       setSize({ width: newWidth, height: newHeight });
     };

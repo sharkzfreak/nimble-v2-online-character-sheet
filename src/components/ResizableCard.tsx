@@ -32,10 +32,10 @@ export function ResizableCard({
       style={{
         width: size.width ? `${size.width}px` : undefined,
         height: size.height ? `${size.height}px` : undefined,
-        minWidth: `${260}px`,
-        minHeight: `${180}px`,
+        minWidth: `${200}px`,
+        minHeight: `${150}px`,
         maxWidth: '100%',
-        maxHeight: '80vh',
+        maxHeight: 'none',
       }}
       {...props}
     >
