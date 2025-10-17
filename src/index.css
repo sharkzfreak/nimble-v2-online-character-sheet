@@ -44,9 +44,6 @@ All colors MUST be HSL.
     --parchment: 43 42% 85%;
     --parchment-dark: 43 30% 70%;
 
-    /* Canvas width */
-    --canvas-max: 2400px;
-
     /* Ability Score Colors */
     --ability-str: 0 70% 55%;
     --ability-dex: 120 60% 50%;
@@ -89,10 +86,6 @@ All colors MUST be HSL.
     --sidebar-accent-foreground: 43 96% 89%;
     --sidebar-border: 217 33% 25%;
     --sidebar-ring: 262 83% 58%;
-  }
-
-  .wide-mode {
-    --canvas-max: 3200px;
   }
 }
 
