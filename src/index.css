@@ -92,7 +92,7 @@ All colors MUST be HSL.
   }
 
   .wide-mode {
-    --canvas-max: 1500px;
+    --canvas-max: 1800px;
   }
 }
 

@@ -643,7 +643,7 @@ const CharacterView = ({
         style={{ maxWidth: 'var(--canvas-max)' }}
       >
         {/* Left Column - Profile Card */}
-        <ResizablePanel defaultSize={20} minSize={15} maxSize={30}>
+        <ResizablePanel defaultSize={15} minSize={10} maxSize={25}>
           <div className="pr-2 h-full">
             <ProfileCard
         characterName={formData.name}
@@ -685,7 +685,7 @@ const CharacterView = ({
         <ResizableHandle withHandle />
 
         {/* Middle Column - Character Sheet */}
-        <ResizablePanel defaultSize={50} minSize={40}>
+        <ResizablePanel defaultSize={60} minSize={30}>
           <div className="px-2 h-full overflow-auto">
         
         {/* Character Header */}
@@ -1620,7 +1620,7 @@ const CharacterView = ({
         <ResizableHandle withHandle />
 
         {/* Right Column - Dice Log Panel */}
-        <ResizablePanel defaultSize={30} minSize={25} maxSize={40}>
+        <ResizablePanel defaultSize={25} minSize={15} maxSize={35}>
           <div className="pl-2 h-full">
             <DiceLogPanel />
           </div>
