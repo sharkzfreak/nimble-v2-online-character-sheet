@@ -31,8 +31,10 @@ import {
   X,
   TrendingUp,
   Sigma,
-  Star
+  Star,
+  Maximize2
 } from "lucide-react";
+import { ResizableCard } from "@/components/ResizableCard";
 import { D20Icon } from "@/components/icons/D20Icon";
 import {
   Tooltip,
@@ -607,9 +609,39 @@ const CharacterView = ({
   const intelligenceMod = getModifierString(formData.int_mod);
   const willMod = getModifierString(formData.will_mod);
 
+  const [wideMode, setWideMode] = useState(() => {
+    return localStorage.getItem('wideMode') === 'true';
+  });
+
+  useEffect(() => {
+    if (wideMode) {
+      document.documentElement.classList.add('wide-mode');
+    } else {
+      document.documentElement.classList.remove('wide-mode');
+    }
+    localStorage.setItem('wideMode', String(wideMode));
+  }, [wideMode]);
+
   return (
     <div className="min-h-screen bg-background p-4">
-      <ResizablePanelGroup direction="horizontal" className="max-w-[2000px] mx-auto min-h-screen">
+      {/* Wide Mode Toggle */}
+      <div className="flex justify-end mb-2">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setWideMode(!wideMode)}
+          className="gap-2"
+        >
+          <Maximize2 className="h-4 w-4" />
+          {wideMode ? 'Normal Width' : 'Wide Mode'}
+        </Button>
+      </div>
+      
+      <ResizablePanelGroup 
+        direction="horizontal" 
+        className="mx-auto min-h-screen"
+        style={{ maxWidth: 'var(--canvas-max)' }}
+      >
         {/* Left Column - Profile Card */}
         <ResizablePanel defaultSize={20} minSize={15} maxSize={30}>
           <div className="pr-2 h-full">
