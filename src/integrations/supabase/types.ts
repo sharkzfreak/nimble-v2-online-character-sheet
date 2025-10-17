@@ -615,6 +615,36 @@ export type Database = {
           },
         ]
       }
+      ui_state: {
+        Row: {
+          card_id: string
+          character_id: string
+          created_at: string
+          height: number | null
+          id: string
+          updated_at: string
+          width: number | null
+        }
+        Insert: {
+          card_id: string
+          character_id: string
+          created_at?: string
+          height?: number | null
+          id?: string
+          updated_at?: string
+          width?: number | null
+        }
+        Update: {
+          card_id?: string
+          character_id?: string
+          created_at?: string
+          height?: number | null
+          id?: string
+          updated_at?: string
+          width?: number | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

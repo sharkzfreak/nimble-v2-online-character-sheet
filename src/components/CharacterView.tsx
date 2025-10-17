@@ -4,6 +4,11 @@ import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import {
+  ResizablePanelGroup,
+  ResizablePanel,
+  ResizableHandle,
+} from "@/components/ui/resizable";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -26,8 +31,10 @@ import {
   X,
   TrendingUp,
   Sigma,
-  Star
+  Star,
+  Maximize2
 } from "lucide-react";
+import { ResizableCard } from "@/components/ResizableCard";
 import { D20Icon } from "@/components/icons/D20Icon";
 import {
   Tooltip,
@@ -602,11 +609,43 @@ const CharacterView = ({
   const intelligenceMod = getModifierString(formData.int_mod);
   const willMod = getModifierString(formData.will_mod);
 
+  const [wideMode, setWideMode] = useState(() => {
+    return localStorage.getItem('wideMode') === 'true';
+  });
+
+  useEffect(() => {
+    if (wideMode) {
+      document.documentElement.classList.add('wide-mode');
+    } else {
+      document.documentElement.classList.remove('wide-mode');
+    }
+    localStorage.setItem('wideMode', String(wideMode));
+  }, [wideMode]);
+
   return (
     <div className="min-h-screen bg-background p-4">
-      <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr_400px] gap-4 max-w-[2000px] mx-auto">
+      {/* Wide Mode Toggle */}
+      <div className="flex justify-end mb-2">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setWideMode(!wideMode)}
+          className="gap-2"
+        >
+          <Maximize2 className="h-4 w-4" />
+          {wideMode ? 'Normal Width' : 'Wide Mode'}
+        </Button>
+      </div>
+      
+      <ResizablePanelGroup 
+        direction="horizontal" 
+        className="mx-auto min-h-screen"
+        style={{ maxWidth: 'var(--canvas-max)' }}
+      >
         {/* Left Column - Profile Card */}
-        <ProfileCard
+        <ResizablePanel defaultSize={15} minSize={10} maxSize={25}>
+          <div className="pr-2 h-full">
+            <ProfileCard
         characterName={formData.name}
         classColor={classThemeColor}
         hp_current={formData.hp_current}
@@ -640,37 +679,14 @@ const CharacterView = ({
         onArmorFormulaClick={() => showFormulaInspector('armor')}
         onSpeedFormulaClick={() => showFormulaInspector('speed')}
       />
+          </div>
+        </ResizablePanel>
 
-      {/* Favorites Card */}
-      <FavoritesCard
-        classColor={classThemeColor}
-        favorites={formData.favorites || [
-          // Default favorites if none exist
-          { id: '1', name: 'Longsword', type: 'attack', description: '1d8 slashing damage' },
-          { id: '2', name: 'Fireball', type: 'spell', description: '8d6 fire damage' },
-          { id: '3', name: 'Healing Potion', type: 'item', description: 'Restore 2d4+2 HP' },
-        ]}
-        skills={[
-          { name: 'Might', value: formData.skill_might },
-          { name: 'Finesse', value: formData.skill_finesse },
-          { name: 'Stealth', value: formData.skill_stealth },
-          { name: 'Arcana', value: formData.skill_arcana },
-          { name: 'Examination', value: formData.skill_examination },
-          { name: 'Lore', value: formData.skill_lore },
-          { name: 'Insight', value: formData.skill_insight },
-          { name: 'Influence', value: formData.skill_influence },
-          { name: 'Naturecraft', value: formData.skill_naturecraft },
-          { name: 'Perception', value: formData.skill_perception },
-        ]}
-        onSkillRoll={rollSkillCheck}
-        onRemoveFavorite={(itemId) => {
-          const updatedFavorites = (formData.favorites || []).filter(fav => fav.id !== itemId);
-          onFormDataChange?.({ favorites: updatedFavorites });
-        }}
-      />
-      
-      {/* Middle Column - Character Sheet */}
-      <div className="space-y-6 overflow-auto">
+        <ResizableHandle withHandle />
+
+        {/* Middle Column - Character Sheet */}
+        <ResizablePanel defaultSize={60} minSize={30}>
+          <div className="px-2 h-full overflow-auto">
         
         {/* Character Header */}
         <Card
@@ -1598,11 +1614,18 @@ const CharacterView = ({
           breakdown={currentFormula}
           onResetOverride={handleResetOverride}
         />
-        </div>
+          </div>
+        </ResizablePanel>
 
-      {/* Right Column - Dice Log Panel */}
-      <DiceLogPanel />
-      </div>
+        <ResizableHandle withHandle />
+
+        {/* Right Column - Dice Log Panel */}
+        <ResizablePanel defaultSize={25} minSize={15} maxSize={35}>
+          <div className="pl-2 h-full">
+            <DiceLogPanel />
+          </div>
+        </ResizablePanel>
+      </ResizablePanelGroup>
     </div>
   );
 };
