@@ -624,23 +624,9 @@ const CharacterView = ({
 
   return (
     <div className="min-h-screen bg-background p-4">
-      {/* Wide Mode Toggle */}
-      <div className="flex justify-end mb-2">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => setWideMode(!wideMode)}
-          className="gap-2"
-        >
-          <Maximize2 className="h-4 w-4" />
-          {wideMode ? 'Normal Width' : 'Wide Mode'}
-        </Button>
-      </div>
-      
       <ResizablePanelGroup 
         direction="horizontal" 
-        className="mx-auto min-h-screen"
-        style={{ maxWidth: 'var(--canvas-max)' }}
+        className="w-full min-h-screen"
       >
         {/* Left Column - Profile Card */}
         <ResizablePanel defaultSize={15} minSize={10} maxSize={25}>
