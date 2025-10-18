@@ -333,6 +333,13 @@ export const ProfileCard = ({
           onHPChange={(current, temp) => {
             onHPChange?.(current, temp);
           }}
+          onArmorChange={(armor) => {
+            onArmorChange?.(armor);
+          }}
+          onSpeedChange={(speed) => {
+            // Speed would need to be added to the character data if we want to persist it
+            // For now, this is a placeholder
+          }}
           onRest={() => onRest?.()}
           onRollInitiative={() => onRollInitiative?.()}
         />

@@ -234,6 +234,37 @@ All colors MUST be HSL.
     width: 100%;
   }
 
+  /* Stat Editor (for armor/speed) */
+  .stat-editor {
+    position: fixed;
+    z-index: 60;
+    margin-top: 6px;
+  }
+
+  .stat-editor-inner {
+    min-width: 200px;
+    display: grid;
+    gap: 8px;
+    padding: 12px;
+    border-radius: 12px;
+    background: hsl(var(--popover));
+    border: 1px solid hsl(var(--border));
+    box-shadow: 0 10px 28px hsl(var(--background) / 0.45);
+  }
+
+  .stat-field {
+    display: grid;
+    grid-template-columns: 60px 1fr;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .stat-editor-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+  }
+
   /* HP Bar */
   .hp-bar {
     position: relative;
