@@ -1044,59 +1044,6 @@ const CharacterView = ({
               advMode={advMode}
               situational={situational}
             />
-            
-            {/* Skills Section */}
-            <Card className="bg-card/70 border-2 backdrop-blur-sm" style={{ borderColor: `hsl(${classThemeColor} / 0.3)` }}>
-              <CardHeader>
-                <CardTitle className="text-xl font-cinzel">Checks & Skills</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                  <AbilityPanel
-                    title="Strength"
-                    color="var(--ability-str)"
-                    modifier={strengthMod}
-                    icon={Swords}
-                    skills={[
-                      { name: "Might", value: formData.skill_might, proficient: formData.skill_might > 0 }
-                    ]}
-                  />
-                  <AbilityPanel
-                    title="Dexterity"
-                    color="var(--ability-dex)"
-                    modifier={dexterityMod}
-                    icon={Target}
-                    skills={[
-                      { name: "Finesse", value: formData.skill_finesse, proficient: formData.skill_finesse > 0 },
-                      { name: "Stealth", value: formData.skill_stealth, proficient: formData.skill_stealth > 0 }
-                    ]}
-                  />
-                  <AbilityPanel
-                    title="Intelligence"
-                    color="var(--ability-int)"
-                    modifier={intelligenceMod}
-                    icon={BookOpen}
-                    skills={[
-                      { name: "Arcana", value: formData.skill_arcana, proficient: formData.skill_arcana > 0 },
-                      { name: "Examination", value: formData.skill_examination, proficient: formData.skill_examination > 0 },
-                      { name: "Lore", value: formData.skill_lore, proficient: formData.skill_lore > 0 }
-                    ]}
-                  />
-                  <AbilityPanel
-                    title="Will"
-                    color="var(--ability-wis)"
-                    modifier={willMod}
-                    icon={Wand2}
-                    skills={[
-                      { name: "Insight", value: formData.skill_insight, proficient: formData.skill_insight > 0 },
-                      { name: "Influence", value: formData.skill_influence, proficient: formData.skill_influence > 0 },
-                      { name: "Naturecraft", value: formData.skill_naturecraft, proficient: formData.skill_naturecraft > 0 },
-                      { name: "Perception", value: formData.skill_perception, proficient: formData.skill_perception > 0 }
-                    ]}
-                  />
-                </div>
-              </CardContent>
-            </Card>
           </TabsContent>
 
           {/* Features Tab */}
