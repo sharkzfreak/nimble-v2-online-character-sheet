@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Shield, Upload, Sparkles, Sigma, Star, X } from "lucide-react";
+import { Upload, Sparkles, Star, X, Heart, Shield, Zap } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -30,6 +30,8 @@ interface ProfileCardProps {
   hp_max: number;
   hp_temp: number;
   armor: number;
+  speed: number;
+  dex_mod: number;
   hit_dice_remaining: number;
   hit_dice_total: number;
   characterId?: string;
@@ -40,9 +42,11 @@ interface ProfileCardProps {
   onArmorChange?: (armor: number) => void;
   onHitDiceChange?: (remaining: number, total: number) => void;
   onPortraitChange?: (url: string) => void;
-  onHPFormulaClick?: () => void;
-  onArmorFormulaClick?: () => void;
-  onSpeedFormulaClick?: () => void;
+  onHeal?: () => void;
+  onDamage?: () => void;
+  onTempHP?: () => void;
+  onRest?: () => void;
+  onRollInitiative?: () => void;
   onSkillRoll?: (skillName: string, skillValue: number) => void;
   onRemoveFavorite?: (itemId: string) => void;
 }
@@ -54,6 +58,8 @@ export const ProfileCard = ({
   hp_max,
   hp_temp,
   armor,
+  speed,
+  dex_mod,
   hit_dice_remaining,
   hit_dice_total,
   characterId,
@@ -64,83 +70,22 @@ export const ProfileCard = ({
   onArmorChange,
   onHitDiceChange,
   onPortraitChange,
-  onHPFormulaClick,
-  onArmorFormulaClick,
-  onSpeedFormulaClick,
+  onHeal,
+  onDamage,
+  onTempHP,
+  onRest,
+  onRollInitiative,
   onSkillRoll,
   onRemoveFavorite,
 }: ProfileCardProps) => {
   const [activeTab, setActiveTab] = useState<'favorites' | 'skills'>('favorites');
-  const [editingHP, setEditingHP] = useState(false);
-  const [tempHPCurrent, setTempHPCurrent] = useState(hp_current);
-  const [tempHPMax, setTempHPMax] = useState(hp_max);
-  const [tempHPTemp, setTempHPTemp] = useState(hp_temp);
-  const [spendingDie, setSpendingDie] = useState<number | null>(null);
-  const [editingHD, setEditingHD] = useState(false);
-  const [tempHDRemaining, setTempHDRemaining] = useState(hit_dice_remaining);
-  const [tempHDTotal, setTempHDTotal] = useState(hit_dice_total);
-  const [editingArmor, setEditingArmor] = useState(false);
-  const [tempArmor, setTempArmor] = useState(armor);
   const [imageDialog, setImageDialog] = useState(false);
   const [aiPrompt, setAiPrompt] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
 
-  const hpPercentage = Math.min((hp_current / hp_max) * 100, 100);
-  const tempHPPercentage = Math.min((hp_temp / hp_max) * 100, 100);
-  
-  // Dynamic HP color based on percentage
-  const getHPColor = () => {
-    if (hpPercentage >= 75) {
-      return 'hsl(142 76% 36%)'; // Green
-    } else if (hpPercentage >= 50) {
-      return 'hsl(84 81% 44%)'; // Yellow-green
-    } else if (hpPercentage >= 25) {
-      return 'hsl(45 93% 47%)'; // Yellow/orange
-    } else {
-      return 'hsl(0 84% 60%)'; // Red
-    }
-  };
-
-  const handleHPIncrement = () => {
-    const newCurrent = Math.min(hp_current + 1, hp_max);
-    onHPChange?.(newCurrent, hp_max, hp_temp);
-  };
-
-  const handleHPDecrement = () => {
-    if (hp_temp > 0) {
-      onHPChange?.(hp_current, hp_max, hp_temp - 1);
-    } else {
-      const newCurrent = Math.max(hp_current - 1, 0);
-      onHPChange?.(newCurrent, hp_max, hp_temp);
-    }
-  };
-
-  const handleHPSave = () => {
-    onHPChange?.(tempHPCurrent, tempHPMax, tempHPTemp);
-    setEditingHP(false);
-  };
-
-  const handleSpendHitDie = () => {
-    if (hit_dice_remaining > 0) {
-      onHitDiceChange?.(hit_dice_remaining - 1, hit_dice_total);
-    }
-  };
-
-  const handleHDSave = () => {
-    onHitDiceChange?.(tempHDRemaining, tempHDTotal);
-    setEditingHD(false);
-  };
-
-  const handleHDRightClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    setEditingHD(true);
-  };
-
-  const handleArmorSave = () => {
-    onArmorChange?.(tempArmor);
-    setEditingArmor(false);
-  };
+  const hpPercentage = Math.max(0, Math.min(100, (100 * hp_current) / Math.max(1, hp_max)));
+  const initMod = dex_mod >= 0 ? `+${dex_mod}` : `${dex_mod}`;
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -237,30 +182,6 @@ export const ProfileCard = ({
     }
   };
 
-  const renderHitDicePips = () => {
-    const pips = [];
-    const pipWidth = 100 / hit_dice_total;
-    
-    for (let i = 0; i < hit_dice_total; i++) {
-      const isAvailable = i < hit_dice_remaining;
-      
-      pips.push(
-        <div
-          key={i}
-          className="absolute top-0 bottom-0 transition-all duration-300 rounded-full"
-          style={{
-            left: `${i * pipWidth}%`,
-            width: `${pipWidth - 2}%`,
-            backgroundColor: isAvailable ? 'hsl(0 84% 60%)' : 'hsl(var(--muted))',
-          }}
-          aria-label={`Hit die ${i + 1} ${isAvailable ? 'available' : 'spent'}`}
-          aria-pressed={isAvailable}
-        />
-      );
-    }
-    
-    return pips;
-  };
 
   // Map skills to their corresponding stat colors
   const getSkillStatColor = (skillName: string): string => {
@@ -401,266 +322,39 @@ export const ProfileCard = ({
         </Dialog>
       </div>
 
-      {/* Vitals HUD - Centered Shield with Horizontal Bars */}
-      <div className="px-5 pb-5 overflow-hidden">
-        <div className="relative mt-4">
-          {/* 3-column grid: HP | Shield | HD */}
-          <div className="grid grid-cols-[1fr,auto,1fr] items-center gap-3">
-            
-            {/* HP Bar (Left) */}
-            <div className="relative flex justify-end items-center mt-2">
-              {/* HP Track (slides under shield) */}
-              <Popover open={editingHP} onOpenChange={setEditingHP}>
-                <PopoverTrigger asChild>
-                  <div
-                    className="relative h-[18px] w-full max-w-[140px] rounded-full bg-muted/30 overflow-hidden border cursor-pointer group mr-[-14px] z-0"
-                    style={{ 
-                      borderColor: `hsl(${classColor} / 0.3)`,
-                    }}
-                    role="button"
-                    aria-label="HP bar"
-                  >
-                    {/* Base HP fill */}
-                    <div
-                      className="absolute left-0 top-0 h-full transition-all duration-300 rounded-full"
-                      style={{
-                        width: `${hpPercentage}%`,
-                        backgroundColor: getHPColor(),
-                      }}
-                    />
-                    {/* Temp HP overlay */}
-                    {hp_temp > 0 && (
-                      <div
-                        className="absolute top-0 h-full transition-all duration-300"
-                        style={{
-                          left: `${hpPercentage}%`,
-                          width: `${tempHPPercentage}%`,
-                          backgroundColor: 'hsl(45 93% 47%)',
-                        }}
-                      />
-                    )}
-                    {/* HP Text & Formula Icon - shows on hover */}
-                    <div className="absolute inset-0 flex items-center justify-between px-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <span className="text-[9px] font-bold text-foreground drop-shadow-md">
-                        {hp_current}/{hp_max}
-                      </span>
-                      {onHPFormulaClick && (
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onHPFormulaClick();
-                          }}
-                          className="hover:scale-110 transition-transform"
-                        >
-                          <Sigma className="w-3 h-3 text-foreground drop-shadow-md" />
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                </PopoverTrigger>
-                <PopoverContent className="w-64">
-                  <div className="space-y-4">
-                    <h3 className="font-semibold text-sm">Edit HP</h3>
-                    <div className="space-y-2">
-                      <label className="text-xs font-medium">Current HP</label>
-                      <Input
-                        type="number"
-                        value={tempHPCurrent}
-                        onChange={(e) => setTempHPCurrent(parseInt(e.target.value) || 0)}
-                        className="h-8"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-xs font-medium">Max HP</label>
-                      <Input
-                        type="number"
-                        value={tempHPMax}
-                        onChange={(e) => setTempHPMax(parseInt(e.target.value) || 0)}
-                        className="h-8"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-xs font-medium">Temp HP</label>
-                      <Input
-                        type="number"
-                        value={tempHPTemp}
-                        onChange={(e) => setTempHPTemp(parseInt(e.target.value) || 0)}
-                        className="h-8"
-                      />
-                    </div>
-                    <div className="flex gap-2">
-                      <Button onClick={handleHPSave} size="sm" className="flex-1">
-                        Save
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => {
-                          setEditingHP(false);
-                          setTempHPCurrent(hp_current);
-                          setTempHPMax(hp_max);
-                          setTempHPTemp(hp_temp);
-                        }}
-                        className="flex-1"
-                      >
-                        Cancel
-                      </Button>
-                    </div>
-                  </div>
-                </PopoverContent>
-              </Popover>
-            </div>
+      {/* NEW: Mini-HUD (left column) */}
+      <div className="mini-hud-left px-5 pb-5" role="region" aria-label="Character HUD">
+        <div className="hud-row">
+          <button className="hud-pill hp" title="HP">
+            <Heart className="w-4 h-4" />
+            <span>{hp_current}/{hp_max}</span>
+          </button>
+          <button className="hud-pill ac" title="Armor">
+            <Shield className="w-4 h-4" />
+            <span>{armor}</span>
+          </button>
+        </div>
 
-            {/* SHIELD (Center) */}
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Popover open={editingArmor} onOpenChange={setEditingArmor}>
-                    <PopoverTrigger asChild>
-                      <div className="relative z-10 cursor-pointer">
-                        {/* Shield-shaped solid background */}
-                        <Shield
-                          className="w-28 h-28 absolute inset-0"
-                          style={{
-                            color: 'hsl(var(--card))',
-                            fill: 'hsl(var(--card))',
-                          }}
-                          strokeWidth={0}
-                        />
-                        <Shield
-                          className="w-28 h-28 transition-all duration-300 hover:scale-110 relative z-10"
-                          style={{
-                            color: 'hsl(0 0% 100%)',
-                            fill: `hsl(${classColor} / 0.15)`,
-                          }}
-                          strokeWidth={1.5}
-                        />
-                        <div
-                          className="absolute inset-0 flex flex-col items-center justify-center z-20"
-                          style={{
-                            color: 'hsl(0 0% 100%)',
-                            textShadow: '0 2px 8px rgba(0,0,0,0.8)',
-                          }}
-                        >
-                          <div className="text-3xl font-bold font-cinzel">
-                            {armor}
-                          </div>
-                          {onArmorFormulaClick && (
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                onArmorFormulaClick();
-                              }}
-                              className="mt-1 hover:scale-110 transition-transform pointer-events-auto"
-                            >
-                              <Sigma className="w-3 h-3" style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.8))' }} />
-                            </button>
-                          )}
-                        </div>
-                      </div>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-64">
-                      <div className="space-y-4">
-                        <h3 className="font-semibold text-sm">Edit Armor</h3>
-                        <div className="space-y-2">
-                          <label className="text-xs font-medium">Armor Value</label>
-                          <Input
-                            type="number"
-                            value={tempArmor}
-                            onChange={(e) => setTempArmor(parseInt(e.target.value) || 0)}
-                            className="h-8"
-                          />
-                        </div>
-                        <div className="flex gap-2">
-                          <Button onClick={handleArmorSave} size="sm" className="flex-1">
-                            Save
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => {
-                              setEditingArmor(false);
-                              setTempArmor(armor);
-                            }}
-                            className="flex-1"
-                          >
-                            Cancel
-                          </Button>
-                        </div>
-                      </div>
-                    </PopoverContent>
-                  </Popover>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p className="text-sm font-medium">Armor: {armor}</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+        <div className="hud-row">
+          <button className="hud-pill spd" title="Speed">
+            <Zap className="w-4 h-4" />
+            <span>{speed}</span>
+          </button>
+          <button 
+            className="hud-pill init" 
+            title="Roll Initiative"
+            onClick={onRollInitiative}
+          >
+            <D20Icon className="w-4 h-4" />
+            <span>{initMod}</span>
+          </button>
+        </div>
 
-            {/* Hit Dice Bar (Right) */}
-            <div className="relative flex justify-start items-center mt-2">
-              <Popover open={editingHD} onOpenChange={setEditingHD}>
-                <PopoverTrigger asChild>
-                  <div
-                    className="relative h-[18px] w-full max-w-[140px] rounded-full bg-muted/30 overflow-hidden border cursor-pointer group ml-[-14px] z-0"
-                    style={{ borderColor: `hsl(${classColor} / 0.3)` }}
-                    role="button"
-                    aria-label="Hit dice bar"
-                    onClick={handleSpendHitDie}
-                    onContextMenu={handleHDRightClick}
-                  >
-                    {renderHitDicePips()}
-                    {/* HD Text - shows on hover */}
-                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                      <span className="text-[9px] font-bold text-foreground drop-shadow-md">
-                        {hit_dice_remaining}/{hit_dice_total}
-                      </span>
-                    </div>
-                  </div>
-                </PopoverTrigger>
-                <PopoverContent className="w-64">
-                  <div className="space-y-4">
-                    <h3 className="font-semibold text-sm">Edit Hit Dice</h3>
-                    <div className="space-y-2">
-                      <label className="text-xs font-medium">Current Hit Dice</label>
-                      <Input
-                        type="number"
-                        value={tempHDRemaining}
-                        onChange={(e) => setTempHDRemaining(parseInt(e.target.value) || 0)}
-                        className="h-8"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-xs font-medium">Max Hit Dice</label>
-                      <Input
-                        type="number"
-                        value={tempHDTotal}
-                        onChange={(e) => setTempHDTotal(parseInt(e.target.value) || 0)}
-                        className="h-8"
-                      />
-                    </div>
-                    <div className="flex gap-2">
-                      <Button onClick={handleHDSave} size="sm" className="flex-1">
-                        Save
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => {
-                          setEditingHD(false);
-                          setTempHDRemaining(hit_dice_remaining);
-                          setTempHDTotal(hit_dice_total);
-                        }}
-                        className="flex-1"
-                      >
-                        Cancel
-                      </Button>
-                    </div>
-                  </div>
-                </PopoverContent>
-              </Popover>
-            </div>
-          </div>
+        <div className="hud-actions">
+          <button className="btn-mini" title="Heal" onClick={onHeal}>+HP</button>
+          <button className="btn-mini" title="Damage" onClick={onDamage}>−HP</button>
+          <button className="btn-mini" title="Temp HP" onClick={onTempHP}>Temp</button>
+          <button className="btn-mini" title="Rest" onClick={onRest}>Rest</button>
         </div>
       </div>
 

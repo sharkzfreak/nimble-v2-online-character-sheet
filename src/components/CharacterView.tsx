@@ -754,6 +754,8 @@ const CharacterView = ({
         hp_max={formData.hp_max}
         hp_temp={formData.hp_temp}
         armor={formData.armor}
+        speed={30}
+        dex_mod={formData.dex_mod || 0}
         hit_dice_remaining={formData.hit_dice_remaining}
         hit_dice_total={formData.hit_dice_total}
         characterId={characterId}
@@ -779,6 +781,11 @@ const CharacterView = ({
         onPortraitChange={(url) => {
           onFormDataChange?.({ portrait_url: url });
         }}
+        onHeal={handleHeal}
+        onDamage={handleDamage}
+        onTempHP={handleTempHP}
+        onRest={handleRest}
+        onRollInitiative={handleRollInitiative}
         onSkillRoll={(skillName, skillValue) => {
           rollSkillCheck(skillName, skillValue);
         }}
@@ -786,9 +793,6 @@ const CharacterView = ({
           const updatedFavorites = (formData.favorites || []).filter(f => f.id !== itemId);
           onFormDataChange?.({ favorites: updatedFavorites });
         }}
-        onHPFormulaClick={() => showFormulaInspector('hp')}
-        onArmorFormulaClick={() => showFormulaInspector('armor')}
-        onSpeedFormulaClick={() => showFormulaInspector('speed')}
       />
       </div>
 

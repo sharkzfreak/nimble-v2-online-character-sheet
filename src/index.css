@@ -261,6 +261,61 @@ All colors MUST be HSL.
     gap: 6px;
   }
 
+  /* Mini-HUD Left Column styles */
+  .mini-hud-left {
+    display: grid;
+    gap: 8px;
+    border-radius: 12px;
+    background: hsl(var(--muted) / 0.04);
+    border: 1px solid hsl(var(--border) / 0.08);
+  }
+
+  .mini-hud-left .hud-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .mini-hud-left .hud-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 8px 10px;
+    border-radius: 999px;
+    background: hsl(var(--muted) / 0.06);
+    border: 1px solid hsl(var(--border) / 0.08);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .mini-hud-left .hud-pill:hover {
+    background: hsl(var(--muted) / 0.12);
+    transform: translateY(-1px);
+  }
+
+  .mini-hud-left .hud-actions {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+  }
+
+  .mini-hud-left .btn-mini {
+    padding: 6px 8px;
+    border-radius: 8px;
+    background: hsl(var(--muted) / 0.06);
+    border: 1px solid hsl(var(--border) / 0.08);
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .mini-hud-left .btn-mini:hover {
+    background: hsl(var(--muted) / 0.12);
+    transform: translateY(-1px);
+  }
+
   /* Action Bar */
   .card--actions .actions-grid {
     display: grid;
