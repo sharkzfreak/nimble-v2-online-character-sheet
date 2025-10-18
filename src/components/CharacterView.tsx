@@ -833,9 +833,10 @@ const CharacterView = ({
                   {/* Single Identity Line */}
                   <div className="flex flex-wrap items-center gap-3 text-lg md:text-xl">
                     <div className="flex items-center gap-2">
-                      <Badge 
+                      <Button 
                         variant="secondary" 
                         className="text-base font-semibold px-3 py-1"
+                        onClick={() => setIsLevelUpWizardOpen(true)}
                         style={{
                           backgroundColor: `hsl(${classThemeColor} / 0.15)`,
                           borderColor: `hsl(${classThemeColor} / 0.4)`,
@@ -843,15 +844,8 @@ const CharacterView = ({
                           border: '1px solid'
                         }}
                       >
-                        Level {formData.level}
-                      </Badge>
-                      <Button
-                        size="sm"
-                        onClick={() => setIsLevelUpWizardOpen(true)}
-                        className="bg-gradient-to-r from-primary to-accent hover:opacity-90"
-                      >
                         <TrendingUp className="w-4 h-4 mr-1" />
-                        Level Up
+                        Level {formData.level}
                       </Button>
                     </div>
                     

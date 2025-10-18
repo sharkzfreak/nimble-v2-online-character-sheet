@@ -124,18 +124,6 @@ export const MiniHUD = ({
 
   return (
     <div className="mini-hud" role="region" aria-label="Character HUD">
-      {/* Class & Level with Level Up button */}
-      {onLevelUp && (
-        <button
-          className="hud-class-level"
-          onClick={onLevelUp}
-          title="Level Up"
-        >
-          <span className="text-sm">{className} {level}</span>
-          <TrendingUp className="w-4 h-4" />
-        </button>
-      )}
-      
       {/* HP Bar - Full Width */}
       <div className="hud-hp-section">
         <HPBar 
