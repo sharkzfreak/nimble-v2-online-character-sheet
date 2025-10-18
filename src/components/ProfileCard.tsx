@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Upload, Sparkles, Star, X, Heart, Shield, Zap } from "lucide-react";
+import { Upload, Sparkles, Star, X } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -16,6 +16,7 @@ import { toast } from "sonner";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { D20Icon } from "@/components/icons/D20Icon";
 import { FavoriteItem } from '@/types/rollable';
+import { MiniHUD } from "./MiniHUD";
 
 interface SkillData {
   name: string;
@@ -25,7 +26,9 @@ interface SkillData {
 
 interface ProfileCardProps {
   characterName: string;
+  className: string;
   classColor: string;
+  level: number;
   hp_current: number;
   hp_max: number;
   hp_temp: number;
@@ -38,13 +41,10 @@ interface ProfileCardProps {
   portraitUrl?: string;
   favorites?: FavoriteItem[];
   skills?: SkillData[];
-  onHPChange?: (current: number, max: number, temp: number) => void;
+  onHPChange?: (current: number, temp?: number) => void;
   onArmorChange?: (armor: number) => void;
   onHitDiceChange?: (remaining: number, total: number) => void;
   onPortraitChange?: (url: string) => void;
-  onHeal?: () => void;
-  onDamage?: () => void;
-  onTempHP?: () => void;
   onRest?: () => void;
   onRollInitiative?: () => void;
   onSkillRoll?: (skillName: string, skillValue: number) => void;
@@ -53,7 +53,9 @@ interface ProfileCardProps {
 
 export const ProfileCard = ({
   characterName,
+  className,
   classColor,
+  level,
   hp_current,
   hp_max,
   hp_temp,
@@ -70,9 +72,6 @@ export const ProfileCard = ({
   onArmorChange,
   onHitDiceChange,
   onPortraitChange,
-  onHeal,
-  onDamage,
-  onTempHP,
   onRest,
   onRollInitiative,
   onSkillRoll,
@@ -83,9 +82,6 @@ export const ProfileCard = ({
   const [aiPrompt, setAiPrompt] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
-
-  const hpPercentage = Math.max(0, Math.min(100, (100 * hp_current) / Math.max(1, hp_max)));
-  const initMod = dex_mod >= 0 ? `+${dex_mod}` : `${dex_mod}`;
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -322,40 +318,24 @@ export const ProfileCard = ({
         </Dialog>
       </div>
 
-      {/* NEW: Mini-HUD (left column) */}
-      <div className="mini-hud-left px-5 pb-5" role="region" aria-label="Character HUD">
-        <div className="hud-row">
-          <button className="hud-pill hp" title="HP">
-            <Heart className="w-4 h-4" />
-            <span>{hp_current}/{hp_max}</span>
-          </button>
-          <button className="hud-pill ac" title="Armor">
-            <Shield className="w-4 h-4" />
-            <span>{armor}</span>
-          </button>
-        </div>
-
-        <div className="hud-row">
-          <button className="hud-pill spd" title="Speed">
-            <Zap className="w-4 h-4" />
-            <span>{speed}</span>
-          </button>
-          <button 
-            className="hud-pill init" 
-            title="Roll Initiative"
-            onClick={onRollInitiative}
-          >
-            <D20Icon className="w-4 h-4" />
-            <span>{initMod}</span>
-          </button>
-        </div>
-
-        <div className="hud-actions">
-          <button className="btn-mini" title="Heal" onClick={onHeal}>+HP</button>
-          <button className="btn-mini" title="Damage" onClick={onDamage}>−HP</button>
-          <button className="btn-mini" title="Temp HP" onClick={onTempHP}>Temp</button>
-          <button className="btn-mini" title="Rest" onClick={onRest}>Rest</button>
-        </div>
+      {/* NEW: Mini-HUD Component */}
+      <div className="px-5 pb-5">
+        <MiniHUD
+          name={characterName}
+          className={className}
+          level={level}
+          hp_current={hp_current}
+          hp_max={hp_max}
+          hp_temp={hp_temp}
+          armor={armor}
+          speed={speed}
+          dex_mod={dex_mod}
+          onHPChange={(current, temp) => {
+            onHPChange?.(current, temp);
+          }}
+          onRest={() => onRest?.()}
+          onRollInitiative={() => onRollInitiative?.()}
+        />
       </div>
 
       {/* Skills & Favorites Tabs */}

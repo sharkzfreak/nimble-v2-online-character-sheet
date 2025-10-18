@@ -748,7 +748,9 @@ const CharacterView = ({
       <div className="profile-card" id="profileCard">
         <ProfileCard
         characterName={formData.name}
+        className={formData.class}
         classColor={classThemeColor}
+        level={formData.level}
         hp_current={formData.hp_current}
         hp_max={formData.hp_max}
         hp_temp={formData.hp_temp}
@@ -761,11 +763,10 @@ const CharacterView = ({
         portraitUrl={formData.portrait_url}
         skills={profileSkills}
         favorites={formData.favorites || []}
-        onHPChange={(current, max, temp) => {
+        onHPChange={(current, temp) => {
           onFormDataChange?.({
             hp_current: current,
-            hp_max: max,
-            hp_temp: temp,
+            hp_temp: temp ?? formData.hp_temp,
           });
         }}
         onArmorChange={(armor) => {
@@ -780,9 +781,6 @@ const CharacterView = ({
         onPortraitChange={(url) => {
           onFormDataChange?.({ portrait_url: url });
         }}
-        onHeal={handleHeal}
-        onDamage={handleDamage}
-        onTempHP={handleTempHP}
         onRest={handleRest}
         onRollInitiative={handleRollInitiative}
         onSkillRoll={(skillName, skillValue) => {
