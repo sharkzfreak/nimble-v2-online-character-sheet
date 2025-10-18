@@ -853,12 +853,13 @@ const CharacterView = ({
                       <>
                         <span className="text-muted-foreground">•</span>
                         <Badge 
+                          variant="outline"
                           className="text-base font-semibold px-3 py-1"
                           style={{
-                            backgroundColor: `hsl(${classThemeColor} / 0.2)`,
-                            borderColor: `hsl(${classThemeColor})`,
-                            color: `hsl(${classThemeColor})`,
-                            border: '2px solid'
+                            backgroundColor: `hsl(${classThemeColor} / 0.15)`,
+                            borderColor: `hsl(${classThemeColor} / 0.4)`,
+                            color: `hsl(var(--foreground))`,
+                            border: '1px solid'
                           }}
                         >
                           {formData.class}
@@ -869,7 +870,16 @@ const CharacterView = ({
                     {formData.race && (
                       <>
                         <span className="text-muted-foreground">•</span>
-                        <Badge variant="outline" className="text-base font-semibold px-3 py-1">
+                        <Badge 
+                          variant="outline" 
+                          className="text-base font-semibold px-3 py-1"
+                          style={{
+                            backgroundColor: `hsl(${classThemeColor} / 0.15)`,
+                            borderColor: `hsl(${classThemeColor} / 0.4)`,
+                            color: `hsl(var(--foreground))`,
+                            border: '1px solid'
+                          }}
+                        >
                           {formData.race}
                         </Badge>
                       </>
@@ -878,7 +888,16 @@ const CharacterView = ({
                     {formData.background && (
                       <>
                         <span className="text-muted-foreground">•</span>
-                        <Badge variant="outline" className="text-base font-semibold px-3 py-1">
+                        <Badge 
+                          variant="outline" 
+                          className="text-base font-semibold px-3 py-1"
+                          style={{
+                            backgroundColor: `hsl(${classThemeColor} / 0.15)`,
+                            borderColor: `hsl(${classThemeColor} / 0.4)`,
+                            color: `hsl(var(--foreground))`,
+                            border: '1px solid'
+                          }}
+                        >
                           {formData.background}
                         </Badge>
                       </>
@@ -886,23 +905,6 @@ const CharacterView = ({
                   </div>
                 </div>
                 
-                {/* Player and Campaign Info */}
-                {(formData.player || formData.campaign) && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-base">
-                    {formData.player && (
-                      <div>
-                        <span className="text-muted-foreground font-medium">Player:</span>
-                        <span className="ml-2 font-semibold">{formData.player}</span>
-                      </div>
-                    )}
-                    {formData.campaign && (
-                      <div>
-                        <span className="text-muted-foreground font-medium">Campaign:</span>
-                        <span className="ml-2 font-semibold">{formData.campaign}</span>
-                      </div>
-                    )}
-                  </div>
-                )}
               </div>
             </div>
 
