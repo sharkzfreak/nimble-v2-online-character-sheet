@@ -47,11 +47,12 @@ export function useFitToWindow({
       const availW = Math.max(320, vpW - profileW - chatW - gutterLeft - gutterRight);
       const availH = Math.max(360, vpH - gutterTop - gutterBottom);
 
-      // Position the fit root
-      fitRoot.style.left = `${profileW + gutterLeft}px`;
-      fitRoot.style.top = `${gutterTop}px`;
-      fitRoot.style.width = `${availW}px`;
-      fitRoot.style.height = `${availH}px`;
+      // Position the fit root - use relative positioning for natural page scroll
+      fitRoot.style.position = 'relative';
+      fitRoot.style.overflow = 'visible';
+      fitRoot.style.height = 'auto';
+      fitRoot.style.marginLeft = `${profileW + gutterLeft}px`;
+      fitRoot.style.marginRight = `${chatW + gutterRight}px`;
 
       // Calculate scale to fit both width and height
       const scaleW = availW / designW;
@@ -67,10 +68,8 @@ export function useFitToWindow({
       const leftoverW = Math.max(0, availW - scaledW);
       canvas.style.marginLeft = `${leftoverW / 2}px`;
 
-      // Center the canvas vertically
-      const scaledH = designH * scale;
-      const leftoverH = Math.max(0, availH - scaledH);
-      canvas.style.marginTop = `${leftoverH / 2}px`;
+      // No vertical centering - let page scroll naturally
+      canvas.style.marginTop = '0px';
     };
 
     // Run layout on load and resize

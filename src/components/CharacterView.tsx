@@ -610,6 +610,41 @@ const CharacterView = ({
     chatPanelSelector: '.dice-log-panel-container',
   });
 
+  // Align left profile card with main content
+  useEffect(() => {
+    const profile = document.getElementById('profileCard');
+    const sheet = document.getElementById('sheetContainer');
+    const anchor = document.getElementById('mainHeader') || sheet?.firstElementChild;
+
+    if (!profile || !sheet || !anchor) return;
+
+    function applyLayout() {
+      // Align tops
+      const top = anchor.getBoundingClientRect().top + window.scrollY;
+      profile.style.position = 'fixed';
+      profile.style.left = '0';
+      profile.style.top = `${top}px`;
+
+      // Push main content to the right of the fixed profile card
+      const cardW = profile.offsetWidth || 0;
+      const gap = 24;
+      sheet.style.marginLeft = `${cardW + gap}px`;
+    }
+
+    applyLayout();
+    window.addEventListener('resize', applyLayout);
+    window.addEventListener('scroll', applyLayout);
+
+    const resizeObserver = new ResizeObserver(applyLayout);
+    resizeObserver.observe(profile);
+
+    return () => {
+      window.removeEventListener('resize', applyLayout);
+      window.removeEventListener('scroll', applyLayout);
+      resizeObserver.disconnect();
+    };
+  }, []);
+
   return (
     <div className="min-h-screen bg-background">
       {/* Left Column - Fixed Profile Card */}
@@ -652,10 +687,11 @@ const CharacterView = ({
 
       {/* Middle Column - Fit-to-Window Scaled Character Sheet */}
       <div id="sheetFitRoot" ref={fitRootRef}>
-        <div id="sheetCanvas" ref={canvasRef} className="overflow-auto">
+        <div id="sheetContainer" ref={canvasRef}>
         
         {/* Character Header */}
         <Card
+          id="mainHeader"
           className="border-2 shadow-2xl overflow-hidden backdrop-blur-sm"
           style={{
             background: `linear-gradient(135deg, hsl(${classThemeColor} / 0.1), hsl(var(--card)) 50%)`,
@@ -888,8 +924,8 @@ const CharacterView = ({
           </TabsContent>
 
           {/* Skills Tab - Nimble V2 Skills */}
-          <TabsContent value="skills" className="mt-6 space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <TabsContent value="skills" className="mt-6 space-y-4 card--stats">
+            <div id="cardMainStats" className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <AbilityPanel
                 title="Strength"
                 color="var(--ability-str)"

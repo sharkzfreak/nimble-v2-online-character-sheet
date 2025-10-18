@@ -135,8 +135,9 @@ All colors MUST be HSL.
 
   /* Fit-to-Window Layout */
   #sheetFitRoot {
-    position: fixed;
-    overflow: hidden;
+    position: relative !important;
+    overflow: visible !important;
+    height: auto !important;
     container-type: inline-size;
   }
 
@@ -149,6 +150,19 @@ All colors MUST be HSL.
   #profileCard {
     width: clamp(280px, 22vw, 360px);
     container-type: inline-size;
+  }
+
+  /* Remove Inner Scroll from Stats Card */
+  .card--stats,
+  .card--stats .card-body {
+    max-height: none !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  .card--stats .scroll-area {
+    overflow: visible !important;
+    max-height: none !important;
   }
 
   /* Container Queries - Cards */
