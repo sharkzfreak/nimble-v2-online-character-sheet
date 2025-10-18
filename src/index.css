@@ -190,76 +190,7 @@ All colors MUST be HSL.
     }
   }
 
-  /* Mini HUD */
-  .mini-hud {
-    position: sticky;
-    top: 0;
-    z-index: 50;
-    display: grid;
-    grid-template-columns: 1fr auto auto;
-    gap: 12px;
-    align-items: center;
-    padding: 8px 16px;
-    background: hsl(var(--background) / 0.85);
-    border-bottom: 1px solid hsl(var(--border));
-    backdrop-filter: blur(6px);
-    margin: -16px -16px 16px -16px;
-  }
-
-  .hud-left {
-    display: flex;
-    align-items: center;
-  }
-
-  .hud-name {
-    font-size: 0.875rem;
-    color: hsl(var(--foreground));
-  }
-
-  .hud-metrics {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .hud-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 6px 12px;
-    border-radius: 9999px;
-    background: hsl(var(--muted));
-    font-size: 0.875rem;
-    font-weight: 500;
-  }
-
-  .hud-pill.init {
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-
-  .hud-pill.init:hover {
-    background: hsl(var(--accent));
-  }
-
-  .hud-hp-bar {
-    width: 160px;
-    height: 8px;
-    border-radius: 8px;
-    background: hsl(var(--muted));
-    overflow: hidden;
-  }
-
-  .hud-hp-fill {
-    height: 100%;
-    background: hsl(var(--primary));
-    transition: width 0.3s ease;
-  }
-
-  .hud-actions {
-    display: flex;
-    gap: 6px;
-  }
+  /* Mini-HUD Left Column styles (inside ProfileCard) */
 
   /* Mini-HUD Left Column styles */
   .mini-hud-left {

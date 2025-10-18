@@ -53,7 +53,6 @@ import { calculateHPFormula, calculateArmorFormula, calculateSpeedFormula } from
 import { FeatureCard } from "./FeatureCard";
 import { CollapsibleFeatureItem } from "./CollapsibleFeatureItem";
 import { AbilityCircle } from "./AbilityCircle";
-import { MiniHUD } from "./MiniHUD";
 import { ActionBar } from "./ActionBar";
 import { FavoriteItem, ActionSpec, AdvMode, FeatureLike, RollBinding } from "@/types/rollable";
 import { rollAction, formatRollResult } from "@/utils/rollEngine";
@@ -798,29 +797,6 @@ const CharacterView = ({
 
       {/* Middle Column - Main Sheet */}
       <main className="main-column">
-        <MiniHUD
-          name={formData.name || 'Character'}
-          className={formData.class || 'Adventurer'}
-          level={formData.level || 1}
-          hp_current={formData.hp_current || 0}
-          hp_max={formData.hp_max || 0}
-          armor={formData.armor || 10}
-          speed={30}
-          dex_mod={formData.dex_mod || 0}
-          onHeal={handleHeal}
-          onDamage={handleDamage}
-          onTempHP={handleTempHP}
-          onRest={handleRest}
-          onRollInitiative={handleRollInitiative}
-        />
-        
-        <ActionBar
-          tiles={actionTiles}
-          onRollAction={(binding, label, adv, sit) => executeRoll(binding, label, { advMode: adv, situational: sit })}
-          advMode={advMode}
-          situational={situational}
-        />
-        
         {/* Character Header */}
         <Card
           className="border-2 shadow-2xl overflow-hidden backdrop-blur-sm"
@@ -974,7 +950,7 @@ const CharacterView = ({
         </Card>
 
         {/* Tabbed Content */}
-        <Tabs defaultValue="skills" className="w-full">
+        <Tabs defaultValue="actions" className="w-full">
           <TabsList 
             className="grid w-full grid-cols-5 h-14 border-2 p-1"
             style={{
@@ -983,14 +959,14 @@ const CharacterView = ({
             }}
           >
             <TabsTrigger 
-              value="skills" 
+              value="actions" 
               className="font-semibold data-[state=active]:shadow-lg transition-all"
               style={{
                 ['--tw-shadow-color' as any]: `hsl(${classThemeColor} / 0.3)`
               }}
             >
               <Swords className="w-4 h-4 mr-2" />
-              <span className="hidden sm:inline">Skills</span>
+              <span className="hidden sm:inline">Actions</span>
             </TabsTrigger>
             <TabsTrigger 
               value="features"
@@ -1054,52 +1030,68 @@ const CharacterView = ({
             )}
           </TabsContent>
 
-          {/* Skills Tab - Nimble V2 Skills */}
-          <TabsContent value="skills" className="mt-6 space-y-4 card--stats">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-              <AbilityPanel
-                title="Strength"
-                color="var(--ability-str)"
-                modifier={strengthMod}
-                icon={Swords}
-                skills={[
-                  { name: "Might", value: formData.skill_might, proficient: formData.skill_might > 0 }
-                ]}
-              />
-              <AbilityPanel
-                title="Dexterity"
-                color="var(--ability-dex)"
-                modifier={dexterityMod}
-                icon={Target}
-                skills={[
-                  { name: "Finesse", value: formData.skill_finesse, proficient: formData.skill_finesse > 0 },
-                  { name: "Stealth", value: formData.skill_stealth, proficient: formData.skill_stealth > 0 }
-                ]}
-              />
-              <AbilityPanel
-                title="Intelligence"
-                color="var(--ability-int)"
-                modifier={intelligenceMod}
-                icon={BookOpen}
-                skills={[
-                  { name: "Arcana", value: formData.skill_arcana, proficient: formData.skill_arcana > 0 },
-                  { name: "Examination", value: formData.skill_examination, proficient: formData.skill_examination > 0 },
-                  { name: "Lore", value: formData.skill_lore, proficient: formData.skill_lore > 0 }
-                ]}
-              />
-              <AbilityPanel
-                title="Will"
-                color="var(--ability-wis)"
-                modifier={willMod}
-                icon={Wand2}
-                skills={[
-                  { name: "Insight", value: formData.skill_insight, proficient: formData.skill_insight > 0 },
-                  { name: "Influence", value: formData.skill_influence, proficient: formData.skill_influence > 0 },
-                  { name: "Naturecraft", value: formData.skill_naturecraft, proficient: formData.skill_naturecraft > 0 },
-                  { name: "Perception", value: formData.skill_perception, proficient: formData.skill_perception > 0 }
-                ]}
-              />
-            </div>
+          {/* Actions Tab */}
+          <TabsContent value="actions" className="mt-6 space-y-4">
+            {/* Action Bar at the top */}
+            <ActionBar
+              tiles={actionTiles}
+              onRollAction={(binding, label, adv, sit) => executeRoll(binding, label, { advMode: adv, situational: sit })}
+              advMode={advMode}
+              situational={situational}
+            />
+            
+            {/* Skills Section */}
+            <Card className="bg-card/70 border-2 backdrop-blur-sm" style={{ borderColor: `hsl(${classThemeColor} / 0.3)` }}>
+              <CardHeader>
+                <CardTitle className="text-xl font-cinzel">Checks & Skills</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  <AbilityPanel
+                    title="Strength"
+                    color="var(--ability-str)"
+                    modifier={strengthMod}
+                    icon={Swords}
+                    skills={[
+                      { name: "Might", value: formData.skill_might, proficient: formData.skill_might > 0 }
+                    ]}
+                  />
+                  <AbilityPanel
+                    title="Dexterity"
+                    color="var(--ability-dex)"
+                    modifier={dexterityMod}
+                    icon={Target}
+                    skills={[
+                      { name: "Finesse", value: formData.skill_finesse, proficient: formData.skill_finesse > 0 },
+                      { name: "Stealth", value: formData.skill_stealth, proficient: formData.skill_stealth > 0 }
+                    ]}
+                  />
+                  <AbilityPanel
+                    title="Intelligence"
+                    color="var(--ability-int)"
+                    modifier={intelligenceMod}
+                    icon={BookOpen}
+                    skills={[
+                      { name: "Arcana", value: formData.skill_arcana, proficient: formData.skill_arcana > 0 },
+                      { name: "Examination", value: formData.skill_examination, proficient: formData.skill_examination > 0 },
+                      { name: "Lore", value: formData.skill_lore, proficient: formData.skill_lore > 0 }
+                    ]}
+                  />
+                  <AbilityPanel
+                    title="Will"
+                    color="var(--ability-wis)"
+                    modifier={willMod}
+                    icon={Wand2}
+                    skills={[
+                      { name: "Insight", value: formData.skill_insight, proficient: formData.skill_insight > 0 },
+                      { name: "Influence", value: formData.skill_influence, proficient: formData.skill_influence > 0 },
+                      { name: "Naturecraft", value: formData.skill_naturecraft, proficient: formData.skill_naturecraft > 0 },
+                      { name: "Perception", value: formData.skill_perception, proficient: formData.skill_perception > 0 }
+                    ]}
+                  />
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
 
           {/* Features Tab */}
