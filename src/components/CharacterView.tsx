@@ -4,11 +4,6 @@ import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import {
-  ResizablePanelGroup,
-  ResizablePanel,
-  ResizableHandle,
-} from "@/components/ui/resizable";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -36,6 +31,7 @@ import {
 } from "lucide-react";
 import { ResizableCard } from "@/components/ResizableCard";
 import { D20Icon } from "@/components/icons/D20Icon";
+import { useFitToWindow } from "@/hooks/useFitToWindow";
 import {
   Tooltip,
   TooltipContent,
@@ -609,29 +605,16 @@ const CharacterView = ({
   const intelligenceMod = getModifierString(formData.int_mod);
   const willMod = getModifierString(formData.will_mod);
 
-  const [wideMode, setWideMode] = useState(() => {
-    return localStorage.getItem('wideMode') === 'true';
+  const { fitRootRef, canvasRef } = useFitToWindow({
+    profileCardId: 'profileCard',
+    chatPanelSelector: '.dice-log-panel-container',
   });
 
-  useEffect(() => {
-    if (wideMode) {
-      document.documentElement.classList.add('wide-mode');
-    } else {
-      document.documentElement.classList.remove('wide-mode');
-    }
-    localStorage.setItem('wideMode', String(wideMode));
-  }, [wideMode]);
-
   return (
-    <div className="min-h-screen bg-background p-4">
-      <ResizablePanelGroup 
-        direction="horizontal" 
-        className="w-full min-h-screen"
-      >
-        {/* Left Column - Profile Card */}
-        <ResizablePanel defaultSize={15} minSize={10} maxSize={25}>
-          <div className="pr-2 h-full">
-            <ProfileCard
+    <div className="min-h-screen bg-background">
+      {/* Left Column - Fixed Profile Card */}
+      <div id="profileCard" className="fixed left-0 top-0 h-screen p-4">
+        <ProfileCard
         characterName={formData.name}
         classColor={classThemeColor}
         hp_current={formData.hp_current}
@@ -665,14 +648,11 @@ const CharacterView = ({
         onArmorFormulaClick={() => showFormulaInspector('armor')}
         onSpeedFormulaClick={() => showFormulaInspector('speed')}
       />
-          </div>
-        </ResizablePanel>
+      </div>
 
-        <ResizableHandle withHandle />
-
-        {/* Middle Column - Character Sheet */}
-        <ResizablePanel defaultSize={60} minSize={30}>
-          <div className="px-2 h-full overflow-auto">
+      {/* Middle Column - Fit-to-Window Scaled Character Sheet */}
+      <div id="sheetFitRoot" ref={fitRootRef}>
+        <div id="sheetCanvas" ref={canvasRef} className="overflow-auto">
         
         {/* Character Header */}
         <Card
@@ -1600,18 +1580,13 @@ const CharacterView = ({
           breakdown={currentFormula}
           onResetOverride={handleResetOverride}
         />
-          </div>
-        </ResizablePanel>
+        </div>
+      </div>
 
-        <ResizableHandle withHandle />
-
-        {/* Right Column - Dice Log Panel */}
-        <ResizablePanel defaultSize={25} minSize={15} maxSize={35}>
-          <div className="pl-2 h-full">
-            <DiceLogPanel />
-          </div>
-        </ResizablePanel>
-      </ResizablePanelGroup>
+      {/* Right Column - Fixed Dice Log Panel */}
+      <div className="dice-log-panel-container fixed right-0 top-0 h-screen p-4" style={{ width: 'clamp(320px, 25vw, 420px)' }}>
+        <DiceLogPanel />
+      </div>
     </div>
   );
 };

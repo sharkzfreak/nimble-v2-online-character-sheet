@@ -44,8 +44,14 @@ All colors MUST be HSL.
     --parchment: 43 42% 85%;
     --parchment-dark: 43 30% 70%;
 
-    /* Canvas width */
-    --canvas-max: 2400px;
+    /* Fit-to-Window Design Canvas */
+    --sheet-design-w: 1400px;
+    --sheet-design-h: 900px;
+
+    /* Fluid Typography */
+    --font-min: 14px;
+    --font-pref: 1.05vw;
+    --font-max: 18px;
 
     /* Ability Score Colors */
     --ability-str: 0 70% 55%;
@@ -91,14 +97,15 @@ All colors MUST be HSL.
     --sidebar-ring: 262 83% 58%;
   }
 
-  .wide-mode {
-    --canvas-max: 3200px;
-  }
 }
 
 @layer base {
   * {
     @apply border-border;
+  }
+
+  html {
+    font-size: clamp(var(--font-min), var(--font-pref), var(--font-max));
   }
 
   body {
@@ -124,5 +131,21 @@ All colors MUST be HSL.
 
   .animate-pulse-slow {
     animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  /* Fit-to-Window Layout */
+  #sheetFitRoot {
+    position: fixed;
+    overflow: hidden;
+  }
+
+  #sheetCanvas {
+    width: var(--sheet-design-w);
+    height: var(--sheet-design-h);
+    transform-origin: top left;
+  }
+
+  #profileCard {
+    width: clamp(280px, 22vw, 360px);
   }
 }
