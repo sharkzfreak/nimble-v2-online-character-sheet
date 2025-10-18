@@ -83,6 +83,12 @@ export const ProfileCard = ({
 }: ProfileCardProps) => {
   const [activeTab, setActiveTab] = useState<'favorites' | 'skills'>('favorites');
   const [imageDialog, setImageDialog] = useState(false);
+  
+  // Calculate HP status for glow effects
+  const hpRatio = hp_current / Math.max(1, hp_max);
+  const isLowHP = hpRatio <= 0.25;
+  const isWarnHP = hpRatio > 0.25 && hpRatio <= 0.5;
+  const isHealthyHP = !isLowHP && !isWarnHP;
   const [aiPrompt, setAiPrompt] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -219,7 +225,11 @@ export const ProfileCard = ({
               style={{
                 backgroundColor: `hsl(${classColor})`,
                 borderColor: `hsl(${classColor} / 0.8)`,
-                boxShadow: `0 8px 32px hsl(${classColor} / 0.4), inset 0 0 60px rgba(255,255,255,0.1)`,
+                boxShadow: isHealthyHP 
+                  ? `0 8px 32px hsl(${classColor} / 0.4), inset 0 0 60px rgba(255,255,255,0.1), 0 0 12px rgba(76, 175, 80, 0.6)`
+                  : isWarnHP
+                  ? `0 8px 32px hsl(${classColor} / 0.4), inset 0 0 60px rgba(255,255,255,0.1), 0 0 12px rgba(253, 216, 53, 0.5)`
+                  : `0 8px 32px hsl(${classColor} / 0.4), inset 0 0 60px rgba(255,255,255,0.1), 0 0 12px rgba(244, 67, 54, 0.6)`,
               }}
               aria-label="Character portrait"
             >
