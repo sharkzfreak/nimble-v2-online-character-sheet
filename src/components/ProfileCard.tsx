@@ -42,6 +42,7 @@ interface ProfileCardProps {
   favorites?: FavoriteItem[];
   skills?: SkillData[];
   onHPChange?: (current: number, temp?: number) => void;
+  onMaxHPChange?: (max: number) => void;
   onArmorChange?: (armor: number) => void;
   onSpeedChange?: (speed: number) => void;
   onHitDiceChange?: (remaining: number, total: number) => void;
@@ -70,6 +71,7 @@ export const ProfileCard = ({
   favorites = [],
   skills = [],
   onHPChange,
+  onMaxHPChange,
   onArmorChange,
   onSpeedChange,
   onHitDiceChange,
@@ -336,6 +338,9 @@ export const ProfileCard = ({
           hit_dice_total={hit_dice_total}
           onHPChange={(current, temp) => {
             onHPChange?.(current, temp);
+          }}
+          onMaxHPChange={(max) => {
+            onMaxHPChange?.(max);
           }}
           onArmorChange={(armor) => {
             onArmorChange?.(armor);

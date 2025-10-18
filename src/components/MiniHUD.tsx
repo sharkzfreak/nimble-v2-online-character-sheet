@@ -20,6 +20,7 @@ interface MiniHUDProps {
   hit_dice_remaining: number;
   hit_dice_total: number;
   onHPChange: (current: number, temp?: number) => void;
+  onMaxHPChange?: (max: number) => void;
   onArmorChange?: (armor: number) => void;
   onSpeedChange?: (speed: number) => void;
   onHitDiceChange?: (remaining: number, total: number) => void;
@@ -40,6 +41,7 @@ export const MiniHUD = ({
   hit_dice_remaining,
   hit_dice_total,
   onHPChange,
+  onMaxHPChange,
   onArmorChange,
   onSpeedChange,
   onHitDiceChange,
@@ -127,6 +129,7 @@ export const MiniHUD = ({
           hp_max={hp_max}
           hp_temp={hp_temp}
           onHPChange={onHPChange}
+          onMaxHPChange={onMaxHPChange}
           characterName={name}
         />
       </div>

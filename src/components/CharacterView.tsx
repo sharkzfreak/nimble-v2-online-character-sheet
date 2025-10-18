@@ -770,6 +770,9 @@ const CharacterView = ({
             hp_temp: temp ?? formData.hp_temp,
           });
         }}
+        onMaxHPChange={(max) => {
+          onFormDataChange?.({ hp_max: max });
+        }}
         onArmorChange={(armor) => {
           onFormDataChange?.({ armor });
         }}

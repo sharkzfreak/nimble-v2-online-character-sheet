@@ -3,20 +3,23 @@ import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { Label } from "./ui/label";
 import { useDiceLog } from "@/contexts/DiceLogContext";
+import { Skull } from "lucide-react";
 
 interface HPBarProps {
   hp_current: number;
   hp_max: number;
   hp_temp?: number;
   onHPChange: (current: number, temp?: number) => void;
+  onMaxHPChange?: (max: number) => void;
   characterName?: string;
 }
 
-export const HPBar = ({ hp_current, hp_max, hp_temp = 0, onHPChange, characterName = "Character" }: HPBarProps) => {
+export const HPBar = ({ hp_current, hp_max, hp_temp = 0, onHPChange, onMaxHPChange, characterName = "Character" }: HPBarProps) => {
   const { addLog } = useDiceLog();
   const [showEditor, setShowEditor] = useState(false);
   const [hpInput, setHpInput] = useState("");
   const [tempInput, setTempInput] = useState(hp_temp.toString());
+  const [maxInput, setMaxInput] = useState(hp_max.toString());
   const editorRef = useRef<HTMLDivElement>(null);
   const barRef = useRef<HTMLDivElement>(null);
   
@@ -107,6 +110,14 @@ export const HPBar = ({ hp_current, hp_max, hp_temp = 0, onHPChange, characterNa
     const input = hpInput.trim();
     let newHP = hp_current;
     let newTemp = hp_temp;
+    let newMax = hp_max;
+    
+    // Handle max HP change
+    const inputMax = Number(maxInput);
+    if (inputMax > 0 && inputMax !== hp_max && onMaxHPChange) {
+      newMax = inputMax;
+      onMaxHPChange(inputMax);
+    }
     
     if (input) {
       if (/^[+\-]\d+$/.test(input)) {
@@ -129,11 +140,11 @@ export const HPBar = ({ hp_current, hp_max, hp_temp = 0, onHPChange, characterNa
           }
         } else {
           // Healing
-          newHP = Math.max(0, Math.min(hp_max, hp_current + delta));
+          newHP = Math.max(0, Math.min(newMax, hp_current + delta));
         }
       } else if (/^\d+$/.test(input)) {
         // Absolute value
-        newHP = Math.max(0, Math.min(hp_max, Number(input)));
+        newHP = Math.max(0, Math.min(newMax, Number(input)));
       }
     }
 
@@ -152,6 +163,7 @@ export const HPBar = ({ hp_current, hp_max, hp_temp = 0, onHPChange, characterNa
     setShowEditor(false);
     setHpInput("");
     setTempInput(hp_temp.toString());
+    setMaxInput(hp_max.toString());
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -164,7 +176,8 @@ export const HPBar = ({ hp_current, hp_max, hp_temp = 0, onHPChange, characterNa
 
   useEffect(() => {
     setTempInput(hp_temp.toString());
-  }, [hp_temp]);
+    setMaxInput(hp_max.toString());
+  }, [hp_temp, hp_max]);
 
   useEffect(() => {
     if (showEditor) {
@@ -222,6 +235,13 @@ export const HPBar = ({ hp_current, hp_max, hp_temp = 0, onHPChange, characterNa
           <div className="hp-temp" style={{ width: `${tempPercent}%` }} />
         )}
         <div className="hp-text">{displayText}</div>
+        
+        {/* Pulsing skull at zero HP */}
+        {hp_current === 0 && (
+          <div className="hp-skull">
+            <Skull className="w-6 h-6" />
+          </div>
+        )}
 
         {/* Plus button on RIGHT */}
         <button
@@ -265,6 +285,20 @@ export const HPBar = ({ hp_current, hp_max, hp_temp = 0, onHPChange, characterNa
                 placeholder="0"
                 value={tempInput}
                 onChange={(e) => setTempInput(e.target.value)}
+                onKeyDown={handleKeyDown}
+              />
+            </div>
+
+            <div className="hp-field">
+              <Label htmlFor="max-input">Max HP</Label>
+              <Input
+                id="max-input"
+                type="number"
+                step="1"
+                min="1"
+                placeholder="Max HP"
+                value={maxInput}
+                onChange={(e) => setMaxInput(e.target.value)}
                 onKeyDown={handleKeyDown}
               />
             </div>
