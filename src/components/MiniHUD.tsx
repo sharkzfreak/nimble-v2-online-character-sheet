@@ -1,6 +1,7 @@
-import { Heart, Shield, Zap } from "lucide-react";
+import { Shield, Zap } from "lucide-react";
 import { D20Icon } from "./icons/D20Icon";
 import { Button } from "./ui/button";
+import { HPBar } from "./HPBar";
 
 interface MiniHUDProps {
   name: string;
@@ -8,12 +9,11 @@ interface MiniHUDProps {
   level: number;
   hp_current: number;
   hp_max: number;
+  hp_temp?: number;
   armor: number;
   speed: number;
   dex_mod: number;
-  onHeal: () => void;
-  onDamage: () => void;
-  onTempHP: () => void;
+  onHPChange: (current: number, temp?: number) => void;
   onRest: () => void;
   onRollInitiative: () => void;
 }
@@ -24,16 +24,14 @@ export const MiniHUD = ({
   level,
   hp_current,
   hp_max,
+  hp_temp = 0,
   armor,
   speed,
   dex_mod,
-  onHeal,
-  onDamage,
-  onTempHP,
+  onHPChange,
   onRest,
   onRollInitiative,
 }: MiniHUDProps) => {
-  const hpPercent = Math.max(0, Math.min(100, (100 * hp_current) / Math.max(1, hp_max)));
   const initMod = dex_mod >= 0 ? `+${dex_mod}` : `${dex_mod}`;
 
   return (
@@ -45,13 +43,12 @@ export const MiniHUD = ({
       </div>
       
       <div className="hud-metrics">
-        <div className="hud-pill hp">
-          <Heart className="w-4 h-4" />
-          <span>{hp_current}/{hp_max}</span>
-        </div>
-        <div className="hud-hp-bar">
-          <div className="hud-hp-fill" style={{ width: `${hpPercent}%` }} />
-        </div>
+        <HPBar 
+          hp_current={hp_current}
+          hp_max={hp_max}
+          hp_temp={hp_temp}
+          onHPChange={onHPChange}
+        />
 
         <div className="hud-pill ac">
           <Shield className="w-4 h-4" />
@@ -76,10 +73,7 @@ export const MiniHUD = ({
       </div>
 
       <div className="hud-actions">
-        <Button variant="outline" size="sm" onClick={onHeal}>+HP</Button>
-        <Button variant="outline" size="sm" onClick={onDamage}>−HP</Button>
-        <Button variant="outline" size="sm" onClick={onTempHP}>Temp</Button>
-        <Button variant="outline" size="sm" onClick={onRest}>Rest</Button>
+        <Button variant="outline" size="sm" onClick={onRest} className="w-full">Rest</Button>
       </div>
     </div>
   );

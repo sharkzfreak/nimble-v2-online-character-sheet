@@ -228,7 +228,6 @@ All colors MUST be HSL.
 
   .mini-hud-left .hud-actions {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
     gap: 6px;
   }
 
@@ -245,6 +244,122 @@ All colors MUST be HSL.
   .mini-hud-left .btn-mini:hover {
     background: hsl(var(--muted) / 0.12);
     transform: translateY(-1px);
+  }
+
+  /* HP Bar */
+  .hp-bar {
+    position: relative;
+    height: 34px;
+    border-radius: 999px;
+    background: hsl(var(--muted) / 0.07);
+    border: 1px solid hsl(var(--border) / 0.12);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    padding-right: 42px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .hp-bar:hover {
+    background: hsl(var(--muted) / 0.12);
+    transform: translateY(-1px);
+  }
+
+  .hp-fill {
+    position: absolute;
+    inset: 0;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(90deg, hsl(var(--primary)), hsl(var(--primary) / 0.7));
+    transition: width 0.25s ease;
+  }
+
+  .hp-text {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    text-align: center;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    text-shadow: 0 1px 1px hsl(var(--background) / 0.45);
+    user-select: none;
+    pointer-events: none;
+  }
+
+  .hp-arrows {
+    position: absolute;
+    right: 4px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: grid;
+    gap: 2px;
+    z-index: 2;
+  }
+
+  .hp-arrow {
+    width: 30px;
+    height: 14px;
+    line-height: 12px;
+    font-size: 11px;
+    border-radius: 6px;
+    background: hsl(var(--muted) / 0.08);
+    border: 1px solid hsl(var(--border) / 0.12);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+  }
+
+  .hp-arrow:hover {
+    background: hsl(var(--muted) / 0.15);
+  }
+
+  .hp-arrow:active {
+    transform: scale(0.98);
+  }
+
+  /* HP Editor */
+  .hp-editor {
+    position: fixed;
+    z-index: 60;
+    margin-top: 6px;
+  }
+
+  .hp-editor-inner {
+    min-width: 260px;
+    display: grid;
+    gap: 8px;
+    padding: 12px;
+    border-radius: 12px;
+    background: hsl(var(--popover));
+    border: 1px solid hsl(var(--border));
+    box-shadow: 0 10px 28px hsl(var(--background) / 0.45);
+  }
+
+  .hp-field {
+    display: grid;
+    grid-template-columns: 52px 1fr;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .hp-editor-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+  }
+
+  .hp-hints {
+    padding-top: 4px;
+    border-top: 1px solid hsl(var(--border) / 0.3);
+  }
+
+  .hp-hints small {
+    font-size: 0.75rem;
+    color: hsl(var(--muted-foreground));
+    line-height: 1.4;
   }
 
   /* Action Bar */
