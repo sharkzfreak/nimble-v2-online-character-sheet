@@ -290,7 +290,7 @@ All colors MUST be HSL.
     inset: 0;
     width: 50%;
     height: 100%;
-    background: linear-gradient(90deg, hsl(var(--primary)), hsl(var(--primary) / 0.7));
+    background: linear-gradient(90deg, hsl(0 70% 50%), hsl(0 70% 40%));
     transition: width 0.25s ease;
     z-index: 0;
   }

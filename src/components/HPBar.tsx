@@ -57,27 +57,75 @@ export const HPBar = ({ hp_current, hp_max, hp_temp = 0, onHPChange, characterNa
   };
 
   const handleNudge = (delta: number) => {
-    const newHP = Math.max(0, Math.min(hp_max, hp_current + delta));
-    logHPChange(newHP, hp_temp);
-    onHPChange(newHP, hp_temp);
+    let newHP = hp_current;
+    let newTemp = hp_temp;
+    
+    if (delta < 0) {
+      // Taking damage - consume temp HP first
+      const absDamage = Math.abs(delta);
+      if (hp_temp > 0) {
+        if (hp_temp >= absDamage) {
+          // Temp HP absorbs all damage
+          newTemp = hp_temp - absDamage;
+        } else {
+          // Temp HP absorbs some, rest goes to regular HP
+          const remainingDamage = absDamage - hp_temp;
+          newTemp = 0;
+          newHP = Math.max(0, hp_current - remainingDamage);
+        }
+      } else {
+        // No temp HP, damage goes directly to HP
+        newHP = Math.max(0, hp_current + delta);
+      }
+    } else {
+      // Healing - only affects regular HP
+      newHP = Math.max(0, Math.min(hp_max, hp_current + delta));
+    }
+    
+    logHPChange(newHP, newTemp);
+    onHPChange(newHP, newTemp);
   };
 
   const handleApply = () => {
     const input = hpInput.trim();
     let newHP = hp_current;
+    let newTemp = hp_temp;
     
     if (input) {
       if (/^[+\-]\d+$/.test(input)) {
         // Relative adjustment (+5, -3)
-        newHP = hp_current + Number(input);
+        const delta = Number(input);
+        
+        if (delta < 0) {
+          // Taking damage - consume temp HP first
+          const absDamage = Math.abs(delta);
+          if (hp_temp > 0) {
+            if (hp_temp >= absDamage) {
+              newTemp = hp_temp - absDamage;
+            } else {
+              const remainingDamage = absDamage - hp_temp;
+              newTemp = 0;
+              newHP = Math.max(0, hp_current - remainingDamage);
+            }
+          } else {
+            newHP = Math.max(0, hp_current + delta);
+          }
+        } else {
+          // Healing
+          newHP = Math.max(0, Math.min(hp_max, hp_current + delta));
+        }
       } else if (/^\d+$/.test(input)) {
         // Absolute value
-        newHP = Number(input);
+        newHP = Math.max(0, Math.min(hp_max, Number(input)));
       }
-      newHP = Math.max(0, Math.min(hp_max, newHP));
     }
 
-    const newTemp = tempInput === '' ? 0 : Math.max(0, Number(tempInput));
+    // Update temp HP if changed in the editor
+    const inputTemp = tempInput === '' ? 0 : Math.max(0, Number(tempInput));
+    if (inputTemp !== hp_temp) {
+      newTemp = inputTemp;
+    }
+    
     logHPChange(newHP, newTemp);
     onHPChange(newHP, newTemp);
     setShowEditor(false);

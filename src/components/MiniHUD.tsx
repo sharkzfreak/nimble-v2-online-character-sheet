@@ -112,12 +112,6 @@ export const MiniHUD = ({
 
   return (
     <div className="mini-hud" role="region" aria-label="Character HUD">
-      <div className="hud-left">
-        <div className="hud-name">
-          <span className="font-semibold">{name}</span> • <span>{className}</span> L{level}
-        </div>
-      </div>
-      
       {/* HP Bar - Full Width */}
       <div className="hud-hp-section">
         <HPBar 
