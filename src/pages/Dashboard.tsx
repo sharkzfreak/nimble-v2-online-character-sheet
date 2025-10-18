@@ -4,8 +4,20 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { User, Session } from "@supabase/supabase-js";
-import { Plus, LogOut, Scroll, Sword, Shield, BookOpen } from "lucide-react";
+import { Plus, LogOut, Scroll, Sword, Shield, BookOpen, Trash2 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 interface Character {
   id: string;
@@ -25,6 +37,9 @@ const Dashboard = () => {
   const [session, setSession] = useState<Session | null>(null);
   const [characters, setCharacters] = useState<Character[]>([]);
   const [loading, setLoading] = useState(true);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [characterToDelete, setCharacterToDelete] = useState<Character | null>(null);
+  const [confirmName, setConfirmName] = useState("");
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
@@ -78,6 +93,49 @@ const Dashboard = () => {
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     navigate("/auth");
+  };
+
+  const handleDeleteClick = (e: React.MouseEvent, character: Character) => {
+    e.stopPropagation();
+    setCharacterToDelete(character);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!characterToDelete || confirmName !== characterToDelete.name) {
+      toast({
+        title: "Name doesn't match",
+        description: "Please enter the exact character name to confirm deletion.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from("characters")
+        .delete()
+        .eq("id", characterToDelete.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Character deleted",
+        description: `${characterToDelete.name} has been removed.`,
+      });
+
+      setCharacters(characters.filter(c => c.id !== characterToDelete.id));
+      setDeleteDialogOpen(false);
+      setCharacterToDelete(null);
+      setConfirmName("");
+    } catch (error) {
+      console.error("Error deleting character:", error);
+      toast({
+        title: "Error",
+        description: "Failed to delete character",
+        variant: "destructive",
+      });
+    }
   };
 
   const calculateHealth = (str: number) => str * 5;
@@ -145,9 +203,17 @@ const Dashboard = () => {
               {characters.map((character) => (
                 <Card
                   key={character.id}
-                  className="bg-card border-border shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-glow)] transition-all duration-300 cursor-pointer hover-scale animate-fade-in"
+                  className="bg-card border-border shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-glow)] transition-all duration-300 cursor-pointer hover-scale animate-fade-in relative"
                   onClick={() => navigate(`/character/${character.id}`)}
                 >
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="absolute top-2 right-2 text-destructive hover:text-destructive hover:bg-destructive/10"
+                    onClick={(e) => handleDeleteClick(e, character)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2 text-foreground">
                       <Sword className="w-5 h-5 text-primary" />
@@ -202,6 +268,42 @@ const Dashboard = () => {
             </div>
           </>
         )}
+
+        <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete Character</AlertDialogTitle>
+              <AlertDialogDescription>
+                This action cannot be undone. Please enter the character's name to confirm deletion.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <div className="space-y-2 py-4">
+              <Label htmlFor="confirm-name">
+                Character Name: <span className="font-bold">{characterToDelete?.name}</span>
+              </Label>
+              <Input
+                id="confirm-name"
+                placeholder="Enter character name"
+                value={confirmName}
+                onChange={(e) => setConfirmName(e.target.value)}
+              />
+            </div>
+            <AlertDialogFooter>
+              <AlertDialogCancel onClick={() => {
+                setConfirmName("");
+                setCharacterToDelete(null);
+              }}>
+                Cancel
+              </AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleDeleteConfirm}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              >
+                Delete
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </div>
   );
