@@ -21,15 +21,28 @@ export const HPBar = ({ hp_current, hp_max, hp_temp = 0, onHPChange, characterNa
   const editorRef = useRef<HTMLDivElement>(null);
   const barRef = useRef<HTMLDivElement>(null);
   
-  // Track previous values for logging
+  // Track previous values for logging and flash detection
   const prevValuesRef = useRef({ hp_current, hp_max, hp_temp });
-
+  
+  // Calculate HP percentage and status
   const hpPercent = Math.max(0, Math.min(100, (100 * hp_current) / Math.max(1, hp_max)));
+  const hpRatio = hp_current / Math.max(1, hp_max);
+  
+  // Determine HP status classes
+  const isLowHP = hpRatio <= 0.25;
+  const isWarnHP = hpRatio > 0.25 && hpRatio <= 0.5;
   
   // Calculate temp HP overlay - shows total (current + temp) as percentage
   const totalWithTemp = Math.min(hp_current + hp_temp, hp_max + hp_temp);
   const tempPercent = Math.min(140, Math.round((totalWithTemp / hp_max) * 100));
   const showTempOverlay = hp_temp > 0 && tempPercent > hpPercent;
+
+  const flashHP = (type: 'damage' | 'heal') => {
+    if (!barRef.current) return;
+    const cls = type === 'damage' ? 'flash-damage' : 'flash-heal';
+    barRef.current.classList.add(cls);
+    setTimeout(() => barRef.current?.classList.remove(cls), 450);
+  };
 
   const logHPChange = (newCurrent: number, newTemp: number) => {
     const prevCur = prevValuesRef.current.hp_current;
@@ -51,6 +64,11 @@ export const HPBar = ({ hp_current, hp_max, hp_temp = 0, onHPChange, characterNa
       roll_type: `${emoji} HP ${hpStr} (${sign})${tmpStr}`,
       individual_rolls: [],
     });
+    
+    // Flash effect
+    if (delta !== 0) {
+      flashHP(delta > 0 ? 'heal' : 'damage');
+    }
     
     // Update previous values
     prevValuesRef.current = { hp_current: newCurrent, hp_max, hp_temp: newTemp };
@@ -164,11 +182,14 @@ export const HPBar = ({ hp_current, hp_max, hp_temp = 0, onHPChange, characterNa
 
   const displayText = hp_temp > 0 ? `${hp_current}/${hp_max} (${hp_temp})` : `${hp_current}/${hp_max}`;
 
+  // Build class names for HP status
+  const barClassName = `hp-bar ${isLowHP ? 'hp-low' : ''} ${isWarnHP ? 'hp-warn' : ''}`.trim();
+
   return (
     <div className="relative">
       <div 
         ref={barRef}
-        className="hp-bar"
+        className={barClassName}
         role="progressbar"
         aria-valuemin={0}
         aria-valuemax={hp_max}
