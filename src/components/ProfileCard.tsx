@@ -417,7 +417,7 @@ export const ProfileCard = ({
 
         {/* Skills Content */}
         <TabsContent value="skills" className="m-0">
-          <div className="p-3 space-y-1 max-h-[400px] overflow-y-auto">
+          <div className="p-3 space-y-1">
             {skills.map((skill) => {
               const skillColor = getSkillStatColor(skill.name);
               return (
