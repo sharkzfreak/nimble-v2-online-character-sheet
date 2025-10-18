@@ -606,6 +606,20 @@ const CharacterView = ({
   const willMod = getModifierString(formData.will_mod);
 
 
+  // Prepare skills array for ProfileCard
+  const profileSkills = [
+    { name: 'Might', value: formData.skill_might },
+    { name: 'Finesse', value: formData.skill_finesse },
+    { name: 'Stealth', value: formData.skill_stealth },
+    { name: 'Arcana', value: formData.skill_arcana },
+    { name: 'Examination', value: formData.skill_examination },
+    { name: 'Lore', value: formData.skill_lore },
+    { name: 'Insight', value: formData.skill_insight },
+    { name: 'Influence', value: formData.skill_influence },
+    { name: 'Naturecraft', value: formData.skill_naturecraft },
+    { name: 'Perception', value: formData.skill_perception },
+  ];
+
   return (
     <div className="app-root">
       {/* Left Column - Fixed Profile Card */}
@@ -621,6 +635,8 @@ const CharacterView = ({
         hit_dice_total={formData.hit_dice_total}
         characterId={characterId}
         portraitUrl={formData.portrait_url}
+        skills={profileSkills}
+        favorites={formData.favorites || []}
         onHPChange={(current, max, temp) => {
           onFormDataChange?.({
             hp_current: current,
@@ -639,6 +655,13 @@ const CharacterView = ({
         }}
         onPortraitChange={(url) => {
           onFormDataChange?.({ portrait_url: url });
+        }}
+        onSkillRoll={(skillName, skillValue) => {
+          rollSkillCheck(skillName, skillValue);
+        }}
+        onRemoveFavorite={(itemId) => {
+          const updatedFavorites = (formData.favorites || []).filter(f => f.id !== itemId);
+          onFormDataChange?.({ favorites: updatedFavorites });
         }}
         onHPFormulaClick={() => showFormulaInspector('hp')}
         onArmorFormulaClick={() => showFormulaInspector('armor')}

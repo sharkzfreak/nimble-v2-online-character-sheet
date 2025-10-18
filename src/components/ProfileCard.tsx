@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Shield, Upload, Sparkles, Sigma } from "lucide-react";
+import { Shield, Upload, Sparkles, Sigma, Star, X } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -13,6 +13,14 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { D20Icon } from "@/components/icons/D20Icon";
+import { FavoriteItem } from '@/types/rollable';
+
+interface SkillData {
+  name: string;
+  value: number;
+}
 
 
 interface ProfileCardProps {
@@ -26,6 +34,8 @@ interface ProfileCardProps {
   hit_dice_total: number;
   characterId?: string;
   portraitUrl?: string;
+  favorites?: FavoriteItem[];
+  skills?: SkillData[];
   onHPChange?: (current: number, max: number, temp: number) => void;
   onArmorChange?: (armor: number) => void;
   onHitDiceChange?: (remaining: number, total: number) => void;
@@ -33,6 +43,8 @@ interface ProfileCardProps {
   onHPFormulaClick?: () => void;
   onArmorFormulaClick?: () => void;
   onSpeedFormulaClick?: () => void;
+  onSkillRoll?: (skillName: string, skillValue: number) => void;
+  onRemoveFavorite?: (itemId: string) => void;
 }
 
 export const ProfileCard = ({
@@ -46,6 +58,8 @@ export const ProfileCard = ({
   hit_dice_total,
   characterId,
   portraitUrl,
+  favorites = [],
+  skills = [],
   onHPChange,
   onArmorChange,
   onHitDiceChange,
@@ -53,7 +67,10 @@ export const ProfileCard = ({
   onHPFormulaClick,
   onArmorFormulaClick,
   onSpeedFormulaClick,
+  onSkillRoll,
+  onRemoveFavorite,
 }: ProfileCardProps) => {
+  const [activeTab, setActiveTab] = useState<'favorites' | 'skills'>('favorites');
   const [editingHP, setEditingHP] = useState(false);
   const [tempHPCurrent, setTempHPCurrent] = useState(hp_current);
   const [tempHPMax, setTempHPMax] = useState(hp_max);
@@ -243,6 +260,23 @@ export const ProfileCard = ({
     }
     
     return pips;
+  };
+
+  // Map skills to their corresponding stat colors
+  const getSkillStatColor = (skillName: string): string => {
+    const skillColorMap: Record<string, string> = {
+      'Might': '0 70% 55%',
+      'Finesse': '120 60% 50%',
+      'Stealth': '120 60% 50%',
+      'Arcana': '220 80% 60%',
+      'Examination': '220 80% 60%',
+      'Lore': '220 80% 60%',
+      'Insight': '280 70% 65%',
+      'Influence': '280 70% 65%',
+      'Naturecraft': '280 70% 65%',
+      'Perception': '280 70% 65%',
+    };
+    return skillColorMap[skillName] || classColor;
   };
 
   return (
@@ -629,6 +663,112 @@ export const ProfileCard = ({
           </div>
         </div>
       </div>
+
+      {/* Skills & Favorites Tabs */}
+      <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'favorites' | 'skills')} className="w-full">
+        {/* Header with Tabs */}
+        <div
+          className="px-4 py-3 border-t-2"
+          style={{
+            background: `linear-gradient(135deg, hsl(${classColor} / 0.15), hsl(${classColor} / 0.05))`,
+            borderColor: `hsl(${classColor} / 0.3)`,
+          }}
+        >
+          <TabsList className="w-full grid grid-cols-2 h-8">
+            <TabsTrigger value="favorites" className="text-xs">
+              <Star className="w-3 h-3 mr-1" />
+              Favorites
+            </TabsTrigger>
+            <TabsTrigger value="skills" className="text-xs">
+              <D20Icon className="w-3 h-3 mr-1" />
+              Skills
+            </TabsTrigger>
+          </TabsList>
+        </div>
+
+        {/* Favorites Content */}
+        <TabsContent value="favorites" className="m-0">
+          <div className="p-3 space-y-1 max-h-[400px] overflow-y-auto">
+            {favorites.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground text-sm">
+                <Star className="w-8 h-8 mx-auto mb-2 opacity-30" />
+                <p>No favorites yet</p>
+                <p className="text-xs mt-1">Star items to add them here</p>
+              </div>
+            ) : (
+              favorites.map((item) => (
+                <TooltipProvider key={item.id}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div
+                        className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-muted/40 transition-all duration-200 group relative"
+                        style={{
+                          borderLeft: `3px solid hsl(${classColor} / 0.5)`,
+                        }}
+                      >
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium truncate">{item.name}</p>
+                          <p className="text-xs text-muted-foreground capitalize">{item.type}</p>
+                        </div>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onRemoveFavorite?.(item.id);
+                          }}
+                          className="flex-shrink-0 p-1 rounded hover:bg-destructive/20 transition-colors opacity-0 group-hover:opacity-100"
+                          aria-label="Remove from favorites"
+                        >
+                          <X className="w-3 h-3 text-destructive" />
+                        </button>
+                      </div>
+                    </TooltipTrigger>
+                    {item.description && (
+                      <TooltipContent className="max-w-xs">
+                        <p className="text-xs">{item.description}</p>
+                      </TooltipContent>
+                    )}
+                  </Tooltip>
+                </TooltipProvider>
+              ))
+            )}
+          </div>
+        </TabsContent>
+
+        {/* Skills Content */}
+        <TabsContent value="skills" className="m-0">
+          <div className="p-3 space-y-1 max-h-[400px] overflow-y-auto">
+            {skills.map((skill) => {
+              const skillColor = getSkillStatColor(skill.name);
+              return (
+                <button
+                  key={skill.name}
+                  onClick={() => onSkillRoll?.(skill.name, skill.value)}
+                  className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg transition-all duration-200 group hover:brightness-110"
+                  style={{
+                    background: `linear-gradient(90deg, hsl(${skillColor} / 0.15), transparent)`,
+                    borderLeft: `3px solid hsl(${skillColor})`,
+                    boxShadow: `inset 0 0 20px hsl(${skillColor} / 0.1)`,
+                  }}
+                >
+                  <span className="text-sm font-medium">{skill.name}</span>
+                  <div className="flex items-center gap-2">
+                    <span 
+                      className="text-sm font-bold min-w-[2rem] text-right"
+                      style={{ color: `hsl(${skillColor})` }}
+                    >
+                      {skill.value >= 0 ? `+${skill.value}` : skill.value}
+                    </span>
+                    <D20Icon 
+                      className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity"
+                      style={{ color: `hsl(${skillColor})` }}
+                    />
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </TabsContent>
+      </Tabs>
     </aside>
   );
 };
