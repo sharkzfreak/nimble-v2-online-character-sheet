@@ -53,7 +53,9 @@ import { calculateHPFormula, calculateArmorFormula, calculateSpeedFormula } from
 import { FeatureCard } from "./FeatureCard";
 import { CollapsibleFeatureItem } from "./CollapsibleFeatureItem";
 import { AbilityCircle } from "./AbilityCircle";
-import { FavoriteItem, ActionSpec, AdvMode, FeatureLike } from "@/types/rollable";
+import { MiniHUD } from "./MiniHUD";
+import { ActionBar } from "./ActionBar";
+import { FavoriteItem, ActionSpec, AdvMode, FeatureLike, RollBinding } from "@/types/rollable";
 import { rollAction, formatRollResult } from "@/utils/rollEngine";
 import { getFeaturesAtLevel } from "@/config/classFeatures";
 import { supabase } from "@/integrations/supabase/client";
@@ -130,6 +132,8 @@ const CharacterView = ({
 }: CharacterViewProps) => {
   const { data: ruleset, isLoading: rulesetLoading } = useNimbleRuleset();
   const { addLog, animationsEnabled } = useDiceLog();
+  const [advMode, setAdvMode] = useState<AdvMode>('normal');
+  const [situational, setSituational] = useState(0);
   
   const [diceRoll, setDiceRoll] = useState<{
     statName: string;
@@ -180,6 +184,15 @@ const CharacterView = ({
   
   // Favorites tab state
   const [favoritesTabActive, setFavoritesTabActive] = useState(false);
+
+  // Build action tiles from favorites
+  const actionTiles = (formData.favorites || []).map((fav: FavoriteItem) => ({
+    id: fav.id,
+    name: fav.name,
+    actions: fav.actions || [],
+    starred: true,
+    type: fav.type as 'feature' | 'item' | 'spell' | 'class',
+  }));
 
 
   const getModifierString = (mod: number): string => {
@@ -422,6 +435,116 @@ const CharacterView = ({
       title: `${itemName} — ${action.label}`,
       description: formattedLog,
       duration: 5000,
+    });
+  };
+
+  const executeRoll = (binding: RollBinding, actionLabel: string, options?: { advMode?: AdvMode; situational?: number }) => {
+    const result = rollAction(binding, {
+      character: {
+        str_mod: formData.str_mod || 0,
+        dex_mod: formData.dex_mod || 0,
+        int_mod: formData.int_mod || 0,
+        will_mod: formData.will_mod || 0,
+      },
+      advMode: options?.advMode || advMode,
+      situational: options?.situational || situational,
+    });
+
+    const formattedLog = formatRollResult(actionLabel, binding, result);
+    
+    // addLog expects a DiceLogEntry object, not a formatted string
+    addLog({
+      character_name: formData.name || 'Unknown',
+      character_id: characterId,
+      formula: result.formula,
+      raw_result: result.rawResult,
+      modifier: result.modifier,
+      total: result.total,
+      roll_type: binding.kind,
+      individual_rolls: result.rolls,
+    });
+  };
+
+  const handleRollInitiative = () => {
+    const initBinding: RollBinding = {
+      kind: 'check',
+      ability: 'DEX',
+      flat: 0,
+    };
+    executeRoll(initBinding, 'Initiative');
+  };
+
+  const handleHeal = () => {
+    const amount = prompt('Enter HP to heal:');
+    if (amount && !isNaN(Number(amount))) {
+      const oldHP = formData.hp_current || 0;
+      const newHP = Math.min(oldHP + Number(amount), formData.hp_max || 0);
+      onFormDataChange?.({ hp_current: newHP });
+      
+      addLog({
+        character_name: formData.name || 'Unknown',
+        character_id: characterId,
+        formula: `+${amount} HP`,
+        raw_result: Number(amount),
+        modifier: 0,
+        total: newHP,
+        roll_type: 'heal',
+        individual_rolls: [],
+      });
+    }
+  };
+
+  const handleDamage = () => {
+    const amount = prompt('Enter damage taken:');
+    if (amount && !isNaN(Number(amount))) {
+      const oldHP = formData.hp_current || 0;
+      const newHP = Math.max(oldHP - Number(amount), 0);
+      onFormDataChange?.({ hp_current: newHP });
+      
+      addLog({
+        character_name: formData.name || 'Unknown',
+        character_id: characterId,
+        formula: `-${amount} HP`,
+        raw_result: Number(amount),
+        modifier: 0,
+        total: newHP,
+        roll_type: 'damage',
+        individual_rolls: [],
+      });
+    }
+  };
+
+  const handleTempHP = () => {
+    const amount = prompt('Enter temporary HP:');
+    if (amount && !isNaN(Number(amount))) {
+      onFormDataChange?.({ hp_temp: Number(amount) });
+      
+      addLog({
+        character_name: formData.name || 'Unknown',
+        character_id: characterId,
+        formula: `Temp +${amount}`,
+        raw_result: Number(amount),
+        modifier: 0,
+        total: Number(amount),
+        roll_type: 'temp_hp',
+        individual_rolls: [],
+      });
+    }
+  };
+
+  const handleRest = () => {
+    const restored = formData.hp_max || 0;
+    onFormDataChange?.({ hp_current: restored });
+    
+    addLog({
+      character_name: formData.name || 'Unknown',
+      character_id: characterId,
+      formula: 'Rest',
+      raw_result: restored,
+      modifier: 0,
+      total: restored,
+      roll_type: 'rest',
+      individual_rolls: [],
     });
   };
 
@@ -671,6 +794,29 @@ const CharacterView = ({
 
       {/* Middle Column - Main Sheet */}
       <main className="main-column">
+        <MiniHUD
+          name={formData.name || 'Character'}
+          className={formData.class || 'Adventurer'}
+          level={formData.level || 1}
+          hp_current={formData.hp_current || 0}
+          hp_max={formData.hp_max || 0}
+          armor={formData.armor || 10}
+          speed={30}
+          dex_mod={formData.dex_mod || 0}
+          onHeal={handleHeal}
+          onDamage={handleDamage}
+          onTempHP={handleTempHP}
+          onRest={handleRest}
+          onRollInitiative={handleRollInitiative}
+        />
+        
+        <ActionBar
+          tiles={actionTiles}
+          onRollAction={(binding, label, adv, sit) => executeRoll(binding, label, { advMode: adv, situational: sit })}
+          advMode={advMode}
+          situational={situational}
+        />
+        
         {/* Character Header */}
         <Card
           className="border-2 shadow-2xl overflow-hidden backdrop-blur-sm"
