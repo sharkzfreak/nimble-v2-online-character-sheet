@@ -330,6 +330,8 @@ export const ProfileCard = ({
           armor={armor}
           speed={speed}
           dex_mod={dex_mod}
+          hit_dice_remaining={hit_dice_remaining}
+          hit_dice_total={hit_dice_total}
           onHPChange={(current, temp) => {
             onHPChange?.(current, temp);
           }}
@@ -339,6 +341,9 @@ export const ProfileCard = ({
           onSpeedChange={(speed) => {
             // Speed would need to be added to the character data if we want to persist it
             // For now, this is a placeholder
+          }}
+          onHitDiceChange={(remaining, total) => {
+            onHitDiceChange?.(remaining, total);
           }}
           onRest={() => onRest?.()}
           onRollInitiative={() => onRollInitiative?.()}

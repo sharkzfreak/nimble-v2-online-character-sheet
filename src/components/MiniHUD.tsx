@@ -1,10 +1,11 @@
-import { Shield, Zap, Moon } from "lucide-react";
+import { Shield, Footprints, Moon } from "lucide-react";
 import { D20Icon } from "./icons/D20Icon";
 import { Button } from "./ui/button";
 import { HPBar } from "./HPBar";
 import { useState, useRef, useEffect } from "react";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
+import { RestDialog } from "./RestDialog";
 
 interface MiniHUDProps {
   name: string;
@@ -16,9 +17,12 @@ interface MiniHUDProps {
   armor: number;
   speed: number;
   dex_mod: number;
+  hit_dice_remaining: number;
+  hit_dice_total: number;
   onHPChange: (current: number, temp?: number) => void;
   onArmorChange?: (armor: number) => void;
   onSpeedChange?: (speed: number) => void;
+  onHitDiceChange?: (remaining: number, total: number) => void;
   onRest: () => void;
   onRollInitiative: () => void;
 }
@@ -33,14 +37,18 @@ export const MiniHUD = ({
   armor,
   speed,
   dex_mod,
+  hit_dice_remaining,
+  hit_dice_total,
   onHPChange,
   onArmorChange,
   onSpeedChange,
+  onHitDiceChange,
   onRest,
   onRollInitiative,
 }: MiniHUDProps) => {
   const initMod = dex_mod >= 0 ? `+${dex_mod}` : `${dex_mod}`;
 
+  const [showRestDialog, setShowRestDialog] = useState(false);
   const [showArmorEditor, setShowArmorEditor] = useState(false);
   const [armorInput, setArmorInput] = useState("");
   const armorEditorRef = useRef<HTMLDivElement>(null);
@@ -179,7 +187,7 @@ export const MiniHUD = ({
             onClick={() => setShowSpeedEditor(true)}
             title="Speed"
           >
-            <Zap className="w-4 h-4" />
+            <Footprints className="w-4 h-4" />
             <span>{speed}</span>
           </Button>
 
@@ -229,13 +237,25 @@ export const MiniHUD = ({
         <Button 
           variant="outline" 
           size="sm" 
-          onClick={onRest}
+          onClick={() => setShowRestDialog(true)}
           className="hud-pill rest"
         >
           <Moon className="w-4 h-4" />
           Rest
         </Button>
       </div>
+
+      <RestDialog
+        open={showRestDialog}
+        onOpenChange={setShowRestDialog}
+        hp_current={hp_current}
+        hp_max={hp_max}
+        hit_dice_remaining={hit_dice_remaining}
+        hit_dice_total={hit_dice_total}
+        onHPChange={onHPChange}
+        onHitDiceChange={onHitDiceChange}
+        onRest={onRest}
+      />
     </div>
   );
 };
