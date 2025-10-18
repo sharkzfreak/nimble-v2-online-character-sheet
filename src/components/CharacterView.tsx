@@ -790,6 +790,7 @@ const CharacterView = ({
         }}
         onRest={handleRest}
         onRollInitiative={handleRollInitiative}
+        onLevelUp={() => setIsLevelUpWizardOpen(true)}
         onSkillRoll={(skillName, skillValue) => {
           rollSkillCheck(skillName, skillValue);
         }}

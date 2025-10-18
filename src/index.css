@@ -214,6 +214,25 @@ All colors MUST be HSL.
   .hud-hp-section {
     margin-bottom: 8px;
   }
+  
+  .hud-class-level {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    margin-bottom: 8px;
+    border-radius: 999px;
+    background: hsl(var(--muted) / 0.06);
+    border: 1px solid hsl(var(--border) / 0.08);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  
+  .hud-class-level:hover {
+    background: hsl(var(--muted) / 0.12);
+    transform: translateY(-1px);
+  }
 
   .hud-metrics-grid {
     display: grid;
@@ -513,6 +532,33 @@ All colors MUST be HSL.
     50% {
       transform: translate(-50%, -50%) scale(1.2);
       opacity: 1;
+    }
+  }
+  
+  /* Portrait glow animations matching HP states */
+  @keyframes portrait-glow-warn {
+    0%, 100% {
+      box-shadow: 0 8px 32px var(--class-color, rgba(76, 175, 80, 0.4)), 
+                  inset 0 0 60px rgba(255,255,255,0.1), 
+                  0 0 8px rgba(253, 216, 53, 0.4);
+    }
+    50% {
+      box-shadow: 0 8px 32px var(--class-color, rgba(76, 175, 80, 0.4)), 
+                  inset 0 0 60px rgba(255,255,255,0.1), 
+                  0 0 16px rgba(253, 216, 53, 0.6);
+    }
+  }
+  
+  @keyframes portrait-glow-critical {
+    0%, 100% {
+      box-shadow: 0 8px 32px var(--class-color, rgba(76, 175, 80, 0.4)), 
+                  inset 0 0 60px rgba(255,255,255,0.1), 
+                  0 0 12px rgba(244, 67, 54, 0.6);
+    }
+    50% {
+      box-shadow: 0 8px 32px var(--class-color, rgba(76, 175, 80, 0.4)), 
+                  inset 0 0 60px rgba(255,255,255,0.1), 
+                  0 0 20px rgba(244, 67, 54, 0.8);
     }
   }
 

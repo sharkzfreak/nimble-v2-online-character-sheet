@@ -49,6 +49,7 @@ interface ProfileCardProps {
   onPortraitChange?: (url: string) => void;
   onRest?: () => void;
   onRollInitiative?: () => void;
+  onLevelUp?: () => void;
   onSkillRoll?: (skillName: string, skillValue: number) => void;
   onRemoveFavorite?: (itemId: string) => void;
 }
@@ -78,6 +79,7 @@ export const ProfileCard = ({
   onPortraitChange,
   onRest,
   onRollInitiative,
+  onLevelUp,
   onSkillRoll,
   onRemoveFavorite,
 }: ProfileCardProps) => {
@@ -221,7 +223,7 @@ export const ProfileCard = ({
         <Dialog open={imageDialog} onOpenChange={setImageDialog}>
           <DialogTrigger asChild>
             <div
-              className="relative w-full h-[220px] sm:h-[180px] rounded-md overflow-hidden border-4 transition-all duration-300 cursor-pointer group"
+              className="relative w-full h-[220px] sm:h-[180px] rounded-md overflow-hidden border-4 cursor-pointer group"
               style={{
                 backgroundColor: `hsl(${classColor})`,
                 borderColor: `hsl(${classColor} / 0.8)`,
@@ -230,6 +232,12 @@ export const ProfileCard = ({
                   : isWarnHP
                   ? `0 8px 32px hsl(${classColor} / 0.4), inset 0 0 60px rgba(255,255,255,0.1), 0 0 12px rgba(253, 216, 53, 0.5)`
                   : `0 8px 32px hsl(${classColor} / 0.4), inset 0 0 60px rgba(255,255,255,0.1), 0 0 12px rgba(244, 67, 54, 0.6)`,
+                transition: 'all 0.3s',
+                animation: isWarnHP 
+                  ? 'portrait-glow-warn 3s ease-in-out infinite'
+                  : isLowHP
+                  ? 'portrait-glow-critical 1.2s ease-in-out infinite'
+                  : 'none',
               }}
               aria-label="Character portrait"
             >
@@ -363,6 +371,7 @@ export const ProfileCard = ({
           }}
           onRest={() => onRest?.()}
           onRollInitiative={() => onRollInitiative?.()}
+          onLevelUp={() => onLevelUp?.()}
         />
       </div>
 
