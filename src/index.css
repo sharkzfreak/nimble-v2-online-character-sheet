@@ -137,6 +137,7 @@ All colors MUST be HSL.
   #sheetFitRoot {
     position: fixed;
     overflow: hidden;
+    container-type: inline-size;
   }
 
   #sheetCanvas {
@@ -147,5 +148,186 @@ All colors MUST be HSL.
 
   #profileCard {
     width: clamp(280px, 22vw, 360px);
+    container-type: inline-size;
+  }
+
+  /* Container Queries - Cards */
+  .card {
+    container-type: inline-size;
+    min-width: 300px;
+  }
+
+  /* Container Queries - Chat Panel */
+  .dice-log-panel-container,
+  .chat-panel,
+  #chatScroll {
+    container-type: inline-size;
+  }
+
+  /* Stats Grid - Adaptive Columns */
+  .core-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.75rem;
+  }
+
+  @container (max-width: 520px) {
+    .core-stats-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  /* Fluid Typography for Stats */
+  .core-stat .label {
+    font-size: clamp(12px, 2cqw, 14px);
+  }
+
+  .core-stat .value {
+    font-size: clamp(16px, 4cqw, 22px);
+  }
+
+  /* Features List - Adaptive Columns */
+  .features-list {
+    column-gap: 1rem;
+  }
+
+  @container (min-width: 900px) {
+    .features-list {
+      column-count: 2;
+    }
+  }
+
+  @container (max-width: 899px) {
+    .features-list {
+      column-count: 1;
+    }
+  }
+
+  /* Inventory/Compendium Grid - Adaptive Density */
+  .items-grid,
+  .compendium-grid {
+    display: grid;
+    gap: 0.75rem;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  }
+
+  @container (max-width: 520px) {
+    .items-grid,
+    .compendium-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  .item-card .name {
+    font-size: clamp(13px, 2.2cqw, 16px);
+  }
+
+  .item-card .tags {
+    font-size: clamp(11px, 1.8cqw, 13px);
+  }
+
+  /* Profile Card - Responsive Shield & Bars */
+  .armor-shield {
+    width: 112px;
+    height: 112px;
+  }
+
+  .hp-track,
+  .hitdice-track {
+    width: 220px;
+    height: 18px;
+  }
+
+  @container (max-width: 340px) {
+    .armor-shield {
+      width: 96px;
+      height: 96px;
+    }
+
+    .hp-track,
+    .hitdice-track {
+      width: 180px;
+      height: 16px;
+    }
+  }
+
+  @container (max-width: 300px) {
+    .armor-shield {
+      width: 88px;
+      height: 88px;
+    }
+
+    .hp-track,
+    .hitdice-track {
+      width: 140px;
+      height: 14px;
+    }
+  }
+
+  @container (min-width: 420px) {
+    .armor-shield {
+      width: 128px;
+      height: 128px;
+    }
+
+    .hp-track,
+    .hitdice-track {
+      width: 260px;
+      height: 20px;
+    }
+  }
+
+  /* Dice Dock - Adaptive Wrapping */
+  .dice-dock .dock-row {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 0.5rem;
+  }
+
+  @container (max-width: 420px) {
+    .dice-dock .dock-row {
+      flex-wrap: wrap;
+    }
+
+    .dice-dock .pool {
+      order: 3;
+      width: 100%;
+    }
+
+    .dice-dock .btn-roll {
+      order: 2;
+    }
+  }
+
+  /* Card Headers - Adaptive Actions Layout */
+  .card-header {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  @container (max-width: 360px) {
+    .card-header {
+      grid-template-columns: 1fr;
+      grid-template-rows: auto auto;
+    }
+
+    .card-header .card-actions {
+      justify-self: start;
+    }
+  }
+
+  /* Fluid Typography - Container-Relative */
+  .card h3 {
+    font-size: clamp(14px, 2.4cqw, 20px);
+  }
+
+  .card p {
+    font-size: clamp(12px, 2cqw, 16px);
+  }
+
+  .action-chip {
+    font-size: clamp(11px, 1.8cqw, 14px);
   }
 }
