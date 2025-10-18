@@ -234,7 +234,9 @@ export const HPBar = ({ hp_current, hp_max, hp_temp = 0, onHPChange, onMaxHPChan
         {showTempOverlay && (
           <div className="hp-temp" style={{ width: `${tempPercent}%` }} />
         )}
-        <div className="hp-text">{displayText}</div>
+        
+        {/* Hide HP text at zero, show skull instead */}
+        {hp_current > 0 && <div className="hp-text">{displayText}</div>}
         
         {/* Pulsing skull at zero HP */}
         {hp_current === 0 && (
