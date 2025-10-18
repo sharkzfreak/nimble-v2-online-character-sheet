@@ -1,5 +1,4 @@
 import { useState, useRef, useEffect } from "react";
-import { ChevronUp, ChevronDown } from "lucide-react";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { Label } from "./ui/label";
@@ -204,33 +203,39 @@ export const HPBar = ({ hp_current, hp_max, hp_temp = 0, onHPChange, characterNa
           }
         }}
       >
+        {/* Minus button on LEFT */}
+        <button
+          className="hp-nudge hp-nudge--minus"
+          aria-label="Decrease HP by 1"
+          tabIndex={-1}
+          onClick={(e) => {
+            e.stopPropagation();
+            handleNudge(-1);
+          }}
+          onMouseDown={(e) => e.stopPropagation()}
+        >
+          −
+        </button>
+
         <div className="hp-fill" style={{ width: `${hpPercent}%` }} />
         {showTempOverlay && (
           <div className="hp-temp" style={{ width: `${tempPercent}%` }} />
         )}
         <div className="hp-text">{displayText}</div>
-        <div className="hp-arrows" onClick={(e) => e.stopPropagation()}>
-          <button 
-            className="hp-arrow up" 
-            aria-label="Increase HP by 1"
-            onClick={(e) => {
-              e.stopPropagation();
-              handleNudge(1);
-            }}
-          >
-            <ChevronUp className="w-3 h-3" />
-          </button>
-          <button 
-            className="hp-arrow down" 
-            aria-label="Decrease HP by 1"
-            onClick={(e) => {
-              e.stopPropagation();
-              handleNudge(-1);
-            }}
-          >
-            <ChevronDown className="w-3 h-3" />
-          </button>
-        </div>
+
+        {/* Plus button on RIGHT */}
+        <button
+          className="hp-nudge hp-nudge--plus"
+          aria-label="Increase HP by 1"
+          tabIndex={-1}
+          onClick={(e) => {
+            e.stopPropagation();
+            handleNudge(1);
+          }}
+          onMouseDown={(e) => e.stopPropagation()}
+        >
+          +
+        </button>
       </div>
 
       {showEditor && (

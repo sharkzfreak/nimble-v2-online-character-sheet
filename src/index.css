@@ -284,7 +284,7 @@ All colors MUST be HSL.
     border: 1px solid rgba(255, 255, 255, 0.12);
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 0 0 1px var(--hp-outline);
     overflow: hidden;
-    padding-right: 42px;
+    padding: 0;
     cursor: pointer;
     transition: all 0.2s;
   }
@@ -326,7 +326,7 @@ All colors MUST be HSL.
     pointer-events: none;
   }
 
-  /* Text stays crisp on top */
+  /* Text stays crisp on top with padding for edge buttons */
   .hp-text {
     position: relative;
     z-index: 2;
@@ -334,6 +334,7 @@ All colors MUST be HSL.
     text-align: center;
     font-weight: 800;
     letter-spacing: 0.3px;
+    padding: 0 40px;
     text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5), 0 0 6px rgba(0, 0, 0, 0.35);
     user-select: none;
     pointer-events: none;
@@ -414,38 +415,40 @@ All colors MUST be HSL.
     }
   }
 
-  .hp-arrows {
+  /* HP Nudge Buttons (edges) */
+  .hp-nudge {
     position: absolute;
-    right: 4px;
     top: 50%;
     transform: translateY(-50%);
-    display: grid;
-    gap: 2px;
-    z-index: 2;
-  }
-
-  .hp-arrow {
-    width: 30px;
-    height: 14px;
-    line-height: 12px;
-    font-size: 11px;
-    border-radius: 6px;
-    background: rgba(255, 255, 255, 0.09);
-    border: 1px solid rgba(255, 255, 255, 0.14);
+    z-index: 3;
+    width: 32px;
+    height: 24px;
+    line-height: 22px;
+    font-size: 16px;
+    font-weight: 800;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
     cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    user-select: none;
     transition: all 0.15s;
   }
 
-  .hp-arrow:hover {
-    background: rgba(255, 255, 255, 0.14);
-    border-color: rgba(255, 255, 255, 0.22);
+  .hp-nudge--minus {
+    left: 6px;
   }
 
-  .hp-arrow:active {
-    transform: scale(0.98);
+  .hp-nudge--plus {
+    right: 6px;
+  }
+
+  .hp-nudge:hover {
+    background: rgba(255, 255, 255, 0.16);
+  }
+
+  .hp-nudge:active {
+    transform: translateY(-50%) scale(0.98);
   }
 
   /* HP Editor */
