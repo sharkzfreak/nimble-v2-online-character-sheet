@@ -104,6 +104,7 @@ interface CharacterViewProps {
     hp_max: number;
     hp_temp: number;
     armor: number;
+    speed?: number;
     hit_dice_remaining: number;
     hit_dice_total: number;
     portrait_url?: string;
@@ -755,7 +756,7 @@ const CharacterView = ({
         hp_max={formData.hp_max}
         hp_temp={formData.hp_temp}
         armor={formData.armor}
-        speed={30}
+        speed={formData.speed ?? 30}
         dex_mod={formData.dex_mod || 0}
         hit_dice_remaining={formData.hit_dice_remaining}
         hit_dice_total={formData.hit_dice_total}
@@ -771,6 +772,9 @@ const CharacterView = ({
         }}
         onArmorChange={(armor) => {
           onFormDataChange?.({ armor });
+        }}
+        onSpeedChange={(speed) => {
+          onFormDataChange?.({ speed });
         }}
         onHitDiceChange={(remaining, total) => {
           onFormDataChange?.({

@@ -43,6 +43,7 @@ interface ProfileCardProps {
   skills?: SkillData[];
   onHPChange?: (current: number, temp?: number) => void;
   onArmorChange?: (armor: number) => void;
+  onSpeedChange?: (speed: number) => void;
   onHitDiceChange?: (remaining: number, total: number) => void;
   onPortraitChange?: (url: string) => void;
   onRest?: () => void;
@@ -70,6 +71,7 @@ export const ProfileCard = ({
   skills = [],
   onHPChange,
   onArmorChange,
+  onSpeedChange,
   onHitDiceChange,
   onPortraitChange,
   onRest,
@@ -339,8 +341,7 @@ export const ProfileCard = ({
             onArmorChange?.(armor);
           }}
           onSpeedChange={(speed) => {
-            // Speed would need to be added to the character data if we want to persist it
-            // For now, this is a placeholder
+            onSpeedChange?.(speed);
           }}
           onHitDiceChange={(remaining, total) => {
             onHitDiceChange?.(remaining, total);
