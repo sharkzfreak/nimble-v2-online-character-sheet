@@ -1,27 +1,64 @@
 import { useState, useRef, useEffect } from "react";
-import { Heart, ChevronUp, ChevronDown } from "lucide-react";
+import { ChevronUp, ChevronDown } from "lucide-react";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { Label } from "./ui/label";
+import { useDiceLog } from "@/contexts/DiceLogContext";
 
 interface HPBarProps {
   hp_current: number;
   hp_max: number;
   hp_temp?: number;
   onHPChange: (current: number, temp?: number) => void;
+  characterName?: string;
 }
 
-export const HPBar = ({ hp_current, hp_max, hp_temp = 0, onHPChange }: HPBarProps) => {
+export const HPBar = ({ hp_current, hp_max, hp_temp = 0, onHPChange, characterName = "Character" }: HPBarProps) => {
+  const { addLog } = useDiceLog();
   const [showEditor, setShowEditor] = useState(false);
   const [hpInput, setHpInput] = useState("");
   const [tempInput, setTempInput] = useState(hp_temp.toString());
   const editorRef = useRef<HTMLDivElement>(null);
   const barRef = useRef<HTMLDivElement>(null);
+  
+  // Track previous values for logging
+  const prevValuesRef = useRef({ hp_current, hp_max, hp_temp });
 
   const hpPercent = Math.max(0, Math.min(100, (100 * hp_current) / Math.max(1, hp_max)));
+  
+  // Calculate temp HP overlay - shows total (current + temp) as percentage
+  const totalWithTemp = Math.min(hp_current + hp_temp, hp_max + hp_temp);
+  const tempPercent = Math.min(140, Math.round((totalWithTemp / hp_max) * 100));
+  const showTempOverlay = hp_temp > 0 && tempPercent > hpPercent;
+
+  const logHPChange = (newCurrent: number, newTemp: number) => {
+    const prevCur = prevValuesRef.current.hp_current;
+    const prevMax = prevValuesRef.current.hp_max;
+    const prevTmp = prevValuesRef.current.hp_temp;
+    
+    const delta = newCurrent - prevCur;
+    const sign = delta === 0 ? '±0' : (delta > 0 ? `+${delta}` : `${delta}`);
+    const hpStr = `${prevCur}/${prevMax} → ${newCurrent}/${hp_max}`;
+    const tmpStr = (prevTmp !== newTemp) ? `, Temp: ${prevTmp} → ${newTemp}` : (newTemp ? `, Temp: ${newTemp}` : '');
+    const emoji = delta > 0 ? '🩹' : (delta < 0 ? '💥' : '⚖️');
+    
+    addLog({
+      character_name: characterName,
+      formula: `HP Change`,
+      raw_result: newCurrent,
+      modifier: delta,
+      total: newCurrent,
+      roll_type: `${emoji} HP ${hpStr} (${sign})${tmpStr}`,
+      individual_rolls: [],
+    });
+    
+    // Update previous values
+    prevValuesRef.current = { hp_current: newCurrent, hp_max, hp_temp: newTemp };
+  };
 
   const handleNudge = (delta: number) => {
     const newHP = Math.max(0, Math.min(hp_max, hp_current + delta));
+    logHPChange(newHP, hp_temp);
     onHPChange(newHP, hp_temp);
   };
 
@@ -41,6 +78,7 @@ export const HPBar = ({ hp_current, hp_max, hp_temp = 0, onHPChange }: HPBarProp
     }
 
     const newTemp = tempInput === '' ? 0 : Math.max(0, Number(tempInput));
+    logHPChange(newHP, newTemp);
     onHPChange(newHP, newTemp);
     setShowEditor(false);
   };
@@ -77,17 +115,17 @@ export const HPBar = ({ hp_current, hp_max, hp_temp = 0, onHPChange }: HPBarProp
   }, [showEditor]);
 
   const displayText = hp_temp > 0 ? `${hp_current}/${hp_max} (${hp_temp})` : `${hp_current}/${hp_max}`;
-  
-  // Calculate temp HP overlay width - extends beyond current HP
-  const tempPercent = Math.max(0, Math.min(100, (100 * (hp_current + hp_temp)) / Math.max(1, hp_max)));
 
   return (
     <div className="relative">
       <div 
         ref={barRef}
         className="hp-bar"
-        role="button"
-        aria-label="Hit Points"
+        role="progressbar"
+        aria-valuemin={0}
+        aria-valuemax={hp_max}
+        aria-valuenow={hp_current}
+        aria-label={displayText}
         tabIndex={0}
         onClick={() => setShowEditor(true)}
         onKeyDown={(e) => {
@@ -98,8 +136,8 @@ export const HPBar = ({ hp_current, hp_max, hp_temp = 0, onHPChange }: HPBarProp
         }}
       >
         <div className="hp-fill" style={{ width: `${hpPercent}%` }} />
-        {hp_temp > 0 && (
-          <div className="hp-temp-fill" style={{ width: `${tempPercent}%` }} />
+        {showTempOverlay && (
+          <div className="hp-temp" style={{ width: `${tempPercent}%` }} />
         )}
         <div className="hp-text">{displayText}</div>
         <div className="hp-arrows" onClick={(e) => e.stopPropagation()}>

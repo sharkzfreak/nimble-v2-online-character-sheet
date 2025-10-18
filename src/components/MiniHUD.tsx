@@ -125,6 +125,7 @@ export const MiniHUD = ({
           hp_max={hp_max}
           hp_temp={hp_temp}
           onHPChange={onHPChange}
+          characterName={name}
         />
       </div>
 
