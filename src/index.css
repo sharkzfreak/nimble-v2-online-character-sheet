@@ -136,40 +136,27 @@ All colors MUST be HSL.
   /* 3-Column Grid Layout */
   .app-root {
     display: grid;
-    grid-template-columns: 360px 1fr 360px;
+    grid-template-columns: auto 1fr auto;
     gap: 24px;
     align-items: start;
     padding: 16px;
     min-height: 100vh;
   }
 
-  /* LEFT: Fixed profile card */
+  /* LEFT: Profile card scrolls with page */
   .profile-card {
-    position: fixed;
-    left: 16px;
-    top: 16px;
     width: clamp(300px, 22vw, 360px);
-    z-index: 10;
     container-type: inline-size;
-  }
-
-  /* Reserve space for fixed left card */
-  .app-root::before {
-    content: "";
-    grid-column: 1;
-    width: clamp(300px, 22vw, 360px);
   }
 
   /* CENTER: Wider main column */
   .main-column {
-    grid-column: 2;
     max-width: clamp(1100px, 72vw, 1500px);
     margin-inline: auto;
   }
 
   /* RIGHT: Chat panel */
   .chat-panel {
-    grid-column: 3;
     position: sticky;
     top: 16px;
     width: clamp(300px, 26vw, 360px);
@@ -191,15 +178,10 @@ All colors MUST be HSL.
       gap: 16px;
     }
     .profile-card {
-      position: static;
       width: 100%;
-    }
-    .app-root::before {
-      display: none;
     }
     .main-column,
     .chat-panel {
-      grid-column: auto;
       max-width: 100%;
       width: 100%;
     }
