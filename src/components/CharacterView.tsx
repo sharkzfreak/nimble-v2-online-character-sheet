@@ -605,50 +605,11 @@ const CharacterView = ({
   const intelligenceMod = getModifierString(formData.int_mod);
   const willMod = getModifierString(formData.will_mod);
 
-  const { fitRootRef, canvasRef } = useFitToWindow({
-    profileCardId: 'profileCard',
-    chatPanelSelector: '.dice-log-panel-container',
-  });
-
-  // Align left profile card with main content
-  useEffect(() => {
-    const profile = document.getElementById('profileCard');
-    const sheet = document.getElementById('sheetContainer');
-    const anchor = document.getElementById('mainHeader') || sheet?.firstElementChild;
-
-    if (!profile || !sheet || !anchor) return;
-
-    function applyLayout() {
-      // Align tops
-      const top = anchor.getBoundingClientRect().top + window.scrollY;
-      profile.style.position = 'fixed';
-      profile.style.left = '0';
-      profile.style.top = `${top}px`;
-
-      // Push main content to the right of the fixed profile card
-      const cardW = profile.offsetWidth || 0;
-      const gap = 24;
-      sheet.style.marginLeft = `${cardW + gap}px`;
-    }
-
-    applyLayout();
-    window.addEventListener('resize', applyLayout);
-    window.addEventListener('scroll', applyLayout);
-
-    const resizeObserver = new ResizeObserver(applyLayout);
-    resizeObserver.observe(profile);
-
-    return () => {
-      window.removeEventListener('resize', applyLayout);
-      window.removeEventListener('scroll', applyLayout);
-      resizeObserver.disconnect();
-    };
-  }, []);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="app-root">
       {/* Left Column - Fixed Profile Card */}
-      <div id="profileCard" className="fixed left-0 top-0 h-screen p-4">
+      <div className="profile-card" id="profileCard">
         <ProfileCard
         characterName={formData.name}
         classColor={classThemeColor}
@@ -685,13 +646,10 @@ const CharacterView = ({
       />
       </div>
 
-      {/* Middle Column - Fit-to-Window Scaled Character Sheet */}
-      <div id="sheetFitRoot" ref={fitRootRef}>
-        <div id="sheetContainer" ref={canvasRef}>
-        
+      {/* Middle Column - Main Sheet */}
+      <main className="main-column">
         {/* Character Header */}
         <Card
-          id="mainHeader"
           className="border-2 shadow-2xl overflow-hidden backdrop-blur-sm"
           style={{
             background: `linear-gradient(135deg, hsl(${classThemeColor} / 0.1), hsl(var(--card)) 50%)`,
@@ -925,7 +883,7 @@ const CharacterView = ({
 
           {/* Skills Tab - Nimble V2 Skills */}
           <TabsContent value="skills" className="mt-6 space-y-4 card--stats">
-            <div id="cardMainStats" className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <AbilityPanel
                 title="Strength"
                 color="var(--ability-str)"
@@ -1616,11 +1574,10 @@ const CharacterView = ({
           breakdown={currentFormula}
           onResetOverride={handleResetOverride}
         />
-        </div>
-      </div>
+      </main>
 
-      {/* Right Column - Fixed Dice Log Panel */}
-      <div className="dice-log-panel-container fixed right-0 top-0 h-screen p-4" style={{ width: 'clamp(320px, 25vw, 420px)' }}>
+      {/* Right Column - Chat/Dice Log */}
+      <div className="chat-panel">
         <DiceLogPanel />
       </div>
     </div>
