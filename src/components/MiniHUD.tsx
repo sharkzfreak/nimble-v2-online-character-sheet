@@ -42,14 +42,18 @@ export const MiniHUD = ({
         </div>
       </div>
       
-      <div className="hud-metrics">
+      {/* HP Bar - Full Width */}
+      <div className="hud-hp-section">
         <HPBar 
           hp_current={hp_current}
           hp_max={hp_max}
           hp_temp={hp_temp}
           onHPChange={onHPChange}
         />
+      </div>
 
+      {/* Two Column Grid - Shield, Speed, Initiative, Rest */}
+      <div className="hud-metrics-grid">
         <div className="hud-pill ac">
           <Shield className="w-4 h-4" />
           <span>{armor}</span>
@@ -70,10 +74,15 @@ export const MiniHUD = ({
           <D20Icon className="w-4 h-4" />
           <span>{initMod}</span>
         </Button>
-      </div>
 
-      <div className="hud-actions">
-        <Button variant="outline" size="sm" onClick={onRest} className="w-full">Rest</Button>
+        <Button 
+          variant="outline" 
+          size="sm" 
+          onClick={onRest}
+          className="hud-pill rest"
+        >
+          Rest
+        </Button>
       </div>
     </div>
   );

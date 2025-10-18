@@ -201,7 +201,11 @@ All colors MUST be HSL.
     border: 1px solid hsl(var(--border) / 0.08);
   }
 
-  .mini-hud-left .hud-row {
+  .hud-hp-section {
+    margin-bottom: 8px;
+  }
+
+  .hud-metrics-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 8px;
@@ -226,24 +230,8 @@ All colors MUST be HSL.
     transform: translateY(-1px);
   }
 
-  .mini-hud-left .hud-actions {
-    display: grid;
-    gap: 6px;
-  }
-
-  .mini-hud-left .btn-mini {
-    padding: 6px 8px;
-    border-radius: 8px;
-    background: hsl(var(--muted) / 0.06);
-    border: 1px solid hsl(var(--border) / 0.08);
-    font-size: 0.9rem;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-
-  .mini-hud-left .btn-mini:hover {
-    background: hsl(var(--muted) / 0.12);
-    transform: translateY(-1px);
+  .mini-hud-left .hud-pill.rest {
+    width: 100%;
   }
 
   /* HP Bar */
