@@ -77,6 +77,9 @@ export const HPBar = ({ hp_current, hp_max, hp_temp = 0, onHPChange }: HPBarProp
   }, [showEditor]);
 
   const displayText = hp_temp > 0 ? `${hp_current}/${hp_max} (${hp_temp})` : `${hp_current}/${hp_max}`;
+  
+  // Calculate temp HP overlay width - extends beyond current HP
+  const tempPercent = Math.max(0, Math.min(100, (100 * (hp_current + hp_temp)) / Math.max(1, hp_max)));
 
   return (
     <div className="relative">
@@ -95,6 +98,9 @@ export const HPBar = ({ hp_current, hp_max, hp_temp = 0, onHPChange }: HPBarProp
         }}
       >
         <div className="hp-fill" style={{ width: `${hpPercent}%` }} />
+        {hp_temp > 0 && (
+          <div className="hp-temp-fill" style={{ width: `${tempPercent}%` }} />
+        )}
         <div className="hp-text">{displayText}</div>
         <div className="hp-arrows" onClick={(e) => e.stopPropagation()}>
           <button 

@@ -275,6 +275,16 @@ All colors MUST be HSL.
     transition: width 0.25s ease;
   }
 
+  .hp-temp-fill {
+    position: absolute;
+    inset: 0;
+    width: 60%;
+    height: 100%;
+    background: linear-gradient(90deg, hsl(var(--accent) / 0.6), hsl(var(--accent) / 0.4));
+    transition: width 0.25s ease;
+    mix-blend-mode: screen;
+  }
+
   .hp-text {
     position: relative;
     z-index: 1;
