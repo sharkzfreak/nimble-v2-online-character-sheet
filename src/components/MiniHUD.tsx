@@ -1,8 +1,6 @@
 import { Heart, Shield, Zap } from "lucide-react";
 import { D20Icon } from "./icons/D20Icon";
 import { Button } from "./ui/button";
-import { LayoutPresetSelector } from "./LayoutPresetSelector";
-import { LayoutPreset } from "@/hooks/useLayoutPreset";
 
 interface MiniHUDProps {
   name: string;
@@ -13,8 +11,6 @@ interface MiniHUDProps {
   armor: number;
   speed: number;
   dex_mod: number;
-  preset?: LayoutPreset;
-  onPresetChange?: (preset: LayoutPreset) => void;
   onHeal: () => void;
   onDamage: () => void;
   onTempHP: () => void;
@@ -31,8 +27,6 @@ export const MiniHUD = ({
   armor,
   speed,
   dex_mod,
-  preset,
-  onPresetChange,
   onHeal,
   onDamage,
   onTempHP,
@@ -82,13 +76,6 @@ export const MiniHUD = ({
       </div>
 
       <div className="hud-actions">
-        {preset && onPresetChange && (
-          <LayoutPresetSelector
-            value={preset}
-            onChange={onPresetChange}
-            className="w-[140px]"
-          />
-        )}
         <Button variant="outline" size="sm" onClick={onHeal}>+HP</Button>
         <Button variant="outline" size="sm" onClick={onDamage}>−HP</Button>
         <Button variant="outline" size="sm" onClick={onTempHP}>Temp</Button>

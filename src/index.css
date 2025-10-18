@@ -38,13 +38,6 @@ All colors MUST be HSL.
 
     --radius: 0.5rem;
 
-    /* Layout Preset Variables (defaults to standard) */
-    --card-gap: 16px;
-    --card-padding: 14px;
-    --font-scale: 1;
-    --chip-size: 1;
-    --hud-height: 44px;
-
     --stat-card-bg: 222 40% 18%;
     --stat-card-border: 262 40% 35%;
     
@@ -104,41 +97,6 @@ All colors MUST be HSL.
     --sidebar-ring: 262 83% 58%;
   }
 
-  /* Preset: Compact - Tighter spacing, smaller fonts */
-  .preset-compact {
-    --card-gap: 10px;
-    --card-padding: 10px;
-    --font-scale: 0.95;
-    --chip-size: 0.9;
-    --hud-height: 36px;
-  }
-
-  /* Preset: Standard - Default balanced layout */
-  .preset-standard {
-    --card-gap: 16px;
-    --card-padding: 14px;
-    --font-scale: 1.0;
-    --chip-size: 1;
-    --hud-height: 44px;
-  }
-
-  /* Preset: Spacious - More breathing room */
-  .preset-spacious {
-    --card-gap: 22px;
-    --card-padding: 18px;
-    --font-scale: 1.07;
-    --chip-size: 1.1;
-    --hud-height: 52px;
-  }
-
-  /* Preset: GM View - Optimized for managing multiple characters */
-  .preset-gm {
-    --card-gap: 16px;
-    --card-padding: 12px;
-    --font-scale: 0.98;
-    --chip-size: 1;
-    --hud-height: 44px;
-  }
 }
 
 @layer base {
@@ -147,7 +105,7 @@ All colors MUST be HSL.
   }
 
   html {
-    font-size: calc(16px * var(--font-scale));
+    font-size: clamp(var(--font-min), var(--font-pref), var(--font-max));
   }
 
   body {
@@ -232,19 +190,7 @@ All colors MUST be HSL.
     }
   }
 
-  /* Apply preset spacing to cards */
-  .card {
-    margin-bottom: var(--card-gap);
-    padding: var(--card-padding);
-  }
-
-  /* Apply preset scaling to action chips */
-  .action-chip {
-    transform: scale(var(--chip-size));
-    transform-origin: left center;
-  }
-
-  /* Mini HUD with preset height */
+  /* Mini HUD */
   .mini-hud {
     position: sticky;
     top: 0;
@@ -254,7 +200,6 @@ All colors MUST be HSL.
     gap: 12px;
     align-items: center;
     padding: 8px 16px;
-    min-height: var(--hud-height);
     background: hsl(var(--background) / 0.85);
     border-bottom: 1px solid hsl(var(--border));
     backdrop-filter: blur(6px);
@@ -319,7 +264,7 @@ All colors MUST be HSL.
   /* Action Bar */
   .card--actions .actions-grid {
     display: grid;
-    gap: var(--card-gap);
+    gap: 12px;
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   }
 
@@ -327,7 +272,7 @@ All colors MUST be HSL.
     display: flex;
     flex-direction: column;
     gap: 8px;
-    padding: var(--card-padding);
+    padding: 12px;
     border-radius: 12px;
     background: hsl(var(--card));
     border: 1px solid hsl(var(--border));
@@ -348,15 +293,6 @@ All colors MUST be HSL.
     border: 1px solid transparent;
     font-size: 0.75rem;
     transition: all 0.2s;
-  }
-
-  /* GM View tweaks */
-  .preset-gm .chat-panel {
-    /* Optional: hide chat input or adjust for GM usage */
-  }
-
-  .preset-gm .features-list {
-    /* Enlarge features/notes for easier reading */
   }
 
   /* Container Queries - Cards */

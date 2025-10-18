@@ -55,7 +55,6 @@ import { CollapsibleFeatureItem } from "./CollapsibleFeatureItem";
 import { AbilityCircle } from "./AbilityCircle";
 import { MiniHUD } from "./MiniHUD";
 import { ActionBar } from "./ActionBar";
-import { useLayoutPreset } from "@/hooks/useLayoutPreset";
 import { FavoriteItem, ActionSpec, AdvMode, FeatureLike, RollBinding } from "@/types/rollable";
 import { rollAction, formatRollResult } from "@/utils/rollEngine";
 import { getFeaturesAtLevel } from "@/config/classFeatures";
@@ -133,7 +132,6 @@ const CharacterView = ({
 }: CharacterViewProps) => {
   const { data: ruleset, isLoading: rulesetLoading } = useNimbleRuleset();
   const { addLog, animationsEnabled } = useDiceLog();
-  const { preset, setPreset } = useLayoutPreset(characterId);
   const [advMode, setAdvMode] = useState<AdvMode>('normal');
   const [situational, setSituational] = useState(0);
   
@@ -805,8 +803,6 @@ const CharacterView = ({
           armor={formData.armor || 10}
           speed={30}
           dex_mod={formData.dex_mod || 0}
-          preset={preset}
-          onPresetChange={setPreset}
           onHeal={handleHeal}
           onDamage={handleDamage}
           onTempHP={handleTempHP}
