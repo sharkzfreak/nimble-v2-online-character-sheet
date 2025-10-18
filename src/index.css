@@ -214,6 +214,25 @@ All colors MUST be HSL.
   .hud-hp-section {
     margin-bottom: 8px;
   }
+  
+  .hud-class-level {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    margin-bottom: 8px;
+    border-radius: 999px;
+    background: hsl(var(--muted) / 0.06);
+    border: 1px solid hsl(var(--border) / 0.08);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  
+  .hud-class-level:hover {
+    background: hsl(var(--muted) / 0.12);
+    transform: translateY(-1px);
+  }
 
   .hud-metrics-grid {
     display: grid;
