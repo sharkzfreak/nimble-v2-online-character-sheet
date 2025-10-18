@@ -218,8 +218,24 @@ export const ProfileCard = ({
         boxShadow: `0 8px 32px hsl(${classColor} / 0.3)`,
       }}
     >
+      {/* Character Name & Level - Clickable for Level Up */}
+      <div className="p-5 pb-0">
+        <button
+          onClick={onLevelUp}
+          className="w-full text-left group transition-all duration-200 hover:scale-[1.02]"
+          title="Level Up"
+        >
+          <h1 className="text-2xl font-bold font-cinzel mb-1 group-hover:opacity-80 transition-opacity">
+            {characterName}
+          </h1>
+          <p className="text-sm text-muted-foreground font-semibold group-hover:text-primary transition-colors">
+            {className} • Level {level}
+          </p>
+        </button>
+      </div>
+      
       {/* Portrait */}
-      <div className="p-5">
+      <div className="p-5 pt-3">
         <Dialog open={imageDialog} onOpenChange={setImageDialog}>
           <DialogTrigger asChild>
             <div
