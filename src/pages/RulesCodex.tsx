@@ -8,7 +8,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, ArrowLeft, Sparkles, ChevronDown, Crown } from "lucide-react";
+import { Loader2, ArrowLeft, Sparkles, ChevronDown, Skull } from "lucide-react";
 
 // Import class images
 import berserkerImg from "@/assets/class-berserker.jpg";
@@ -183,97 +183,48 @@ const RulesCodex = () => {
                 </Card>
               ))}
             </div>
-            
+
             {/* DM-Granted Subclasses Card */}
             <Card 
-              className="mt-8 hover:shadow-xl transition-all cursor-pointer overflow-hidden border-2 border-amber-500/30 bg-gradient-to-r from-amber-500/10 to-card/50"
+              className="mt-8 hover:shadow-xl transition-all cursor-pointer group overflow-hidden bg-gradient-to-r from-destructive/10 via-card to-destructive/10 border-destructive/30"
               onClick={() => navigate('/codex/dm-subclasses')}
             >
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <Crown className="h-6 w-6 text-amber-500" />
-                    <div>
-                      <CardTitle className="text-2xl">DM-Granted Subclasses</CardTitle>
-                      <CardDescription>
-                        Special subclasses that require Dungeon Master approval
-                      </CardDescription>
-                    </div>
-                  </div>
-                  <Badge className="bg-amber-500/20 text-amber-600 border-amber-500/50">
-                    Requires DM Approval
-                  </Badge>
+              <CardHeader className="text-center border-b border-destructive/20">
+                <div className="flex items-center justify-center gap-3 mb-2">
+                  <Skull className="h-6 w-6 text-destructive group-hover:animate-pulse" />
+                  <CardTitle className="text-2xl font-bold uppercase tracking-wider">
+                    DM-Granted Subclasses
+                  </CardTitle>
+                  <Skull className="h-6 w-6 text-destructive group-hover:animate-pulse" />
                 </div>
+                <p className="text-sm text-muted-foreground">
+                  Special subclasses that require DM approval
+                </p>
               </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-4 gap-4">
-                  <div className="text-center p-3 bg-background/50 rounded border border-border/50">
-                    <p className="font-semibold text-sm">Beastmaster</p>
-                    <p className="text-xs text-muted-foreground">Hunter</p>
+              <CardContent className="pt-6">
+                <div className="flex items-center justify-center gap-8 text-center">
+                  <div className="flex-1">
+                    <h4 className="font-semibold text-lg mb-1">Beastmaster</h4>
+                    <p className="text-xs text-muted-foreground">Hunter • Page 81</p>
                   </div>
-                  <div className="text-center p-3 bg-background/50 rounded border border-border/50">
-                    <p className="font-semibold text-sm">Reaver</p>
-                    <p className="text-xs text-muted-foreground">Shadowmancer</p>
+                  <div className="flex-1">
+                    <h4 className="font-semibold text-lg mb-1">Reaver</h4>
+                    <p className="text-xs text-muted-foreground">Shadowmancer • Page 79</p>
                   </div>
-                  <div className="text-center p-3 bg-background/50 rounded border border-border/50">
-                    <p className="font-semibold text-sm">Spellblade</p>
-                    <p className="text-xs text-muted-foreground">Commander</p>
+                  <div className="flex-1">
+                    <h4 className="font-semibold text-lg mb-1">Spellblade</h4>
+                    <p className="text-xs text-muted-foreground">Commander • Page 77</p>
                   </div>
-                  <div className="text-center p-3 bg-background/50 rounded border border-border/50">
-                    <p className="font-semibold text-sm">Oathbreaker</p>
-                    <p className="text-xs text-muted-foreground">Oathsworn</p>
+                  <div className="flex-1">
+                    <h4 className="font-semibold text-lg mb-1">Oathbreaker</h4>
+                    <p className="text-xs text-muted-foreground">Oathsworn • Page 75</p>
                   </div>
+                </div>
+                <div className="mt-4 text-center text-sm text-destructive font-semibold">
+                  Click to view details →
                 </div>
               </CardContent>
             </Card>
-          </TabsContent>
-
-          <TabsContent value="ancestries">
-            <div className="grid gap-4">
-              {Object.entries(
-                filterItems(ancestries, ['name', 'description', 'type']).reduce((acc, ancestry) => {
-                  if (!acc[ancestry.type]) acc[ancestry.type] = [];
-                  acc[ancestry.type].push(ancestry);
-                  return acc;
-                }, {} as Record<string, any[]>)
-              ).map(([type, typeAncestries]: [string, any[]]) => (
-                <Collapsible key={type} defaultOpen>
-                  <Card>
-                    <CollapsibleTrigger className="w-full">
-                      <CardHeader className="flex flex-row items-center justify-between space-y-0">
-                        <CardTitle>{type} Ancestries</CardTitle>
-                        <ChevronDown className="h-5 w-5 transition-transform ui-open:rotate-180" />
-                      </CardHeader>
-                    </CollapsibleTrigger>
-                    <CollapsibleContent>
-                      <CardContent>
-                        <div className="grid md:grid-cols-2 gap-4">
-                          {typeAncestries.map((ancestry: any) => (
-                            <Card key={ancestry.id} className="overflow-hidden">
-                              <CardHeader>
-                                <CardTitle className="text-lg">{ancestry.name}</CardTitle>
-                              </CardHeader>
-                              <CardContent className="space-y-2">
-                                <p className="text-sm text-muted-foreground">{ancestry.description}</p>
-                                {ancestry.traits && Object.entries(ancestry.traits as Record<string, string>).map(([traitName, traitDesc]) => (
-                                  <div key={traitName} className="bg-accent/50 p-3 rounded">
-                                    <h5 className="font-semibold text-sm mb-1">{traitName}</h5>
-                                    <p className="text-xs text-muted-foreground">{traitDesc}</p>
-                                  </div>
-                                ))}
-                                {ancestry.source_page && (
-                                  <span className="text-xs text-muted-foreground">Page {ancestry.source_page}</span>
-                                )}
-                              </CardContent>
-                            </Card>
-                          ))}
-                        </div>
-                      </CardContent>
-                    </CollapsibleContent>
-                  </Card>
-                </Collapsible>
-              ))}
-            </div>
           </TabsContent>
 
           <TabsContent value="backgrounds">
