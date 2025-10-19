@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Plus, Trash } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ActionSpec, RollBinding, Ability } from "@/types/rollable";
 
 interface EditItemDialogProps {
@@ -28,6 +28,13 @@ export const EditItemDialog = ({ open, onOpenChange, item, onSave, classColor }:
   const [name, setName] = useState(item.name);
   const [description, setDescription] = useState(item.description || "");
   const [actions, setActions] = useState<ActionSpec[]>(item.actions || []);
+
+  // Update state when item changes
+  useEffect(() => {
+    setName(item.name);
+    setDescription(item.description || "");
+    setActions(item.actions || []);
+  }, [item, open]);
 
   const handleAddAction = () => {
     const newAction: ActionSpec = {

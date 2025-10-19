@@ -1383,6 +1383,27 @@ const CharacterView = ({
                             size="sm"
                             onClick={(e) => {
                               e.stopPropagation();
+                              const favorites = formData.favorites || [];
+                              const isFavorited = favorites.some((f: any) => f.id === feature.id);
+                              if (isFavorited) {
+                                onFormDataChange?.({
+                                  favorites: favorites.filter((f: any) => f.id !== feature.id),
+                                });
+                              } else {
+                                onFormDataChange?.({
+                                  favorites: [...favorites, { ...feature, type: 'feature' }],
+                                });
+                              }
+                            }}
+                            className="h-7 w-7 p-0"
+                          >
+                            <Star className={`w-4 h-4 ${formData.favorites?.some((f: any) => f.id === feature.id) ? 'fill-yellow-400 text-yellow-400' : ''}`} />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
                               onFormDataChange?.({
                                 custom_features: formData.custom_features?.filter((f) => f.id !== feature.id),
                               });
@@ -1688,6 +1709,27 @@ const CharacterView = ({
                           size="sm"
                           onClick={(e) => {
                             e.stopPropagation();
+                            const favorites = formData.favorites || [];
+                            const isFavorited = favorites.some((f: any) => f.id === item.id);
+                            if (isFavorited) {
+                              onFormDataChange?.({
+                                favorites: favorites.filter((f: any) => f.id !== item.id),
+                              });
+                            } else {
+                              onFormDataChange?.({
+                                favorites: [...favorites, { ...item, type: 'item' }],
+                              });
+                            }
+                          }}
+                          className="h-7 w-7 p-0"
+                        >
+                          <Star className={`w-4 h-4 ${formData.favorites?.some((f: any) => f.id === item.id) ? 'fill-yellow-400 text-yellow-400' : ''}`} />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
                             onFormDataChange?.({
                               custom_inventory: formData.custom_inventory?.filter((i) => i.id !== item.id),
                             });
@@ -1971,6 +2013,27 @@ const CharacterView = ({
                         )}
                       </div>
                       <div className="flex items-center gap-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            const favorites = formData.favorites || [];
+                            const isFavorited = favorites.some((f: any) => f.id === spell.id);
+                            if (isFavorited) {
+                              onFormDataChange?.({
+                                favorites: favorites.filter((f: any) => f.id !== spell.id),
+                              });
+                            } else {
+                              onFormDataChange?.({
+                                favorites: [...favorites, { ...spell, type: 'spell' }],
+                              });
+                            }
+                          }}
+                          className="h-7 w-7 p-0"
+                        >
+                          <Star className={`w-4 h-4 ${formData.favorites?.some((f: any) => f.id === spell.id) ? 'fill-yellow-400 text-yellow-400' : ''}`} />
+                        </Button>
                         <Button
                           variant="ghost"
                           size="sm"
