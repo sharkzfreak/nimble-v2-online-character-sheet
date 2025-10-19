@@ -121,158 +121,150 @@ const RulesCodex = () => {
           </TabsList>
 
           <TabsContent value="classes">
-            <ScrollArea className="h-[700px]">
-              <div className="grid gap-6 md:grid-cols-2 pr-4">
-                {filterItems(classes, ['name', 'description']).map((classData: any) => (
-                  <Card 
-                    key={classData.id} 
-                    className="hover:shadow-xl transition-all cursor-pointer group overflow-hidden bg-gradient-to-r from-card to-card/50"
-                    onClick={() => navigate(`/codex/class/${classData.name}`)}
-                  >
-                    <div className="flex">
-                      {/* Class Image */}
-                      <div className="w-48 h-48 flex-shrink-0 overflow-hidden relative">
-                        <img 
-                          src={CLASS_IMAGES[classData.name] || berserkerImg}
-                          alt={classData.name}
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-r from-transparent to-card/30" />
-                      </div>
-                      
-                      {/* Class Info */}
-                      <div className="flex-1 p-6 flex flex-col justify-between">
-                        <div>
-                          <div className="flex items-start justify-between mb-2">
-                            <h3 className="text-2xl font-bold italic uppercase tracking-wide">
-                              {classData.name}
-                            </h3>
-                          </div>
-                          
-                          <p className="text-sm text-muted-foreground leading-relaxed line-clamp-3 mb-3">
-                            {classData.description}
-                          </p>
-                          
-                          <div className="flex items-center gap-2">
-                            <span className="text-sm font-semibold">Class Complexity:</span>
-                            <span className="text-primary font-bold">
-                              {'♦'.repeat(classData.complexity)}
-                            </span>
-                          </div>
+            <div className="grid gap-6 md:grid-cols-2">
+              {filterItems(classes, ['name', 'description']).map((classData: any) => (
+                <Card 
+                  key={classData.id} 
+                  className="hover:shadow-xl transition-all cursor-pointer group overflow-hidden bg-gradient-to-r from-card to-card/50"
+                  onClick={() => navigate(`/codex/class/${classData.name}`)}
+                >
+                  <div className="flex">
+                    {/* Class Image */}
+                    <div className="w-48 h-48 flex-shrink-0 overflow-hidden relative">
+                      <img 
+                        src={CLASS_IMAGES[classData.name] || berserkerImg}
+                        alt={classData.name}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent to-card/30" />
+                    </div>
+                    
+                    {/* Class Info */}
+                    <div className="flex-1 p-6 flex flex-col justify-between">
+                      <div>
+                        <div className="flex items-start justify-between mb-2">
+                          <h3 className="text-2xl font-bold italic uppercase tracking-wide">
+                            {classData.name}
+                          </h3>
+                        </div>
+                        
+                        <p className="text-sm text-muted-foreground leading-relaxed line-clamp-3 mb-3">
+                          {classData.description}
+                        </p>
+                        
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-semibold">Class Complexity:</span>
+                          <span className="text-primary font-bold">
+                            {'♦'.repeat(classData.complexity)}
+                          </span>
                         </div>
                       </div>
                     </div>
-                  </Card>
-                ))}
-              </div>
-            </ScrollArea>
+                  </div>
+                </Card>
+              ))}
+            </div>
           </TabsContent>
 
           <TabsContent value="rules">
-            <ScrollArea className="h-[600px]">
-              <div className="grid gap-4">
-                {Object.entries(
-                  filterItems(rules, ['name', 'description', 'category']).reduce((acc, rule) => {
-                    if (!acc[rule.category]) acc[rule.category] = [];
-                    acc[rule.category].push(rule);
-                    return acc;
-                  }, {} as Record<string, any[]>)
-                 ).map(([category, categoryRules]: [string, any[]]) => (
-                  <Card key={category}>
-                    <CardHeader>
-                      <CardTitle className="capitalize">{category.replace('_', ' ')}</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-3">
-                        {categoryRules.map((rule: any) => (
-                          <div key={rule.id} className="pb-3 border-b last:border-0">
-                            <h4 className="font-semibold text-sm mb-1">{rule.name}</h4>
-                            <p className="text-sm text-muted-foreground">{rule.description}</p>
-                            {rule.source_page && (
-                              <span className="text-xs text-muted-foreground">Page {rule.source_page}</span>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </ScrollArea>
+            <div className="grid gap-4">
+              {Object.entries(
+                filterItems(rules, ['name', 'description', 'category']).reduce((acc, rule) => {
+                  if (!acc[rule.category]) acc[rule.category] = [];
+                  acc[rule.category].push(rule);
+                  return acc;
+                }, {} as Record<string, any[]>)
+               ).map(([category, categoryRules]: [string, any[]]) => (
+                <Card key={category}>
+                  <CardHeader>
+                    <CardTitle className="capitalize">{category.replace('_', ' ')}</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      {categoryRules.map((rule: any) => (
+                        <div key={rule.id} className="pb-3 border-b last:border-0">
+                          <h4 className="font-semibold text-sm mb-1">{rule.name}</h4>
+                          <p className="text-sm text-muted-foreground">{rule.description}</p>
+                          {rule.source_page && (
+                            <span className="text-xs text-muted-foreground">Page {rule.source_page}</span>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           </TabsContent>
 
           <TabsContent value="equipment">
-            <ScrollArea className="h-[600px]">
-              <div className="grid gap-4">
-                {Object.entries(
-                  filterItems(equipment, ['name', 'description', 'category']).reduce((acc, item) => {
-                    if (!acc[item.category]) acc[item.category] = [];
-                    acc[item.category].push(item);
-                    return acc;
-                  }, {} as Record<string, any[]>)
-                ).map(([category, items]: [string, any[]]) => (
-                  <Card key={category}>
-                    <CardHeader>
-                      <CardTitle className="capitalize">{category}</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="grid gap-2">
-                        {items.map((item: any) => (
-                          <div key={item.id} className="flex justify-between items-start p-2 hover:bg-accent rounded">
-                            <div>
-                              <h4 className="font-semibold text-sm">{item.name}</h4>
-                              {item.description && (
-                                <p className="text-xs text-muted-foreground">{item.description}</p>
-                              )}
-                            </div>
-                            <div className="text-right text-xs text-muted-foreground">
-                              {item.damage && <div>Damage: {item.damage}</div>}
-                              {item.defense && <div>Defense: +{item.defense}</div>}
-                              {item.cost && <div>Cost: {item.cost}</div>}
-                            </div>
+            <div className="grid gap-4">
+              {Object.entries(
+                filterItems(equipment, ['name', 'description', 'category']).reduce((acc, item) => {
+                  if (!acc[item.category]) acc[item.category] = [];
+                  acc[item.category].push(item);
+                  return acc;
+                }, {} as Record<string, any[]>)
+              ).map(([category, items]: [string, any[]]) => (
+                <Card key={category}>
+                  <CardHeader>
+                    <CardTitle className="capitalize">{category}</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid gap-2">
+                      {items.map((item: any) => (
+                        <div key={item.id} className="flex justify-between items-start p-2 hover:bg-accent rounded">
+                          <div>
+                            <h4 className="font-semibold text-sm">{item.name}</h4>
+                            {item.description && (
+                              <p className="text-xs text-muted-foreground">{item.description}</p>
+                            )}
                           </div>
-                        ))}
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </ScrollArea>
+                          <div className="text-right text-xs text-muted-foreground">
+                            {item.damage && <div>Damage: {item.damage}</div>}
+                            {item.defense && <div>Defense: +{item.defense}</div>}
+                            {item.cost && <div>Cost: {item.cost}</div>}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           </TabsContent>
 
           <TabsContent value="spells">
-            <ScrollArea className="h-[600px]">
-              <div className="grid gap-4">
-                {Object.entries(
-                  filterItems(spells, ['name', 'description', 'element']).reduce((acc, spell) => {
-                    if (!acc[spell.element]) acc[spell.element] = [];
-                    acc[spell.element].push(spell);
-                    return acc;
-                  }, {} as Record<string, any[]>)
-                ).map(([element, elementSpells]: [string, any[]]) => (
-                  <Card key={element}>
-                    <CardHeader>
-                      <CardTitle className="capitalize">{element} Spells</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-3">
-                        {elementSpells.map((spell: any) => (
-                          <div key={spell.id} className="pb-3 border-b last:border-0">
-                            <h4 className="font-semibold text-sm mb-1">{spell.name}</h4>
-                            <p className="text-sm text-muted-foreground mb-2">{spell.description}</p>
-                            <div className="grid grid-cols-3 gap-2 text-xs text-muted-foreground">
-                              {spell.damage && <div><strong>Damage:</strong> {spell.damage}</div>}
-                              {spell.range_value && <div><strong>Range:</strong> {spell.range_value}</div>}
-                              {spell.duration && <div><strong>Duration:</strong> {spell.duration}</div>}
-                            </div>
+            <div className="grid gap-4">
+              {Object.entries(
+                filterItems(spells, ['name', 'description', 'element']).reduce((acc, spell) => {
+                  if (!acc[spell.element]) acc[spell.element] = [];
+                  acc[spell.element].push(spell);
+                  return acc;
+                }, {} as Record<string, any[]>)
+              ).map(([element, elementSpells]: [string, any[]]) => (
+                <Card key={element}>
+                  <CardHeader>
+                    <CardTitle className="capitalize">{element} Spells</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      {elementSpells.map((spell: any) => (
+                        <div key={spell.id} className="pb-3 border-b last:border-0">
+                          <h4 className="font-semibold text-sm mb-1">{spell.name}</h4>
+                          <p className="text-sm text-muted-foreground mb-2">{spell.description}</p>
+                          <div className="grid grid-cols-3 gap-2 text-xs text-muted-foreground">
+                            {spell.damage && <div><strong>Damage:</strong> {spell.damage}</div>}
+                            {spell.range_value && <div><strong>Range:</strong> {spell.range_value}</div>}
+                            {spell.duration && <div><strong>Duration:</strong> {spell.duration}</div>}
                           </div>
-                        ))}
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </ScrollArea>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           </TabsContent>
         </Tabs>
       </div>
