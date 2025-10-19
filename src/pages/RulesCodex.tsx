@@ -6,8 +6,9 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, ArrowLeft, Sparkles } from "lucide-react";
+import { Loader2, ArrowLeft, Sparkles, ChevronDown } from "lucide-react";
 
 // Import class images
 import berserkerImg from "@/assets/class-berserker.jpg";
@@ -184,21 +185,26 @@ const RulesCodex = () => {
                   acc[rule.category].push(rule);
                   return acc;
                 }, {} as Record<string, any[]>)
-               ).map(([category, categoryRules]: [string, any[]]) => (
+                ).map(([category, categoryRules]: [string, any[]]) => (
                 <Card key={category}>
                   <CardHeader>
                     <CardTitle className="capitalize">{category.replace('_', ' ')}</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="space-y-3">
+                    <div className="space-y-2">
                       {categoryRules.map((rule: any) => (
-                        <div key={rule.id} className="pb-3 border-b last:border-0">
-                          <h4 className="font-semibold text-sm mb-1">{rule.name}</h4>
-                          <p className="text-sm text-muted-foreground">{rule.description}</p>
-                          {rule.source_page && (
-                            <span className="text-xs text-muted-foreground">Page {rule.source_page}</span>
-                          )}
-                        </div>
+                        <Collapsible key={rule.id}>
+                          <CollapsibleTrigger className="w-full flex items-center justify-between p-3 hover:bg-accent rounded transition-colors">
+                            <h4 className="font-semibold text-sm">{rule.name}</h4>
+                            <ChevronDown className="h-4 w-4 transition-transform ui-open:rotate-180" />
+                          </CollapsibleTrigger>
+                          <CollapsibleContent className="px-3 pb-3">
+                            <p className="text-sm text-muted-foreground whitespace-pre-line">{rule.description}</p>
+                            {rule.source_page && (
+                              <span className="text-xs text-muted-foreground mt-2 block">Page {rule.source_page}</span>
+                            )}
+                          </CollapsibleContent>
+                        </Collapsible>
                       ))}
                     </div>
                   </CardContent>
