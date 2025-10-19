@@ -455,8 +455,8 @@ const CharacterForm = ({ characterId }: CharacterFormProps) => {
               </Button>
             )}
             
-            {/* Delete Button */}
-            {characterId && isOwner && (
+            {/* Delete Button - Only show in edit mode */}
+            {characterId && isOwner && isEditing && (
               <AlertDialog>
                 <AlertDialogTrigger asChild>
                   <Button variant="destructive" size="sm" className="hover-scale">
