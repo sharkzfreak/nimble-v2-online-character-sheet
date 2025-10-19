@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState, useCallback, useRef } from "react";
 import { buildRulesCodex, toCharacterOverlay } from "@/services/rulesCodex";
 import { supabase } from "@/integrations/supabase/client";
 import type { RulesCodex } from "@/types/codex";
@@ -17,8 +17,9 @@ export function CodexProvider({ children }: { children: React.ReactNode }) {
   const [codex, setCodex] = useState<RulesCodex | null>(null);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+  const hasShownToast = useRef(false);
 
-  const importCharacter = async (characterId: string) => {
+  const importCharacter = useCallback(async (characterId: string, showToast = true) => {
     try {
       setLoading(true);
       
@@ -37,10 +38,14 @@ export function CodexProvider({ children }: { children: React.ReactNode }) {
       // Store globally for legacy access
       (window as any).rulesCodex = newCodex;
 
-      toast({
-        title: "Character imported into Rules Codex ✓",
-        description: `${characterData.name} is ready to use`,
-      });
+      // Only show toast on initial import, not on refreshes
+      if (showToast && !hasShownToast.current) {
+        hasShownToast.current = true;
+        toast({
+          title: "Character imported into Rules Codex ✓",
+          description: `${characterData.name} is ready to use`,
+        });
+      }
     } catch (error) {
       console.error("Error importing character:", error);
       toast({
@@ -51,13 +56,13 @@ export function CodexProvider({ children }: { children: React.ReactNode }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]);
 
-  const refreshCodex = async () => {
+  const refreshCodex = useCallback(async () => {
     if (codex?.character.characterId) {
-      await importCharacter(codex.character.characterId);
+      await importCharacter(codex.character.characterId, false);
     }
-  };
+  }, [codex?.character.characterId, importCharacter]);
 
   return (
     <CodexContext.Provider value={{ codex, loading, importCharacter, refreshCodex }}>
