@@ -23,7 +23,10 @@ export interface ClassFeaturesData {
   [className: string]: ClassFeature[];
 }
 
+import { CHEAT_CLASS_FEATURES } from "./cheatFeatures";
+
 export const CLASS_FEATURES: ClassFeaturesData = {
+  Cheat: CHEAT_CLASS_FEATURES,
   Berserker: [
     {
       id: "berserker_rage_1",
@@ -366,46 +369,6 @@ export const CLASS_FEATURES: ClassFeaturesData = {
       level: 20,
       description: "+1 to any 2 of your stats. Anytime you roll less than 6 on a Fury Die, change it to 6 instead.",
       requires_choice: false,
-    },
-  ],
-  Cheat: [
-    {
-      id: "cheat_sneak",
-      name: "Sneak Attack",
-      level: 1,
-      description: "Once per turn, deal +1d6 extra damage when you attack with advantage or when an ally is adjacent to your target.",
-      requires_choice: false,
-    },
-    {
-      id: "cheat_expertise",
-      name: "Expertise",
-      level: 1,
-      description: "Choose two skills. Double your proficiency bonus for those skills.",
-      requires_choice: true,
-      choice_type: 'multi',
-      choice_count: 2,
-      options: [
-        { id: "stealth", name: "Stealth" },
-        { id: "finesse", name: "Finesse" },
-        { id: "perception", name: "Perception" },
-        { id: "examination", name: "Examination" },
-        { id: "influence", name: "Influence" },
-        { id: "insight", name: "Insight" },
-      ],
-    },
-    {
-      id: "cheat_archetype",
-      name: "Roguish Archetype",
-      level: 3,
-      description: "Choose your specialty as a cheat and scoundrel.",
-      requires_choice: true,
-      choice_type: 'single',
-      choice_count: 1,
-      options: [
-        { id: "thief", name: "Thief", description: "Master of infiltration and quick hands" },
-        { id: "assassin", name: "Assassin", description: "Deadly precision and poisoned blades" },
-        { id: "arcane_trickster", name: "Arcane Trickster", description: "Magic-enhanced deception and illusions" },
-      ],
     },
   ],
   Commander: [

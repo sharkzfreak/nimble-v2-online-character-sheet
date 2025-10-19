@@ -1,4 +1,5 @@
 // Berserker Subclass Features
+import { CHEAT_SUBCLASS_FEATURES } from './cheatFeatures';
 
 export interface SubclassFeature {
   id: string;
@@ -88,3 +89,5 @@ export function getSubclassFeaturesAtLevel(subclassId: string, level: number): S
     f => f.subclassId === subclassId && f.level === level
   );
 }
+
+export { CHEAT_SUBCLASS_FEATURES };

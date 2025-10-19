@@ -8,7 +8,7 @@ import { Separator } from "@/components/ui/separator";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { supabase } from "@/integrations/supabase/client";
 import { CLASS_FEATURES } from "@/config/classFeatures";
-import { BERSERKER_SUBCLASS_FEATURES } from "@/config/subclassFeatures";
+import { BERSERKER_SUBCLASS_FEATURES, CHEAT_SUBCLASS_FEATURES } from "@/config/subclassFeatures";
 import { Loader2, ArrowLeft, Sparkles, ChevronDown } from "lucide-react";
 
 const ClassDetail = () => {
@@ -83,6 +83,19 @@ const ClassDetail = () => {
     // Add subclass features for Berserker
     if (className === 'Berserker') {
       BERSERKER_SUBCLASS_FEATURES.forEach(subclassFeature => {
+        if (!grouped[subclassFeature.level]) {
+          grouped[subclassFeature.level] = [];
+        }
+        grouped[subclassFeature.level].push({
+          ...subclassFeature,
+          isSubclass: true,
+        });
+      });
+    }
+
+    // Add subclass features for Cheat
+    if (className === 'Cheat') {
+      CHEAT_SUBCLASS_FEATURES.forEach(subclassFeature => {
         if (!grouped[subclassFeature.level]) {
           grouped[subclassFeature.level] = [];
         }
