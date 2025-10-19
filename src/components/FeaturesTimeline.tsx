@@ -135,131 +135,127 @@ export const FeaturesTimeline = ({
                           : ''
                       }`}
                     >
-                      <CardHeader>
-                        <div className="flex items-start justify-between gap-4">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2">
-                              <CardTitle className="text-lg flex items-center gap-2">
-                                {!featureUnlocked && (
-                                  <Lock className="w-4 h-4 text-muted-foreground" />
-                                )}
-                                {feature.name}
-                              </CardTitle>
-                            </div>
-                            {!featureUnlocked && (
-                              <CardDescription className="mt-1">
-                                🔒 Unlocks at Level {feature.level}
-                              </CardDescription>
-                            )}
-                            {feature.requires_choice && !featureUnlocked && (
-                              <CardDescription className="mt-1">
-                                ({feature.choice_type === 'multi' 
-                                  ? `Choose ${feature.choice_count}` 
-                                  : 'Choose 1'} at L{feature.level})
-                              </CardDescription>
-                            )}
-                          </div>
-
-                          <div className="flex items-center gap-2">
-                            {featureUnlocked && onToggleFavorite && (
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  onToggleFavorite(feature.id);
-                                }}
-                                className="h-8 w-8 p-0"
-                              >
-                                <Star 
-                                  className={`w-4 h-4 ${isFavorited?.(feature.id) ? 'fill-yellow-400 text-yellow-400' : ''}`} 
-                                />
-                              </Button>
-                            )}
-                            {!featureUnlocked && onLevelUpClick && (
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={onLevelUpClick}
-                                disabled={feature.level > nextLevel}
-                              >
-                                <TrendingUp className="w-4 h-4 mr-2" />
-                                Level Up
-                              </Button>
-                            )}
-                          </div>
-                        </div>
-                      </CardHeader>
-
-                      <CardContent className="space-y-4">
-                        <Collapsible
-                          open={isExpanded}
-                          onOpenChange={() => toggleExpanded(feature.id)}
+                      <Collapsible
+                        open={isExpanded}
+                        onOpenChange={() => toggleExpanded(feature.id)}
+                      >
+                        <CardHeader 
+                          className="cursor-pointer hover:bg-accent/50 transition-colors"
+                          onClick={() => toggleExpanded(feature.id)}
                         >
-                          <CollapsibleTrigger className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
-                            <ChevronDown className={`w-4 h-4 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
-                            {isExpanded ? 'Hide' : 'Show'} description
-                          </CollapsibleTrigger>
-                          <CollapsibleContent className="pt-2">
-                            <p className="text-sm text-muted-foreground">{feature.description}</p>
-                          </CollapsibleContent>
-                        </Collapsible>
-
-                        {feature.requires_choice && feature.options && (
-                          <div className="space-y-3 pt-2">
-                            <div className="text-sm font-medium">
-                              {featureUnlocked ? 'Your Selection:' : 'Options (preview):'}
+                          <div className="flex items-start justify-between gap-4">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2">
+                                <CardTitle className="text-lg flex items-center gap-2">
+                                  {!featureUnlocked && (
+                                    <Lock className="w-4 h-4 text-muted-foreground" />
+                                  )}
+                                  {feature.name}
+                                  <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+                                </CardTitle>
+                              </div>
+                              {!featureUnlocked && (
+                                <CardDescription className="mt-1">
+                                  🔒 Unlocks at Level {feature.level}
+                                </CardDescription>
+                              )}
+                              {feature.requires_choice && !featureUnlocked && (
+                                <CardDescription className="mt-1">
+                                  ({feature.choice_type === 'multi' 
+                                    ? `Choose ${feature.choice_count}` 
+                                    : 'Choose 1'} at L{feature.level})
+                                </CardDescription>
+                              )}
                             </div>
 
-                            {feature.choice_type === 'single' ? (
-                              <RadioGroup value={selections[0] || ''} disabled={!featureUnlocked}>
-                                {feature.options.map(option => (
-                                  <div key={option.id} className={`flex items-start space-x-2 p-3 rounded-lg border ${!featureUnlocked ? 'opacity-50' : 'bg-background/50'}`}>
-                                    <RadioGroupItem 
-                                      value={option.id} 
-                                      id={`${feature.id}-${option.id}`} 
-                                      disabled={!featureUnlocked}
-                                      className="mt-1" 
-                                    />
-                                    <Label htmlFor={`${feature.id}-${option.id}`} className="flex-1">
-                                      <div className="font-medium">{option.name}</div>
-                                      {option.description && (
-                                        <div className="text-sm text-muted-foreground mt-1">{option.description}</div>
-                                      )}
-                                    </Label>
+                            <div className="flex items-center gap-2">
+                              {featureUnlocked && onToggleFavorite && (
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    onToggleFavorite(feature.id);
+                                  }}
+                                  className="h-8 w-8 p-0"
+                                >
+                                  <Star 
+                                    className={`w-4 h-4 ${isFavorited?.(feature.id) ? 'fill-yellow-400 text-yellow-400' : ''}`} 
+                                  />
+                                </Button>
+                              )}
+                              {!featureUnlocked && onLevelUpClick && (
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    onLevelUpClick();
+                                  }}
+                                  disabled={feature.level > nextLevel}
+                                >
+                                  <TrendingUp className="w-4 h-4 mr-2" />
+                                  Level Up
+                                </Button>
+                              )}
+                            </div>
+                          </div>
+                        </CardHeader>
+
+                        <CollapsibleContent>
+                          <CardContent className="pt-0 space-y-4">
+                            <p className="text-sm text-muted-foreground">{feature.description}</p>
+
+                            {feature.requires_choice && feature.options && (
+                              <div className="space-y-3 pt-2">
+                                <div className="text-sm font-medium">
+                                  {featureUnlocked ? 'Your Selection:' : 'Options (preview):'}
+                                </div>
+
+                                {feature.choice_type === 'single' ? (
+                                  <RadioGroup value={selections[0] || ''} disabled={!featureUnlocked}>
+                                    {feature.options.map(option => (
+                                      <div key={option.id} className={`flex items-start space-x-2 p-3 rounded-lg border ${!featureUnlocked ? 'opacity-50' : 'bg-background/50'}`}>
+                                        <RadioGroupItem 
+                                          value={option.id} 
+                                          id={`${feature.id}-${option.id}`} 
+                                          disabled={!featureUnlocked}
+                                          className="mt-1" 
+                                        />
+                                        <Label htmlFor={`${feature.id}-${option.id}`} className="flex-1">
+                                          <div className="font-medium">{option.name}</div>
+                                          {option.description && (
+                                            <div className="text-sm text-muted-foreground mt-1">{option.description}</div>
+                                          )}
+                                        </Label>
+                                      </div>
+                                    ))}
+                                  </RadioGroup>
+                                ) : (
+                                  <div className="space-y-2">
+                                    {feature.options.map(option => (
+                                      <div key={option.id} className={`flex items-start space-x-2 p-3 rounded-lg border ${!featureUnlocked ? 'opacity-50' : 'bg-background/50'}`}>
+                                        <Checkbox
+                                          id={`${feature.id}-${option.id}`}
+                                          checked={selections.includes(option.id)}
+                                          disabled={!featureUnlocked}
+                                          className="mt-1"
+                                        />
+                                        <Label htmlFor={`${feature.id}-${option.id}`} className="flex-1">
+                                          <div className="font-medium">{option.name}</div>
+                                          {option.description && (
+                                            <div className="text-sm text-muted-foreground mt-1">{option.description}</div>
+                                          )}
+                                        </Label>
+                                      </div>
+                                    ))}
                                   </div>
-                                ))}
-                              </RadioGroup>
-                            ) : (
-                              <div className="space-y-2">
-                                {feature.options.map(option => (
-                                  <div key={option.id} className={`flex items-start space-x-2 p-3 rounded-lg border ${!featureUnlocked ? 'opacity-50' : 'bg-background/50'}`}>
-                                    <Checkbox
-                                      id={`${feature.id}-${option.id}`}
-                                      checked={selections.includes(option.id)}
-                                      disabled={!featureUnlocked}
-                                      className="mt-1"
-                                    />
-                                    <Label htmlFor={`${feature.id}-${option.id}`} className="flex-1">
-                                      <div className="font-medium">{option.name}</div>
-                                      {option.description && (
-                                        <div className="text-sm text-muted-foreground mt-1">{option.description}</div>
-                                      )}
-                                    </Label>
-                                  </div>
-                                ))}
+                                )}
                               </div>
                             )}
-                          </div>
-                        )}
-
-                        {!feature.requires_choice && featureUnlocked && (
-                          <div className="flex items-center gap-2 text-sm text-green-600">
-                            <Sparkles className="w-4 h-4" />
-                            <span>Active</span>
-                          </div>
-                        )}
-                      </CardContent>
+                          </CardContent>
+                        </CollapsibleContent>
+                      </Collapsible>
                     </Card>
                   );
                 })}
