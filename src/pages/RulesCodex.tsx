@@ -96,7 +96,11 @@ const RulesCodex = () => {
             <ScrollArea className="h-[600px]">
               <div className="grid gap-4 md:grid-cols-2">
                 {filterItems(classes, ['name', 'description']).map((classData: any) => (
-                  <Card key={classData.id} className="hover:shadow-lg transition-shadow">
+                  <Card 
+                    key={classData.id} 
+                    className="hover:shadow-lg transition-all cursor-pointer hover-scale"
+                    onClick={() => navigate(`/codex/class/${classData.name}`)}
+                  >
                     <CardHeader>
                       <CardTitle className="flex items-center justify-between">
                         {classData.name}
@@ -122,6 +126,9 @@ const RulesCodex = () => {
                           <p className="text-xs text-muted-foreground">{classData.starting_gear.join(', ')}</p>
                         </div>
                       )}
+                      <div className="mt-4 text-xs text-primary font-medium">
+                        Click to view all features →
+                      </div>
                     </CardContent>
                   </Card>
                 ))}

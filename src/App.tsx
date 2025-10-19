@@ -12,6 +12,7 @@ import CharacterNew from "./pages/CharacterNew";
 import CharacterEdit from "./pages/CharacterEdit";
 import CharacterBuilder from "./pages/CharacterBuilder";
 import RulesCodex from "./pages/RulesCodex";
+import ClassDetail from "./pages/ClassDetail";
 import AdminSeed from "./pages/AdminSeed";
 import NotFound from "./pages/NotFound";
 
@@ -35,6 +36,7 @@ const App = () => {
                 <Route path="/builder" element={<CharacterBuilder />} />
                 <Route path="/admin/seed" element={<AdminSeed />} />
                 <Route path="/codex" element={<RulesCodex />} />
+                <Route path="/codex/class/:className" element={<ClassDetail />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>
