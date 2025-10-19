@@ -330,6 +330,7 @@ export const SHADOWPATH_SUBCLASS_FEATURES = [
     id: 'ambusher',
     level: 3,
     name: "Ambusher",
+    subclassId: "shadowpath",
     subclassName: "Keeper of the Shadowpath",
     description: "When you roll Initiative, you may use Hunter's Mark for free. Gain advantage on the first attack you make each encounter.\n\nSkilled Tracker. You have advantage on skill checks to track creatures.\n\nSkilled Navigator. You cannot become lost by nonmagical means."
   },
@@ -337,6 +338,7 @@ export const SHADOWPATH_SUBCLASS_FEATURES = [
     id: 'primal-predator',
     level: 7,
     name: "Primal Predator",
+    subclassId: "shadowpath",
     subclassName: "Keeper of the Shadowpath",
     description: "(1/encounter) Your weapon attacks ignore cover and armor this turn."
   },
@@ -344,6 +346,7 @@ export const SHADOWPATH_SUBCLASS_FEATURES = [
     id: 'pack-hunter',
     level: 11,
     name: "Pack Hunter",
+    subclassId: "shadowpath",
     subclassName: "Keeper of the Shadowpath",
     description: "Whenever you mark a creature, you may also mark another creature within 6 spaces of them for free."
   },
@@ -351,6 +354,7 @@ export const SHADOWPATH_SUBCLASS_FEATURES = [
     id: 'apex-predator',
     level: 15,
     name: "Apex Predator",
+    subclassId: "shadowpath",
     subclassName: "Keeper of the Shadowpath",
     description: "You may use your Primal Predator ability twice each encounter. Gain 1 Thrill of the Hunt charge when you roll Initiative."
   }
@@ -361,6 +365,7 @@ export const WILDHEART_SUBCLASS_FEATURES = [
     id: 'impressive-form',
     level: 3,
     name: "Impressive Form",
+    subclassId: "wildheart",
     subclassName: "Keeper of the Wildheart",
     description: "+5 max HP. Upgrade your Hit Dice to d10s.\n\nI Keep the High Ground. When you roll Initiative or gain one or more Thrill of the Hunt charges, move up to half your speed for free, ignoring difficult terrain."
   },
@@ -368,6 +373,7 @@ export const WILDHEART_SUBCLASS_FEATURES = [
     id: 'resourceful-herbalist',
     level: 7,
     name: "Resourceful Herbalist",
+    subclassId: "wildheart",
     subclassName: "Keeper of the Wildheart",
     description: "Whenever you Safe Rest in a location near where plants or fungi can grow, you may spend a day collecting healing herbs to craft a number of Healing Salves equal to 1+ your Naturecraft.\n\nHealing Salve. Action: Heal yourself or an adjacent creature WIL d6 HP. Only you or another experienced Herbalist may administer these, and they expire whenever you Safe Rest."
   },
@@ -375,6 +381,7 @@ export const WILDHEART_SUBCLASS_FEATURES = [
     id: 'ha-im-over-here',
     level: 11,
     name: "Ha! I'm Over Here!",
+    subclassId: "wildheart",
     subclassName: "Keeper of the Wildheart",
     description: "(1/Safe Rest) If an attack would cause you to drop to 0 HP, you instead move up to your speed away and take no damage."
   },
@@ -382,6 +389,7 @@ export const WILDHEART_SUBCLASS_FEATURES = [
     id: 'unparalleled-survivalist',
     level: 15,
     name: "Unparalleled Survivalist",
+    subclassId: "wildheart",
     subclassName: "Keeper of the Wildheart",
     description: "Gain +WIL armor. When you attack with a ranged weapon, you may first move half your speed for free."
   }

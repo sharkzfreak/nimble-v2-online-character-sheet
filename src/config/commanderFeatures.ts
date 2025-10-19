@@ -353,6 +353,7 @@ export const BULWARK_SUBCLASS_FEATURES = [
     id: 'armor-master',
     level: 3,
     name: "Armor Master",
+    subclassId: "bulwark",
     subclassName: "Champion of the Bulwark",
     description: "You are proficient with plate armor.\n\nShield Bash. While wearing a shield, you may Defend 2× each round. The first time each round you block all of the damage from an attack, you may make an opportunity attack against the attacker for free."
   },
@@ -360,6 +361,7 @@ export const BULWARK_SUBCLASS_FEATURES = [
     id: 'juggernaut',
     level: 7,
     name: "Juggernaut",
+    subclassId: "bulwark",
     subclassName: "Champion of the Bulwark",
     description: "When you use Coordinated Strike, you deal extra damage equal to your armor, and you can add 1 to your primary die."
   },
@@ -367,6 +369,7 @@ export const BULWARK_SUBCLASS_FEATURES = [
     id: 'taunting-strike',
     level: 11,
     name: "Taunting Strike",
+    subclassId: "bulwark",
     subclassName: "Champion of the Bulwark",
     description: "(1/turn) You may Taunt a creature you hit until the end of their next turn."
   },
@@ -374,6 +377,7 @@ export const BULWARK_SUBCLASS_FEATURES = [
     id: 'shield-wall',
     level: 15,
     name: "Shield Wall",
+    subclassId: "bulwark",
     subclassName: "Champion of the Bulwark",
     description: "Allies within 2 spaces gain ALL the benefits of the shield you have equipped."
   }
@@ -384,6 +388,7 @@ export const VANGUARD_SUBCLASS_FEATURES = [
     id: 'advance',
     level: 3,
     name: "Advance!",
+    subclassId: "vanguard",
     subclassName: "Champion of the Vanguard",
     description: "(1/round) After you move toward an enemy, gain advantage on the first melee attack you make against it. When you use your Coordinated Strike, you and all allies within 12 spaces can first move up to half their speed for free."
   },
@@ -391,6 +396,7 @@ export const VANGUARD_SUBCLASS_FEATURES = [
     id: 'experienced-commander',
     level: 7,
     name: "Experienced Commander",
+    subclassId: "vanguard",
     subclassName: "Champion of the Vanguard",
     description: "Your Coordinated Strike may target 1 additional ally. Gain +1 use of Coordinated Strike/Safe Rest."
   },
@@ -398,6 +404,7 @@ export const VANGUARD_SUBCLASS_FEATURES = [
     id: 'survey-the-battlefield',
     level: 11,
     name: "Survey the Battlefield",
+    subclassId: "vanguard",
     subclassName: "Champion of the Vanguard",
     description: "When you roll Initiative, regain 1 use of Coordinated Strike. +1 max Combat Dice."
   },
@@ -405,6 +412,7 @@ export const VANGUARD_SUBCLASS_FEATURES = [
     id: 'as-one',
     level: 15,
     name: "As One!",
+    subclassId: "vanguard",
     subclassName: "Champion of the Vanguard",
     description: "Attacks made with your Coordinated Strike also grant advantage and ignore all disadvantage. Your chosen allies gain 1 additional action to use on their next turn."
   }

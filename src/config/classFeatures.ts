@@ -27,12 +27,14 @@ import { CHEAT_CLASS_FEATURES } from "./cheatFeatures";
 import { COMMANDER_CLASS_FEATURES } from "./commanderFeatures";
 import { HUNTER_CLASS_FEATURES } from "./hunterFeatures";
 import { MAGE_CLASS_FEATURES } from "./mageFeatures";
+import { OATHSWORN_CLASS_FEATURES } from "./oathswornFeatures";
 
 export const CLASS_FEATURES: ClassFeaturesData = {
   Cheat: CHEAT_CLASS_FEATURES,
   Commander: COMMANDER_CLASS_FEATURES,
   Hunter: HUNTER_CLASS_FEATURES,
   Mage: MAGE_CLASS_FEATURES,
+  Oathsworn: OATHSWORN_CLASS_FEATURES,
   Berserker: [
     {
       id: "berserker_rage_1",
@@ -375,43 +377,6 @@ export const CLASS_FEATURES: ClassFeaturesData = {
       level: 20,
       description: "+1 to any 2 of your stats. Anytime you roll less than 6 on a Fury Die, change it to 6 instead.",
       requires_choice: false,
-    },
-  ],
-  Oathsworn: [
-    {
-      id: "oathsworn_lay_hands",
-      name: "Lay on Hands",
-      level: 1,
-      description: "You have a pool of healing power equal to your level × 5. As an action, restore hit points from this pool. Refills on long rest.",
-      requires_choice: false,
-    },
-    {
-      id: "oathsworn_fighting_style",
-      name: "Fighting Style",
-      level: 1,
-      description: "Choose your combat approach.",
-      requires_choice: true,
-      choice_type: 'single',
-      choice_count: 1,
-      options: [
-        { id: "defense", name: "Defense", description: "+1 to Armor while wearing armor" },
-        { id: "dueling", name: "Dueling", description: "+2 damage when wielding a single one-handed weapon" },
-        { id: "protection", name: "Protection", description: "Impose disadvantage on attacks against nearby allies" },
-      ],
-    },
-    {
-      id: "oathsworn_oath",
-      name: "Sacred Oath",
-      level: 3,
-      description: "Swear an oath that defines your divine purpose.",
-      requires_choice: true,
-      choice_type: 'single',
-      choice_count: 1,
-      options: [
-        { id: "devotion", name: "Oath of Devotion", description: "Honesty, courage, and justice" },
-        { id: "vengeance", name: "Oath of Vengeance", description: "Punish wickedness and avenge the innocent" },
-        { id: "ancients", name: "Oath of the Ancients", description: "Preserve life, light, and joy" },
-      ],
     },
   ],
   Shadowmancer: [

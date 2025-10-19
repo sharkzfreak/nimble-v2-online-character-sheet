@@ -349,6 +349,7 @@ export const CONTROL_SUBCLASS_FEATURES = [
     id: 'force-of-will',
     level: 3,
     name: "Force of Will",
+    subclassId: "control",
     subclassName: "Invoker of Control",
     description: "(1/round) On your turn, you may Demand Control: Choose 1 option from the Control Table which you haven't chosen yet, resets when you roll Initiative, or when you have chosen each at least once.\n\nDeny Fate. Whenever you miss with a spell or an effect you cause is saved against, you MUST Demand Control."
   },
@@ -356,6 +357,7 @@ export const CONTROL_SUBCLASS_FEATURES = [
     id: 'at-any-cost',
     level: 7,
     name: "At Any Cost",
+    subclassId: "control",
     subclassName: "Invoker of Control",
     description: "Learn 1 cantrip and 1 tiered spell from the Necrotic school.\n\nNullify. (1/encounter) Ignore all disadvantage and other negative effects on your next action this turn, then Demand Control."
   },
@@ -363,6 +365,7 @@ export const CONTROL_SUBCLASS_FEATURES = [
     id: 'steel-will',
     level: 11,
     name: "Steel Will",
+    subclassId: "control",
     subclassName: "Invoker of Control",
     description: "(1/Safe Rest) Whenever you would fail a save, you may succeed instead. Whenever you roll a 1 on an Elemental Surge die, you may reroll it once."
   },
@@ -370,6 +373,7 @@ export const CONTROL_SUBCLASS_FEATURES = [
     id: 'supreme-control',
     level: 15,
     name: "Supreme Control",
+    subclassId: "control",
     subclassName: "Invoker of Control",
     description: "Whenever you Demand Control, you may choose to trigger the selected option twice. You may Demand Control as a Reaction."
   }
@@ -380,6 +384,7 @@ export const CHAOS_SUBCLASS_FEATURES = [
     id: 'force-of-chaos',
     level: 3,
     name: "Force of Chaos",
+    subclassId: "chaos",
     subclassName: "Invoker of Chaos",
     description: "Whenever you cast a spell, you can choose to spend 1 less mana. Whenever you roll a crit, Invoke Chaos: Roll on the Chaos Table.\n\nWhere's the Chaos Table? It's a secret for the GM only! Suffice it to say, rolling a 1 is really bad, but rolling a 20 is AWESOME--but if you're sure you want to spell it, you can find it on the back inside cover of the GM's Guide. Let chaos reign!"
   },
@@ -387,6 +392,7 @@ export const CHAOS_SUBCLASS_FEATURES = [
     id: 'tempest-mage',
     level: 7,
     name: "Tempest Mage",
+    subclassId: "chaos",
     subclassName: "Invoker of Chaos",
     description: "Learn 1 cantrip and 1 tiered spell from the Wind school.\n\nChaos Lash. (1/encounter) Reaction (when an enemy moves adjacent to you): They are pushed back 2 spaces, and on a failed WIL save, knocked Prone as well. Invoke Chaos."
   },
@@ -394,6 +400,7 @@ export const CHAOS_SUBCLASS_FEATURES = [
     id: 'thrive-in-chaos',
     level: 11,
     name: "Thrive in Chaos",
+    subclassId: "chaos",
     subclassName: "Invoker of Chaos",
     description: "Whenever you Invoke Chaos, you may roll twice and cause both effects. (1/Safe Rest) You may choose which roll to use instead."
   },
@@ -401,6 +408,7 @@ export const CHAOS_SUBCLASS_FEATURES = [
     id: 'master-of-chaos',
     level: 15,
     name: "Master of Chaos",
+    subclassId: "chaos",
     subclassName: "Invoker of Chaos",
     description: "Whenever you Invoke Chaos, roll with advantage."
   }

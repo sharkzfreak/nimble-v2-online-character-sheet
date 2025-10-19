@@ -385,6 +385,7 @@ export const CHEAT_SUBCLASS_FEATURES = [
     level: 3,
     name: 'Amidst All This Commotion...',
     description: 'If a creature dies while you Sneak Attack them, you may turn Invisible until you attack again or until the beginning of your next turn.',
+    subclassId: 'silent_blade',
     subclassName: 'Silent Blade',
   },
   {
@@ -392,6 +393,7 @@ export const CHEAT_SUBCLASS_FEATURES = [
     level: 3,
     name: 'Leave No Trace',
     description: 'Advantage on Stealth checks when you are at full health.',
+    subclassId: 'silent_blade',
     subclassName: 'Silent Blade',
   },
   
@@ -401,6 +403,7 @@ export const CHEAT_SUBCLASS_FEATURES = [
     level: 7,
     name: 'Cunning Strike',
     description: '(2/encounter) When you land a Sneak Attack, you may force the target to make a STR save (DC 10+INT). On a failure, instead of rolling your Sneak Attack dice, they deal the maximum amount of damage (if your target saves, regain 1 use).',
+    subclassId: 'silent_blade',
     subclassName: 'Silent Blade',
   },
   
@@ -410,6 +413,7 @@ export const CHEAT_SUBCLASS_FEATURES = [
     level: 11,
     name: 'Professional Skulker',
     description: 'Gain a climbing speed and advantage on Stealth checks (replaces Leave No Trace).',
+    subclassId: 'silent_blade',
     subclassName: 'Silent Blade',
   },
   
@@ -419,6 +423,7 @@ export const CHEAT_SUBCLASS_FEATURES = [
     level: 15,
     name: 'KILL',
     description: 'When you crit an enemy with fewer max HP than you, it dies.',
+    subclassId: 'silent_blade',
     subclassName: 'Silent Blade',
   },
   
@@ -428,6 +433,7 @@ export const CHEAT_SUBCLASS_FEATURES = [
     level: 3,
     name: 'Low Blow',
     description: 'When you Sneak Attack, you may spend 2 additional actions to Incapacitate your target for their next turn on a failed STR save (DC 10+INT). Save or fail, they are Tainted by you and take 2d10 HP.',
+    subclassId: 'scoundrel',
     subclassName: 'Scoundrel',
   },
   {
@@ -435,6 +441,7 @@ export const CHEAT_SUBCLASS_FEATURES = [
     level: 3,
     name: 'Sweet Talk',
     description: "You may gain advantage on all Influence checks with NPCs you've just met for the first time. This lasts until you fail an Influence check with them or until you meet a 2nd time. You have disadvantage on Influence checks with them after you use this ability (until you get back on their good side).",
+    subclassId: 'scoundrel',
     subclassName: 'Scoundrel',
   },
   
@@ -444,6 +451,7 @@ export const CHEAT_SUBCLASS_FEATURES = [
     level: 7,
     name: 'Pocket Sand',
     description: "(2/encounter-you've got to collect more sand!) When you Defend against a melee attack, Blind the attacker until the start of their next turn and force them to reroll the attack (Blinded creatures attack with disadvantage).",
+    subclassId: 'scoundrel',
     subclassName: 'Scoundrel',
   },
   
@@ -453,6 +461,7 @@ export const CHEAT_SUBCLASS_FEATURES = [
     level: 11,
     name: 'Escape Plan',
     description: "(1/Safe Rest) When you would drop to 0 HP or gain a Wound, you don't. Instead, you turn Invisible for 1 minute or until you attack.",
+    subclassId: 'scoundrel',
     subclassName: 'Scoundrel',
   },
   
@@ -462,6 +471,7 @@ export const CHEAT_SUBCLASS_FEATURES = [
     level: 15,
     name: 'Heads I Win, Tails You Lose',
     description: "(1/encounter) Attacks you make this round don't miss; you crit on 1 less than normally needed, and you gain LVL temp HP.",
+    subclassId: 'scoundrel',
     subclassName: 'Scoundrel',
   },
 ];
