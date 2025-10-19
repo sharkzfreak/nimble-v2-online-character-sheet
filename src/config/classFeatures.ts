@@ -30,6 +30,7 @@ import { MAGE_CLASS_FEATURES } from "./mageFeatures";
 import { OATHSWORN_CLASS_FEATURES } from "./oathswornFeatures";
 import { SHADOWMANCER_CLASS_FEATURES } from "./shadowmancerFeatures";
 import { SHEPHERD_CLASS_FEATURES } from "./shepherdFeatures";
+import { SONGWEAVER_CLASS_FEATURES } from "./songweaverFeatures";
 
 export const CLASS_FEATURES: ClassFeaturesData = {
   Cheat: CHEAT_CLASS_FEATURES,
@@ -39,6 +40,7 @@ export const CLASS_FEATURES: ClassFeaturesData = {
   Oathsworn: OATHSWORN_CLASS_FEATURES,
   Shadowmancer: SHADOWMANCER_CLASS_FEATURES,
   Shepherd: SHEPHERD_CLASS_FEATURES,
+  Songweaver: SONGWEAVER_CLASS_FEATURES,
   Berserker: [
     {
       id: "berserker_rage_1",
@@ -381,36 +383,6 @@ export const CLASS_FEATURES: ClassFeaturesData = {
       level: 20,
       description: "+1 to any 2 of your stats. Anytime you roll less than 6 on a Fury Die, change it to 6 instead.",
       requires_choice: false,
-    },
-  ],
-  Songweaver: [
-    {
-      id: "songweaver_inspiration",
-      name: "Bardic Inspiration",
-      level: 1,
-      description: "Grant an ally a d6 that they can add to an attack, check, or save within the next 10 minutes. Usable a number of times equal to your WILL modifier per rest.",
-      requires_choice: false,
-    },
-    {
-      id: "songweaver_jack",
-      name: "Jack of All Trades",
-      level: 1,
-      description: "Add half your proficiency bonus (rounded down) to any skill check you aren't proficient in.",
-      requires_choice: false,
-    },
-    {
-      id: "songweaver_college",
-      name: "Bardic College",
-      level: 3,
-      description: "Choose your college, the style of your performances.",
-      requires_choice: true,
-      choice_type: 'single',
-      choice_count: 1,
-      options: [
-        { id: "valor", name: "College of Valor", description: "Inspire warriors with battle hymns" },
-        { id: "lore", name: "College of Lore", description: "Keeper of secrets and ancient knowledge" },
-        { id: "whispers", name: "College of Whispers", description: "Manipulate and deceive with words" },
-      ],
     },
   ],
   Stormshifter: [
