@@ -31,6 +31,7 @@ import { OATHSWORN_CLASS_FEATURES } from "./oathswornFeatures";
 import { SHADOWMANCER_CLASS_FEATURES } from "./shadowmancerFeatures";
 import { SHEPHERD_CLASS_FEATURES } from "./shepherdFeatures";
 import { SONGWEAVER_CLASS_FEATURES } from "./songweaverFeatures";
+import { STORMSHIFTER_CLASS_FEATURES } from "./stormshifterFeatures";
 
 export const CLASS_FEATURES: ClassFeaturesData = {
   Cheat: CHEAT_CLASS_FEATURES,
@@ -41,6 +42,7 @@ export const CLASS_FEATURES: ClassFeaturesData = {
   Shadowmancer: SHADOWMANCER_CLASS_FEATURES,
   Shepherd: SHEPHERD_CLASS_FEATURES,
   Songweaver: SONGWEAVER_CLASS_FEATURES,
+  Stormshifter: STORMSHIFTER_CLASS_FEATURES,
   Berserker: [
     {
       id: "berserker_rage_1",
@@ -383,36 +385,6 @@ export const CLASS_FEATURES: ClassFeaturesData = {
       level: 20,
       description: "+1 to any 2 of your stats. Anytime you roll less than 6 on a Fury Die, change it to 6 instead.",
       requires_choice: false,
-    },
-  ],
-  Stormshifter: [
-    {
-      id: "stormshifter_wildshape",
-      name: "Wild Shape",
-      level: 1,
-      description: "Transform into a beast with CR up to 1/4. You retain your mental stats but use the beast's physical stats. Lasts 1 hour or until you revert.",
-      requires_choice: false,
-    },
-    {
-      id: "stormshifter_primal",
-      name: "Primal Strike",
-      level: 1,
-      description: "Your beast form attacks count as magical and deal +1d4 lightning or thunder damage (your choice on each hit).",
-      requires_choice: false,
-    },
-    {
-      id: "stormshifter_circle",
-      name: "Druid Circle",
-      level: 3,
-      description: "Choose your connection to nature and storm.",
-      requires_choice: true,
-      choice_type: 'single',
-      choice_count: 1,
-      options: [
-        { id: "moon", name: "Circle of the Moon", description: "Enhanced wild shape forms and combat prowess" },
-        { id: "storm", name: "Circle of the Storm", description: "Call lightning and control weather" },
-        { id: "land", name: "Circle of the Land", description: "Deep connection to a specific terrain" },
-      ],
     },
   ],
   Zephyr: [
