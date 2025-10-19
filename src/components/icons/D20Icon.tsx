@@ -7,29 +7,35 @@ export const D20Icon = ({ className, ...props }: SVGProps<SVGSVGElement>) => {
       viewBox="0 0 100 100"
       fill="none"
       stroke="currentColor"
-      strokeWidth="3"
+      strokeWidth="4"
       strokeLinecap="round"
       strokeLinejoin="round"
       className={className}
       {...props}
     >
-      {/* D20 Icosahedron - geometric outline */}
-      {/* Outer pentagon */}
-      <path d="M 50,8 L 82,28 L 73,62 L 27,62 L 18,28 Z" />
+      {/* D20 Icosahedron with filled faces */}
       
-      {/* Bottom pentagon */}
-      <path d="M 27,62 L 50,92 L 73,62" />
-      <path d="M 18,28 L 8,50 L 27,62" />
-      <path d="M 82,28 L 92,50 L 73,62" />
-      <path d="M 8,50 L 50,92 L 92,50" />
+      {/* Filled triangular faces for depth */}
+      <path d="M 50,15 L 75,35 L 50,50 Z" fill="currentColor" opacity="0.2" />
+      <path d="M 50,50 L 75,65 L 50,85 Z" fill="currentColor" opacity="0.15" />
+      <path d="M 25,65 L 50,85 L 50,50 Z" fill="currentColor" opacity="0.1" />
       
-      {/* Inner triangle connections */}
-      <path d="M 50,8 L 27,62" />
-      <path d="M 50,8 L 73,62" />
-      <path d="M 18,28 L 73,62" />
-      <path d="M 82,28 L 27,62" />
-      <path d="M 50,8 L 8,50" />
-      <path d="M 50,8 L 92,50" />
+      {/* Outer hexagonal frame */}
+      <path d="M 50,15 L 85,30 L 85,70 L 50,85 L 15,70 L 15,30 Z" />
+      
+      {/* Internal triangular connections */}
+      <path d="M 50,15 L 15,30" />
+      <path d="M 50,15 L 50,50" />
+      <path d="M 50,15 L 85,30" />
+      <path d="M 15,30 L 25,65" />
+      <path d="M 25,65 L 15,70" />
+      <path d="M 25,65 L 50,50" />
+      <path d="M 50,50 L 75,35" />
+      <path d="M 75,35 L 85,30" />
+      <path d="M 75,35 L 75,65" />
+      <path d="M 75,65 L 85,70" />
+      <path d="M 75,65 L 50,50" />
+      <path d="M 50,85 L 50,50" />
     </svg>
   );
 };
