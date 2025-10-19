@@ -314,39 +314,93 @@ const RulesCodex = () => {
           </TabsContent>
 
           <TabsContent value="equipment">
-            <div className="grid gap-4">
-              {Object.entries(
-                filterItems(equipment, ['name', 'description', 'category']).reduce((acc, item) => {
-                  if (!acc[item.category]) acc[item.category] = [];
-                  acc[item.category].push(item);
-                  return acc;
-                }, {} as Record<string, any[]>)
-              ).map(([category, items]: [string, any[]]) => (
-                <Card key={category}>
-                  <CardHeader>
-                    <CardTitle className="capitalize">{category}</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid gap-2">
-                      {items.map((item: any) => (
-                        <div key={item.id} className="flex justify-between items-start p-2 hover:bg-accent rounded">
-                          <div>
-                            <h4 className="font-semibold text-sm">{item.name}</h4>
-                            {item.description && (
-                              <p className="text-xs text-muted-foreground">{item.description}</p>
-                            )}
-                          </div>
-                          <div className="text-right text-xs text-muted-foreground">
-                            {item.damage && <div>Damage: {item.damage}</div>}
-                            {item.defense && <div>Defense: +{item.defense}</div>}
-                            {item.cost && <div>Cost: {item.cost}</div>}
-                          </div>
+            <div className="space-y-8">
+              {/* Weapons Section */}
+              <div>
+                <h3 className="text-2xl font-bold mb-4">Weapons</h3>
+                {Object.entries(
+                  filterItems(equipment.filter((e: any) => e.category === 'Weapons'), ['name', 'type']).reduce((acc: any, item: any) => {
+                    if (!acc[item.type]) acc[item.type] = [];
+                    acc[item.type].push(item);
+                    return acc;
+                  }, {})
+                ).map(([type, items]: [string, any]) => (
+                  <Card key={type} className="mb-6">
+                    <CardHeader>
+                      <CardTitle>{type} Weapons</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="overflow-x-auto">
+                        <table className="w-full">
+                          <thead>
+                            <tr className="border-b">
+                              <th className="text-left py-2 px-3 font-semibold">ITEM</th>
+                              <th className="text-left py-2 px-3 font-semibold">DAMAGE</th>
+                              <th className="text-left py-2 px-3 font-semibold">PROPERTIES</th>
+                              <th className="text-left py-2 px-3 font-semibold">COST</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {items.map((item: any) => (
+                              <tr key={item.id} className="border-b last:border-0">
+                                <td className="py-2 px-3">{item.name}</td>
+                                <td className="py-2 px-3">{item.damage}</td>
+                                <td className="py-2 px-3">{item.properties?.properties || ''}</td>
+                                <td className="py-2 px-3">{item.cost}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+
+              {/* Armor Section */}
+              <div>
+                <h3 className="text-2xl font-bold mb-4">Armor</h3>
+                <div className="grid md:grid-cols-2 gap-6">
+                  {Object.entries(
+                    filterItems(equipment.filter((e: any) => e.category === 'Armor'), ['name', 'type']).reduce((acc: any, item: any) => {
+                      if (!acc[item.type]) acc[item.type] = [];
+                      acc[item.type].push(item);
+                      return acc;
+                    }, {})
+                  ).map(([type, items]: [string, any]) => (
+                    <Card key={type}>
+                      <CardHeader>
+                        <CardTitle>{type}</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="overflow-x-auto">
+                          <table className="w-full">
+                            <thead>
+                              <tr className="border-b">
+                                <th className="text-left py-2 px-2 font-semibold text-sm">ITEM</th>
+                                <th className="text-left py-2 px-2 font-semibold text-sm">ARMOR</th>
+                                <th className="text-left py-2 px-2 font-semibold text-sm">COST</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {items.map((item: any) => (
+                                <tr key={item.id} className="border-b last:border-0">
+                                  <td className="py-2 px-2 text-sm">{item.name}</td>
+                                  <td className="py-2 px-2 text-sm">
+                                    {item.defense}
+                                    {item.properties?.armor_bonus ? ` ${item.properties.armor_bonus}` : ''}
+                                  </td>
+                                  <td className="py-2 px-2 text-sm">{item.cost}</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
                         </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </div>
             </div>
           </TabsContent>
 
