@@ -893,70 +893,115 @@ const CharacterView = ({
                     </h1>
                     
                     {/* Action Tracker */}
-                    <div className="flex items-center gap-2.5 ml-4 p-2 rounded-lg bg-background/50 backdrop-blur-sm border border-border/50">
-                      {actionTracker.map((isActive, index) => (
-                        <button
-                          key={index}
-                          onClick={() => {
-                            const newTracker = [...actionTracker];
-                            newTracker[index] = !isActive;
+                    <div className="flex items-center gap-2.5 ml-4">
+                      {actionTracker.map((isActive, index) => {
+                        const handleClick = () => {
+                          const newTracker = [...actionTracker];
+                          // Find leftmost active pip and deactivate it
+                          const firstActive = newTracker.findIndex(val => val === true);
+                          if (firstActive !== -1) {
+                            newTracker[firstActive] = false;
                             onActionTrackerChange?.(newTracker);
-                          }}
-                          className="group relative transition-all duration-500 hover:scale-110"
-                          style={{
-                            width: '24px',
-                            height: '24px',
-                          }}
-                        >
-                          {/* Glowing background ring */}
-                          <div
-                            className="absolute inset-0 rounded-full transition-all duration-500 blur-sm"
+                          }
+                        };
+
+                        const handleRightClick = (e: React.MouseEvent) => {
+                          e.preventDefault();
+                          const newTracker = [...actionTracker];
+                          // Find leftmost inactive pip and activate it
+                          const firstInactive = newTracker.findIndex(val => val === false);
+                          if (firstInactive !== -1) {
+                            newTracker[firstInactive] = true;
+                            onActionTrackerChange?.(newTracker);
+                          }
+                        };
+
+                        let holdTimeout: NodeJS.Timeout;
+                        let holdInterval: NodeJS.Timeout;
+
+                        const handleMouseDown = (e: React.MouseEvent) => {
+                          if (e.button === 0) { // Left click
+                            holdTimeout = setTimeout(() => {
+                              const newTracker = [false, false, false];
+                              onActionTrackerChange?.(newTracker);
+                            }, 500);
+                          } else if (e.button === 2) { // Right click
+                            holdTimeout = setTimeout(() => {
+                              const newTracker = [true, true, true];
+                              onActionTrackerChange?.(newTracker);
+                            }, 500);
+                          }
+                        };
+
+                        const handleMouseUp = () => {
+                          if (holdTimeout) clearTimeout(holdTimeout);
+                          if (holdInterval) clearInterval(holdInterval);
+                        };
+
+                        return (
+                          <button
+                            key={index}
+                            onClick={handleClick}
+                            onContextMenu={handleRightClick}
+                            onMouseDown={handleMouseDown}
+                            onMouseUp={handleMouseUp}
+                            onMouseLeave={handleMouseUp}
+                            className="group relative transition-all duration-500 hover:scale-110"
                             style={{
-                              background: isActive 
-                                ? `linear-gradient(135deg, hsl(${classThemeColor}), hsl(var(--accent)))` 
-                                : 'transparent',
-                              opacity: isActive ? 0.8 : 0,
-                              transform: isActive ? 'scale(1.3)' : 'scale(1)',
+                              width: '24px',
+                              height: '24px',
                             }}
-                          />
-                          
-                          {/* Main dot with gradient */}
-                          <div
-                            className="absolute inset-0 rounded-full transition-all duration-500 group-hover:rotate-180"
-                            style={{
-                              background: isActive 
-                                ? `linear-gradient(135deg, hsl(${classThemeColor}), hsl(var(--accent)))` 
-                                : `linear-gradient(135deg, hsl(${classThemeColor} / 0.15), hsl(var(--muted)))`,
-                              boxShadow: isActive 
-                                ? `0 0 20px hsl(${classThemeColor} / 0.8), inset 0 2px 4px rgba(255,255,255,0.2)` 
-                                : 'inset 0 2px 4px rgba(0,0,0,0.2)',
-                              opacity: isActive ? 1 : 0.4,
-                              transform: isActive ? 'scale(1)' : 'scale(0.75)',
-                            }}
-                          />
-                          
-                          {/* Inner shine effect */}
-                          {isActive && (
+                          >
+                            {/* Glowing background ring */}
                             <div
-                              className="absolute inset-0 rounded-full transition-all duration-500"
+                              className="absolute inset-0 rounded-full transition-all duration-500 blur-sm"
                               style={{
-                                background: 'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.4), transparent 60%)',
+                                background: isActive 
+                                  ? 'linear-gradient(135deg, hsl(142 76% 36%), hsl(142 76% 56%))' 
+                                  : 'transparent',
+                                opacity: isActive ? 0.8 : 0,
+                                transform: isActive ? 'scale(1.3)' : 'scale(1)',
                               }}
                             />
-                          )}
-                          
-                          {/* Border ring */}
-                          <div
-                            className="absolute inset-0 rounded-full border-2 transition-all duration-500"
-                            style={{
-                              borderColor: isActive 
-                                ? `hsl(${classThemeColor} / 0.3)` 
-                                : `hsl(${classThemeColor} / 0.5)`,
-                              opacity: isActive ? 0 : 1,
-                            }}
-                          />
-                        </button>
-                      ))}
+                            
+                            {/* Main dot with gradient */}
+                            <div
+                              className="absolute inset-0 rounded-full transition-all duration-500 group-hover:rotate-180"
+                              style={{
+                                background: isActive 
+                                  ? 'linear-gradient(135deg, hsl(142 76% 36%), hsl(142 76% 56%))' 
+                                  : 'linear-gradient(135deg, hsl(0 0% 40%), hsl(0 0% 30%))',
+                                boxShadow: isActive 
+                                  ? '0 0 20px hsl(142 76% 36% / 0.8), inset 0 2px 4px rgba(255,255,255,0.2)' 
+                                  : 'inset 0 2px 4px rgba(0,0,0,0.2)',
+                                opacity: isActive ? 1 : 0.4,
+                                transform: isActive ? 'scale(1)' : 'scale(0.75)',
+                              }}
+                            />
+                            
+                            {/* Inner shine effect */}
+                            {isActive && (
+                              <div
+                                className="absolute inset-0 rounded-full transition-all duration-500"
+                                style={{
+                                  background: 'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.4), transparent 60%)',
+                                }}
+                              />
+                            )}
+                            
+                            {/* Border ring */}
+                            <div
+                              className="absolute inset-0 rounded-full border-2 transition-all duration-500"
+                              style={{
+                                borderColor: isActive 
+                                  ? 'hsl(142 76% 36% / 0.3)' 
+                                  : 'hsl(0 0% 40% / 0.5)',
+                                opacity: isActive ? 0 : 1,
+                              }}
+                            />
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
                   
