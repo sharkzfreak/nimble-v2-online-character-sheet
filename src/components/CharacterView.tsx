@@ -1239,20 +1239,22 @@ const CharacterView = ({
 
           {/* Features Tab */}
           <TabsContent value="features" className="mt-6 space-y-4">
-            <div className="flex justify-between items-center gap-2 mb-4">
-              <h3 className="text-xl font-semibold">Class Features</h3>
-              <div className="flex items-center gap-2 flex-1 max-w-md">
-                <div className="relative flex-1">
-                  <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                  <Input
-                    placeholder="Search features..."
-                    value={featureSearchQuery}
-                    onChange={(e) => setFeatureSearchQuery(e.target.value)}
-                    className="pl-8"
-                  />
-                </div>
-              </div>
-              <Dialog open={isFeatureDialogOpen} onOpenChange={setIsFeatureDialogOpen}>
+            <FeaturesTimeline
+              className={formData.class || ''}
+              currentLevel={formData.level}
+              classFeatures={[]}
+              onEditFeature={(feature) => {
+                setEditingItem(feature);
+                setEditingItemType('feature');
+                setEditDialogOpen(true);
+              }}
+            />
+
+            {/* Custom Features Section */}
+            <div className="mt-8 space-y-4">
+              <div className="flex justify-between items-center gap-2">
+                <h3 className="text-xl font-semibold">Custom Features</h3>
+                <Dialog open={isFeatureDialogOpen} onOpenChange={setIsFeatureDialogOpen}>
                 <DialogTrigger asChild>
                   <Button
                     variant="outline"
@@ -1352,69 +1354,79 @@ const CharacterView = ({
                 </DialogContent>
               </Dialog>
             </div>
-            
-            {/* Custom Features List */}
-            {formData.custom_features && formData.custom_features.length > 0 ? (
-              <div className="space-y-2">
-                {formData.custom_features
-                  .filter((feature) => 
-                    !featureSearchQuery || 
-                    feature.name.toLowerCase().includes(featureSearchQuery.toLowerCase()) ||
-                    (feature.description && feature.description.toLowerCase().includes(featureSearchQuery.toLowerCase()))
-                  )
-                  .map((feature) => (
-                  <Collapsible key={feature.id} className="border rounded-lg">
-                    <CollapsibleTrigger 
-                      className="w-full p-3 text-left hover:bg-accent/50 transition-colors flex items-center justify-between group"
-                      onContextMenu={(e) => {
-                        e.preventDefault();
-                        setEditingItem(feature);
-                        setEditingItemType('feature');
-                        setEditDialogOpen(true);
-                      }}
-                    >
-                      <div className="flex-1 flex items-center gap-3">
-                        <span className="font-medium">{feature.name}</span>
+              
+              {/* Custom Features List */}
+              {formData.custom_features && formData.custom_features.length > 0 ? (
+                <div className="space-y-2">
+                  {formData.custom_features.map((feature) => (
+                    <Collapsible key={feature.id} className="border rounded-lg">
+                      <CollapsibleTrigger 
+                        className="w-full p-3 text-left hover:bg-accent/50 transition-colors flex items-center justify-between group"
+                        onContextMenu={(e) => {
+                          e.preventDefault();
+                          setEditingItem(feature);
+                          setEditingItemType('feature');
+                          setEditDialogOpen(true);
+                        }}
+                      >
+                        <div className="flex-1 flex items-center gap-3">
+                          <span className="font-medium">{feature.name}</span>
+                          {feature.actions && feature.actions.length > 0 && (
+                            <Badge variant="secondary" className="text-xs">
+                              {feature.actions.length} action{feature.actions.length > 1 ? 's' : ''}
+                            </Badge>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onFormDataChange?.({
+                                custom_features: formData.custom_features?.filter((f) => f.id !== feature.id),
+                              });
+                            }}
+                            className="h-7 w-7 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            <X className="w-4 h-4" />
+                          </Button>
+                          <ChevronDown className="w-4 h-4 transition-transform ui-open:rotate-180" />
+                        </div>
+                      </CollapsibleTrigger>
+                      <CollapsibleContent className="px-4 pb-3">
+                        <div className="text-sm text-muted-foreground whitespace-pre-wrap">
+                          {feature.description}
+                        </div>
                         {feature.actions && feature.actions.length > 0 && (
-                          <Badge variant="secondary" className="text-xs">
-                            {feature.actions.length} action{feature.actions.length > 1 ? 's' : ''}
-                          </Badge>
+                          <div className="mt-2 space-y-1">
+                            {feature.actions.map(action => (
+                              <div key={action.id} className="text-sm">
+                                <span className="font-medium">{action.label}:</span>
+                                <span className="text-muted-foreground ml-2">
+                                  {action.rolls.map((roll, idx) => (
+                                    <span key={idx}>
+                                      {idx > 0 && ', '}
+                                      {roll.die}
+                                      {roll.ability && ` + ${roll.ability}`}
+                                      {roll.flat && ` + ${roll.flat}`}
+                                    </span>
+                                  ))}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
                         )}
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onFormDataChange?.({
-                              custom_features: formData.custom_features?.filter((f) => f.id !== feature.id),
-                            });
-                          }}
-                          className="h-7 w-7 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                        >
-                          <X className="w-4 h-4" />
-                        </Button>
-                        <ChevronDown className="w-4 h-4 transition-transform ui-open:rotate-180" />
-                      </div>
-                    </CollapsibleTrigger>
-                    <CollapsibleContent className="px-4 pb-3">
-                      <div className="text-sm text-muted-foreground whitespace-pre-wrap">
-                        {feature.description}
-                      </div>
-                    </CollapsibleContent>
-                  </Collapsible>
-                ))}
-              </div>
-            ) : (
-              <Card className="bg-card/70 border-2 backdrop-blur-sm" style={{ borderColor: `hsl(${classThemeColor} / 0.3)` }}>
-                <CardContent className="py-16 text-center">
-                  <Sparkles className="w-16 h-16 mx-auto mb-4 opacity-30" style={{ color: `hsl(${classThemeColor})` }} />
-                  <p className="text-muted-foreground font-medium">No custom features yet</p>
-                  <p className="text-sm text-muted-foreground mt-2">Click + to add features</p>
-                </CardContent>
-              </Card>
-            )}
+                      </CollapsibleContent>
+                    </Collapsible>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground text-center py-4">
+                  No custom features added yet. Click "Add Feature" to create one.
+                </p>
+              )}
+            </div>
           </TabsContent>
 
           {/* Inventory Tab */}

@@ -18,6 +18,7 @@ interface FeaturesTimelineProps {
   onLevelUpClick?: () => void;
   onToggleFavorite?: (featureId: string) => void;
   isFavorited?: (featureId: string) => boolean;
+  onEditFeature?: (feature: ClassFeature) => void;
 }
 
 export const FeaturesTimeline = ({ 
@@ -26,7 +27,8 @@ export const FeaturesTimeline = ({
   classFeatures,
   onLevelUpClick,
   onToggleFavorite,
-  isFavorited
+  isFavorited,
+  onEditFeature
 }: FeaturesTimelineProps) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedFeatures, setExpandedFeatures] = useState<Set<string>>(new Set());
@@ -142,6 +144,12 @@ export const FeaturesTimeline = ({
                         <CardHeader 
                           className="cursor-pointer hover:bg-accent/50 transition-colors"
                           onClick={() => toggleExpanded(feature.id)}
+                          onContextMenu={(e) => {
+                            if (featureUnlocked && onEditFeature) {
+                              e.preventDefault();
+                              onEditFeature(feature);
+                            }
+                          }}
                         >
                           <div className="flex items-start justify-between gap-4">
                             <div className="flex-1">
