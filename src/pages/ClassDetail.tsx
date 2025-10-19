@@ -8,7 +8,7 @@ import { Separator } from "@/components/ui/separator";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { supabase } from "@/integrations/supabase/client";
 import { CLASS_FEATURES } from "@/config/classFeatures";
-import { BERSERKER_SUBCLASS_FEATURES, CHEAT_SUBCLASS_FEATURES, COMMANDER_SUBCLASS_FEATURES, HUNTER_SUBCLASS_FEATURES } from "@/config/subclassFeatures";
+import { BERSERKER_SUBCLASS_FEATURES, CHEAT_SUBCLASS_FEATURES, COMMANDER_SUBCLASS_FEATURES, HUNTER_SUBCLASS_FEATURES, MAGE_SUBCLASS_FEATURES } from "@/config/subclassFeatures";
 import { Loader2, ArrowLeft, Sparkles, ChevronDown } from "lucide-react";
 
 const ClassDetail = () => {
@@ -147,6 +147,22 @@ const ClassDetail = () => {
 
     if (className === 'Hunter') {
       HUNTER_SUBCLASS_FEATURES.forEach(subclassFeature => {
+        const level = subclassFeature.level;
+        if (!grouped[level]) {
+          grouped[level] = {};
+        }
+        if (!grouped[level][subclassFeature.subclassName]) {
+          grouped[level][subclassFeature.subclassName] = [];
+        }
+        grouped[level][subclassFeature.subclassName].push({
+          ...subclassFeature,
+          isSubclass: true,
+        });
+      });
+    }
+
+    if (className === 'Mage') {
+      MAGE_SUBCLASS_FEATURES.forEach(subclassFeature => {
         const level = subclassFeature.level;
         if (!grouped[level]) {
           grouped[level] = {};

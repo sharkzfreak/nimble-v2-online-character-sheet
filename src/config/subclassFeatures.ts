@@ -2,6 +2,7 @@
 import { CHEAT_SUBCLASS_FEATURES } from './cheatFeatures';
 import { COMMANDER_SUBCLASS_FEATURES } from './commanderFeatures';
 import { HUNTER_SUBCLASS_FEATURES } from './hunterFeatures';
+import { MAGE_SUBCLASS_FEATURES } from './mageFeatures';
 
 export interface SubclassFeature {
   id: string;
@@ -92,4 +93,4 @@ export function getSubclassFeaturesAtLevel(subclassId: string, level: number): S
   );
 }
 
-export { CHEAT_SUBCLASS_FEATURES, COMMANDER_SUBCLASS_FEATURES, HUNTER_SUBCLASS_FEATURES };
+export { CHEAT_SUBCLASS_FEATURES, COMMANDER_SUBCLASS_FEATURES, HUNTER_SUBCLASS_FEATURES, MAGE_SUBCLASS_FEATURES };

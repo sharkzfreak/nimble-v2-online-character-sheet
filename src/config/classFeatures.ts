@@ -26,11 +26,13 @@ export interface ClassFeaturesData {
 import { CHEAT_CLASS_FEATURES } from "./cheatFeatures";
 import { COMMANDER_CLASS_FEATURES } from "./commanderFeatures";
 import { HUNTER_CLASS_FEATURES } from "./hunterFeatures";
+import { MAGE_CLASS_FEATURES } from "./mageFeatures";
 
 export const CLASS_FEATURES: ClassFeaturesData = {
   Cheat: CHEAT_CLASS_FEATURES,
   Commander: COMMANDER_CLASS_FEATURES,
   Hunter: HUNTER_CLASS_FEATURES,
+  Mage: MAGE_CLASS_FEATURES,
   Berserker: [
     {
       id: "berserker_rage_1",
@@ -373,43 +375,6 @@ export const CLASS_FEATURES: ClassFeaturesData = {
       level: 20,
       description: "+1 to any 2 of your stats. Anytime you roll less than 6 on a Fury Die, change it to 6 instead.",
       requires_choice: false,
-    },
-  ],
-  Mage: [
-    {
-      id: "mage_spellcasting",
-      name: "Spellcasting",
-      level: 1,
-      description: "You can cast mage spells using INT as your spellcasting modifier. You know 3 cantrips and 4 level-1 spells.",
-      requires_choice: false,
-    },
-    {
-      id: "mage_element",
-      name: "Elemental Specialization",
-      level: 1,
-      description: "Choose your primary element. Spells of that element deal +1 damage per spell level.",
-      requires_choice: true,
-      choice_type: 'single',
-      choice_count: 1,
-      options: [
-        { id: "fire", name: "Fire", description: "Flames, explosions, and burning damage" },
-        { id: "ice", name: "Ice", description: "Freezing, slowing, and cold damage" },
-        { id: "lightning", name: "Lightning", description: "Shocking speed and electric damage" },
-      ],
-    },
-    {
-      id: "mage_school",
-      name: "Arcane School",
-      level: 3,
-      description: "Choose your school of magic mastery.",
-      requires_choice: true,
-      choice_type: 'single',
-      choice_count: 1,
-      options: [
-        { id: "evocation", name: "Evocation", description: "Destructive elemental power" },
-        { id: "abjuration", name: "Abjuration", description: "Protective wards and shields" },
-        { id: "conjuration", name: "Conjuration", description: "Summoning and teleportation" },
-      ],
     },
   ],
   Oathsworn: [
