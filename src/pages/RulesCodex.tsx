@@ -13,6 +13,7 @@ import { Loader2, ArrowLeft } from "lucide-react";
 import berserkerImg from "@/assets/class-berserker.jpg";
 import cheatImg from "@/assets/class-cheat.jpg";
 import commanderImg from "@/assets/class-commander.jpg";
+import hexbinderImg from "@/assets/class-hexbinder.jpg";
 import hunterImg from "@/assets/class-hunter.jpg";
 import mageImg from "@/assets/class-mage.jpg";
 import oathswornImg from "@/assets/class-oathsworn.jpg";
@@ -26,6 +27,7 @@ const CLASS_IMAGES: Record<string, string> = {
   "Berserker": berserkerImg,
   "Cheat": cheatImg,
   "Commander": commanderImg,
+  "Hexbinder": hexbinderImg,
   "Hunter": hunterImg,
   "Mage": mageImg,
   "Oathsworn": oathswornImg,
@@ -35,6 +37,9 @@ const CLASS_IMAGES: Record<string, string> = {
   "Stormshifter": stormshifterImg,
   "Zephyr": zephyrImg,
 };
+
+// Custom/homebrew classes that should be marked
+const CUSTOM_CLASSES = ["Hexbinder"];
 
 const RulesCodex = () => {
   const navigate = useNavigate();
@@ -137,6 +142,11 @@ const RulesCodex = () => {
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                       />
                       <div className="absolute inset-0 bg-gradient-to-r from-transparent to-card/30" />
+                      {CUSTOM_CLASSES.includes(classData.name) && (
+                        <Badge className="absolute top-2 left-2 bg-amber-500/90 text-amber-950 border-amber-600">
+                          Custom
+                        </Badge>
+                      )}
                     </div>
                     
                     {/* Class Info */}
