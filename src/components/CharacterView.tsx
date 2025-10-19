@@ -1057,6 +1057,8 @@ const CharacterView = ({
                 selection: [],
               })) || []}
               onLevelUpClick={() => setIsLevelUpWizardOpen(true)}
+              onToggleFavorite={handleToggleFavorite}
+              isFavorited={isFavorited}
             />
 
             <div className="flex justify-center mb-6 mt-6">
@@ -1428,46 +1430,18 @@ const CharacterView = ({
             </div>
 
             {formData.custom_spells && formData.custom_spells.length > 0 ? (
-              <div className="space-y-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {formData.custom_spells.map((spell) => (
-                  <Card key={spell.id} className="bg-card/70 border-2 backdrop-blur-sm" style={{ borderColor: `hsl(${classThemeColor} / 0.3)` }}>
-                    <CardHeader>
-                      <div className="flex items-start justify-between">
-                        <CardTitle className="text-lg font-cinzel" style={{ color: `hsl(${classThemeColor})` }}>
-                          {spell.name}
-                        </CardTitle>
-                        <div className="flex gap-2">
-                          {spell.rollFormula && (
-                            <button
-                              className="p-2 hover:bg-primary/20 rounded-md transition-colors"
-                              title="Roll"
-                            >
-                              <D20Icon className="w-4 h-4 text-primary" />
-                            </button>
-                          )}
-                          <button
-                            onClick={() => {
-                              const updated = (formData.custom_spells || []).filter(s => s.id !== spell.id);
-                              onFormDataChange?.({ custom_spells: updated });
-                            }}
-                            className="p-2 hover:bg-destructive/20 rounded-md transition-colors"
-                          >
-                            <X className="w-4 h-4 text-destructive" />
-                          </button>
-                        </div>
-                      </div>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">
-                        {spell.description}
-                      </p>
-                      {spell.rollFormula && (
-                        <p className="text-xs text-primary font-mono mt-2">
-                          Damage: {spell.rollFormula}
-                        </p>
-                      )}
-                    </CardContent>
-                  </Card>
+                  <FeatureCard
+                    key={spell.id}
+                    feature={spell}
+                    type="spell"
+                    onRollAction={(action, rollIndex, advMode, situational) =>
+                      handleRollAction(action, rollIndex, advMode, situational, spell.name)
+                    }
+                    onToggleFavorite={() => handleToggleFavorite(spell.id)}
+                    isFavorited={isFavorited(spell.id)}
+                  />
                 ))}
               </div>
             ) : (

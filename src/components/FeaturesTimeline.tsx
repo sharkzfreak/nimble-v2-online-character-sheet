@@ -3,12 +3,11 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import { Lock, ChevronDown, Search, TrendingUp, Sparkles } from "lucide-react";
+import { Lock, ChevronDown, Search, TrendingUp, Sparkles, Star } from "lucide-react";
 import { getClassFeatures } from "@/config/classFeatures";
 import { ClassFeature } from "@/config/classFeatures";
 
@@ -17,26 +16,33 @@ interface FeaturesTimelineProps {
   currentLevel: number;
   classFeatures: ClassFeature[];
   onLevelUpClick?: () => void;
+  onToggleFavorite?: (featureId: string) => void;
+  isFavorited?: (featureId: string) => boolean;
 }
 
 export const FeaturesTimeline = ({ 
   className, 
   currentLevel, 
   classFeatures,
-  onLevelUpClick 
+  onLevelUpClick,
+  onToggleFavorite,
+  isFavorited
 }: FeaturesTimelineProps) => {
-  const [filter, setFilter] = useState<'all' | 'unlocked' | 'locked'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedFeatures, setExpandedFeatures] = useState<Set<string>>(new Set());
 
   // Get all features from class config
   const allFeatures = getClassFeatures(className);
 
-  // Filter features
+  // Find the next level after current
+  const nextLevel = currentLevel + 1;
+
+  // Filter features to show only unlocked and next level
   const filteredFeatures = allFeatures.filter(feature => {
-    // Filter by lock status
-    if (filter === 'unlocked' && feature.level > currentLevel) return false;
-    if (filter === 'locked' && feature.level <= currentLevel) return false;
+    // Show if unlocked OR if it's the next level
+    const shouldShow = feature.level <= currentLevel || feature.level === nextLevel;
+    
+    if (!shouldShow) return false;
 
     // Filter by search
     if (searchQuery) {
@@ -79,25 +85,15 @@ export const FeaturesTimeline = ({
 
   return (
     <div className="space-y-6">
-      {/* Filters and Search */}
-      <div className="space-y-4">
-        <Tabs value={filter} onValueChange={(v) => setFilter(v as any)}>
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="all">All Features</TabsTrigger>
-            <TabsTrigger value="unlocked">Unlocked</TabsTrigger>
-            <TabsTrigger value="locked">Locked</TabsTrigger>
-          </TabsList>
-        </Tabs>
-
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input
-            placeholder="Search features..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10"
-          />
-        </div>
+      {/* Search Only */}
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+        <Input
+          placeholder="Search features..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="pl-10"
+        />
       </div>
 
       {/* Features Timeline */}
@@ -164,17 +160,34 @@ export const FeaturesTimeline = ({
                             )}
                           </div>
 
-                          {!featureUnlocked && onLevelUpClick && (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={onLevelUpClick}
-                              disabled={level > currentLevel + 1}
-                            >
-                              <TrendingUp className="w-4 h-4 mr-2" />
-                              Level Up
-                            </Button>
-                          )}
+                          <div className="flex items-center gap-2">
+                            {featureUnlocked && onToggleFavorite && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  onToggleFavorite(feature.id);
+                                }}
+                                className="h-8 w-8 p-0"
+                              >
+                                <Star 
+                                  className={`w-4 h-4 ${isFavorited?.(feature.id) ? 'fill-yellow-400 text-yellow-400' : ''}`} 
+                                />
+                              </Button>
+                            )}
+                            {!featureUnlocked && onLevelUpClick && (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={onLevelUpClick}
+                                disabled={feature.level > nextLevel}
+                              >
+                                <TrendingUp className="w-4 h-4 mr-2" />
+                                Level Up
+                              </Button>
+                            )}
+                          </div>
                         </div>
                       </CardHeader>
 
