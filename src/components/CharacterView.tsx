@@ -29,7 +29,6 @@ import {
   Sigma,
   Star,
   Maximize2,
-  ArrowRight
 } from "lucide-react";
 import { ResizableCard } from "@/components/ResizableCard";
 import { D20Icon } from "@/components/icons/D20Icon";
@@ -965,27 +964,27 @@ const CharacterView = ({
                               }}
                             />
                             
-                            {/* Main arrow container with gradient */}
+                            {/* Main arrow container */}
                             <div
-                              className="absolute inset-0 rounded-lg transition-all duration-500 flex items-center justify-center"
+                              className="absolute inset-0 transition-all duration-500 flex items-center justify-center"
                               style={{
-                                background: isActive 
-                                  ? 'linear-gradient(135deg, hsl(217 91% 60%), hsl(217 91% 70%))' 
-                                  : 'linear-gradient(135deg, hsl(0 0% 40%), hsl(0 0% 30%))',
-                                boxShadow: isActive 
-                                  ? '0 0 12px hsl(217 91% 60% / 0.4), inset 0 2px 4px rgba(255,255,255,0.2)' 
-                                  : 'inset 0 2px 4px rgba(0,0,0,0.2)',
                                 opacity: isActive ? 1 : 0.4,
                                 transform: isActive ? 'scale(1)' : 'scale(0.75)',
+                                filter: isActive 
+                                  ? 'drop-shadow(0 0 3px rgba(59, 130, 246, 0.5))' 
+                                  : 'none',
                               }}
                             >
-                              <ArrowRight 
-                                size={16} 
-                                strokeWidth={3}
+                              <svg 
+                                width="24" 
+                                height="24" 
+                                viewBox="0 0 24 24"
                                 style={{
-                                  color: isActive ? 'white' : 'hsl(0 0% 60%)',
+                                  fill: isActive ? '#3b82f6' : '#6b7280',
                                 }}
-                              />
+                              >
+                                <path d="M9 5 L18 12 L9 19 Z" />
+                              </svg>
                             </div>
                             
                             {/* Inner shine effect */}
