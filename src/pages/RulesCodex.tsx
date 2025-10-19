@@ -24,7 +24,7 @@ import zephyrImg from "@/assets/class-zephyr.jpg";
 
 const CLASS_IMAGES: Record<string, string> = {
   "Berserker": berserkerImg,
-  "The Cheat": cheatImg,
+  "Cheat": cheatImg,
   "Commander": commanderImg,
   "Hunter": hunterImg,
   "Mage": mageImg,
