@@ -310,33 +310,6 @@ const ClassDetail = () => {
           </ScrollArea>
         </div>
 
-        {/* Class Spells (if applicable) */}
-        {spells.length > 0 && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-2xl">Class Spells</CardTitle>
-              <CardDescription>Spells available to this class</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid gap-3">
-                {spells.map((spell) => (
-                  <div key={spell.id} className="p-3 border rounded-lg hover:bg-accent transition-colors">
-                    <div className="flex items-start justify-between mb-2">
-                      <h4 className="font-semibold">{spell.name}</h4>
-                      <Badge variant="secondary">{spell.element}</Badge>
-                    </div>
-                    <p className="text-sm text-muted-foreground mb-2">{spell.description}</p>
-                    <div className="flex gap-4 text-xs text-muted-foreground">
-                      {spell.damage && <div><strong>Damage:</strong> {spell.damage}</div>}
-                      {spell.range_value && <div><strong>Range:</strong> {spell.range_value}</div>}
-                      {spell.duration && <div><strong>Duration:</strong> {spell.duration}</div>}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        )}
       </div>
     </div>
   );
