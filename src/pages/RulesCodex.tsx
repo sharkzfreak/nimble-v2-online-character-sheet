@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, ArrowLeft } from "lucide-react";
+import { Loader2, ArrowLeft, Sparkles } from "lucide-react";
 
 // Import class images
 import berserkerImg from "@/assets/class-berserker.jpg";
@@ -142,11 +142,6 @@ const RulesCodex = () => {
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                       />
                       <div className="absolute inset-0 bg-gradient-to-r from-transparent to-card/30" />
-                      {CUSTOM_CLASSES.includes(classData.name) && (
-                        <Badge className="absolute top-2 left-2 bg-amber-500/90 text-amber-950 border-amber-600">
-                          Custom
-                        </Badge>
-                      )}
                     </div>
                     
                     {/* Class Info */}
@@ -156,6 +151,11 @@ const RulesCodex = () => {
                           <h3 className="text-2xl font-bold italic uppercase tracking-wide">
                             {classData.name}
                           </h3>
+                          {CUSTOM_CLASSES.includes(classData.name) && (
+                            <Badge className="bg-amber-500/90 text-amber-950 border-amber-600 ml-2">
+                              <Sparkles className="h-3 w-3" />
+                            </Badge>
+                          )}
                         </div>
                         
                         <p className="text-sm text-muted-foreground leading-relaxed line-clamp-3 mb-3">
