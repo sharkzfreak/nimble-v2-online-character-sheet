@@ -225,7 +225,7 @@ const RulesCodex = () => {
                       />
                     </div>
                     <h4 className="font-semibold text-lg">Beastmaster</h4>
-                    <p className="text-xs text-muted-foreground">Hunter • Page 81</p>
+                    <p className="text-xs text-muted-foreground">Hunter</p>
                   </div>
                   <div className="text-center space-y-2">
                     <div className="aspect-[3/4] overflow-hidden rounded-lg border border-border/50">
@@ -236,7 +236,7 @@ const RulesCodex = () => {
                       />
                     </div>
                     <h4 className="font-semibold text-lg">Reaver</h4>
-                    <p className="text-xs text-muted-foreground">Shadowmancer • Page 79</p>
+                    <p className="text-xs text-muted-foreground">Shadowmancer</p>
                   </div>
                   <div className="text-center space-y-2">
                     <div className="aspect-[3/4] overflow-hidden rounded-lg border border-border/50">
@@ -247,7 +247,7 @@ const RulesCodex = () => {
                       />
                     </div>
                     <h4 className="font-semibold text-lg">Spellblade</h4>
-                    <p className="text-xs text-muted-foreground">Commander • Page 77</p>
+                    <p className="text-xs text-muted-foreground">Commander</p>
                   </div>
                   <div className="text-center space-y-2">
                     <div className="aspect-[3/4] overflow-hidden rounded-lg border border-border/50">
@@ -258,7 +258,7 @@ const RulesCodex = () => {
                       />
                     </div>
                     <h4 className="font-semibold text-lg">Oathbreaker</h4>
-                    <p className="text-xs text-muted-foreground">Oathsworn • Page 75</p>
+                    <p className="text-xs text-muted-foreground">Oathsworn</p>
                   </div>
                 </div>
                 <div className="mt-6 text-center text-sm text-destructive font-semibold">
@@ -266,6 +266,54 @@ const RulesCodex = () => {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="ancestries">
+            <div className="grid gap-4">
+              {Object.entries(
+                filterItems(ancestries, ['name', 'description', 'type']).reduce((acc, ancestry) => {
+                  if (!acc[ancestry.type]) acc[ancestry.type] = [];
+                  acc[ancestry.type].push(ancestry);
+                  return acc;
+                }, {} as Record<string, any[]>)
+              ).map(([type, typeAncestries]: [string, any[]]) => (
+                <Collapsible key={type} defaultOpen>
+                  <Card>
+                    <CollapsibleTrigger className="w-full">
+                      <CardHeader className="flex flex-row items-center justify-between space-y-0">
+                        <CardTitle>{type} Ancestries</CardTitle>
+                        <ChevronDown className="h-5 w-5 transition-transform ui-open:rotate-180" />
+                      </CardHeader>
+                    </CollapsibleTrigger>
+                    <CollapsibleContent>
+                      <CardContent>
+                        <div className="grid md:grid-cols-2 gap-4">
+                          {typeAncestries.map((ancestry: any) => (
+                            <Card key={ancestry.id} className="overflow-hidden">
+                              <CardHeader>
+                                <CardTitle className="text-lg">{ancestry.name}</CardTitle>
+                              </CardHeader>
+                              <CardContent className="space-y-2">
+                                <p className="text-sm text-muted-foreground">{ancestry.description}</p>
+                                {ancestry.traits && Object.entries(ancestry.traits as Record<string, string>).map(([traitName, traitDesc]) => (
+                                  <div key={traitName} className="bg-accent/50 p-3 rounded">
+                                    <h5 className="font-semibold text-sm mb-1">{traitName}</h5>
+                                    <p className="text-xs text-muted-foreground">{traitDesc}</p>
+                                  </div>
+                                ))}
+                                {ancestry.source_page && (
+                                  <span className="text-xs text-muted-foreground">Page {ancestry.source_page}</span>
+                                )}
+                              </CardContent>
+                            </Card>
+                          ))}
+                        </div>
+                      </CardContent>
+                    </CollapsibleContent>
+                  </Card>
+                </Collapsible>
+              ))}
+            </div>
           </TabsContent>
 
           <TabsContent value="backgrounds">
