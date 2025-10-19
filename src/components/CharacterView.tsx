@@ -170,6 +170,7 @@ const CharacterView = ({
   const [newSpellName, setNewSpellName] = useState("");
   const [newSpellDescription, setNewSpellDescription] = useState("");
   const [newSpellFormula, setNewSpellFormula] = useState("");
+  const [spellSearchQuery, setSpellSearchQuery] = useState("");
   
   // Inventory dialog state
   const [isInventoryDialogOpen, setIsInventoryDialogOpen] = useState(false);
@@ -177,6 +178,7 @@ const CharacterView = ({
   const [newItemName, setNewItemName] = useState("");
   const [newItemDescription, setNewItemDescription] = useState("");
   const [newItemFormula, setNewItemFormula] = useState("");
+  const [inventorySearchQuery, setInventorySearchQuery] = useState("");
   
   // Level-up wizard state
   const [isLevelUpWizardOpen, setIsLevelUpWizardOpen] = useState(false);
@@ -1150,19 +1152,20 @@ const CharacterView = ({
               isFavorited={isFavorited}
             />
 
-            <div className="flex justify-center mb-6 mt-6">
-              <Dialog open={isFeatureDialogOpen} onOpenChange={setIsFeatureDialogOpen}>
-                <DialogTrigger asChild>
-                  <button 
-                    className="p-8 rounded-full transition-all duration-300 hover:scale-110"
-                    style={{
-                      backgroundColor: `hsl(${classThemeColor} / 0.2)`,
-                      border: `2px dashed hsl(${classThemeColor})`,
-                    }}
-                  >
-                    <Plus className="w-12 h-12" style={{ color: `hsl(${classThemeColor})` }} />
-                  </button>
-                </DialogTrigger>
+            <Dialog open={isFeatureDialogOpen} onOpenChange={setIsFeatureDialogOpen}>
+              <DialogTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="fixed bottom-6 right-6 z-10"
+                  style={{
+                    borderColor: `hsl(${classThemeColor})`,
+                  }}
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Feature
+                </Button>
+              </DialogTrigger>
                 <DialogContent className="sm:max-w-[600px]">
                   <DialogHeader>
                     <DialogTitle className="font-cinzel" style={{ color: `hsl(${classThemeColor})` }}>
@@ -1247,8 +1250,7 @@ const CharacterView = ({
                     </div>
                   </div>
                 </DialogContent>
-              </Dialog>
-            </div>
+            </Dialog>
           </TabsContent>
 
           {/* Inventory Tab */}
@@ -1256,16 +1258,36 @@ const CharacterView = ({
             {formData.custom_inventory && formData.custom_inventory.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {formData.custom_inventory.map((item) => (
-                  <FeatureCard
-                    key={item.id}
-                    feature={item}
-                    type="item"
-                    onRollAction={(action, rollIndex, advMode, situational) =>
-                      handleRollAction(action, rollIndex, advMode, situational, item.name)
-                    }
-                    onToggleFavorite={() => handleToggleFavorite(item.id)}
-                    isFavorited={isFavorited(item.id)}
-                  />
+                  <Collapsible key={item.id}>
+                    <Card className="bg-card/70 border-2 backdrop-blur-sm" style={{ borderColor: `hsl(${classThemeColor} / 0.3)` }}>
+                      <CollapsibleTrigger className="w-full">
+                        <CardHeader className="flex flex-row items-center justify-between hover:bg-muted/30 transition-colors cursor-pointer">
+                          <div className="flex items-center gap-3 flex-1">
+                            <ChevronDown className="w-5 h-5 transition-transform duration-200 ui-expanded:rotate-180" />
+                            <CardTitle className="text-lg" style={{ color: `hsl(${classThemeColor})` }}>
+                              {item.name}
+                            </CardTitle>
+                          </div>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              const updatedInventory = (formData.custom_inventory || []).filter(i => i.id !== item.id);
+                              onFormDataChange?.({ custom_inventory: updatedInventory });
+                            }}
+                            className="p-2 hover:bg-destructive/20 rounded-md transition-colors"
+                          >
+                            <X className="w-4 h-4 text-destructive" />
+                          </button>
+                        </CardHeader>
+                      </CollapsibleTrigger>
+                      <CollapsibleContent>
+                        <CardContent className="pt-0">
+                          <Separator className="mb-4" style={{ backgroundColor: `hsl(${classThemeColor} / 0.2)` }} />
+                          <p className="text-sm text-muted-foreground whitespace-pre-wrap">{item.description}</p>
+                        </CardContent>
+                      </CollapsibleContent>
+                    </Card>
+                  </Collapsible>
                 ))}
               </div>
             ) : (
@@ -1273,24 +1295,25 @@ const CharacterView = ({
                 <CardContent className="py-16 text-center">
                   <Package className="w-16 h-16 mx-auto mb-4 opacity-30" style={{ color: `hsl(${classThemeColor})` }} />
                   <p className="text-muted-foreground font-medium">No items in inventory</p>
-                  <p className="text-sm text-muted-foreground mt-2">Click the + button below to add items</p>
+                  <p className="text-sm text-muted-foreground mt-2">Click the + button to add items</p>
                 </CardContent>
               </Card>
             )}
 
-            <div className="flex justify-center mt-6">
-              <Sheet open={isInventoryDialogOpen} onOpenChange={setIsInventoryDialogOpen}>
-                <SheetTrigger asChild>
-                  <button 
-                    className="p-8 rounded-full transition-all duration-300 hover:scale-110"
-                    style={{
-                      backgroundColor: `hsl(${classThemeColor} / 0.2)`,
-                      border: `2px dashed hsl(${classThemeColor})`,
-                    }}
-                  >
-                    <Plus className="w-12 h-12" style={{ color: `hsl(${classThemeColor})` }} />
-                  </button>
-                </SheetTrigger>
+            <Sheet open={isInventoryDialogOpen} onOpenChange={setIsInventoryDialogOpen}>
+              <SheetTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="fixed bottom-6 right-6 z-10"
+                  style={{
+                    borderColor: `hsl(${classThemeColor})`,
+                  }}
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Item
+                </Button>
+              </SheetTrigger>
                 <SheetContent side="left" className="w-[400px] sm:w-[540px] overflow-y-auto">
                   <SheetHeader>
                     <SheetTitle className="font-cinzel" style={{ color: `hsl(${classThemeColor})` }}>
@@ -1317,45 +1340,58 @@ const CharacterView = ({
                     </div>
 
                     {inventoryViewMode === 'codex' ? (
-                      <div className="grid gap-2">
-                        {availableEquipment.map((item) => (
-                          <Card 
-                            key={item.id}
-                            className="p-4 hover:bg-accent/50 transition-colors"
-                          >
-                            <div className="flex items-start justify-between gap-2">
-                              <div className="flex-1">
-                                <div className="font-medium">{item.name}</div>
-                                {item.description && (
-                                  <div className="text-sm text-muted-foreground mt-1">{item.description}</div>
-                                )}
-                                {item.damage && (
-                                  <div className="text-xs text-muted-foreground mt-1">Damage: {item.damage}</div>
-                                )}
+                      <div className="space-y-4">
+                        <Input
+                          placeholder="Search items..."
+                          value={inventorySearchQuery}
+                          onChange={(e) => setInventorySearchQuery(e.target.value)}
+                          className="w-full"
+                        />
+                        <div className="grid gap-2 max-h-[60vh] overflow-y-auto">
+                          {availableEquipment
+                            .filter((item) => 
+                              item.name.toLowerCase().includes(inventorySearchQuery.toLowerCase()) ||
+                              (item.description && item.description.toLowerCase().includes(inventorySearchQuery.toLowerCase()))
+                            )
+                            .map((item) => (
+                            <Card 
+                              key={item.id}
+                              className="p-4 hover:bg-accent/50 transition-colors"
+                            >
+                              <div className="flex items-start justify-between gap-2">
+                                <div className="flex-1">
+                                  <div className="font-medium">{item.name}</div>
+                                  {item.description && (
+                                    <div className="text-sm text-muted-foreground mt-1">{item.description}</div>
+                                  )}
+                                  {item.damage && (
+                                    <div className="text-xs text-muted-foreground mt-1">Damage: {item.damage}</div>
+                                  )}
+                                </div>
+                                <Button
+                                  size="sm"
+                                  onClick={() => {
+                                    const newItem: CustomItem = {
+                                      id: crypto.randomUUID(),
+                                      name: item.name,
+                                      description: item.description || '',
+                                      rollFormula: item.damage || undefined,
+                                    };
+                                    onFormDataChange?.({
+                                      custom_inventory: [...(formData.custom_inventory || []), newItem],
+                                    });
+                                  }}
+                                  style={{
+                                    backgroundColor: `hsl(${classThemeColor})`,
+                                    color: 'hsl(var(--background))',
+                                  }}
+                                >
+                                  <Plus className="w-4 h-4" />
+                                </Button>
                               </div>
-                              <Button
-                                size="sm"
-                                onClick={() => {
-                                  const newItem: CustomItem = {
-                                    id: crypto.randomUUID(),
-                                    name: item.name,
-                                    description: item.description || '',
-                                    rollFormula: item.damage || undefined,
-                                  };
-                                  onFormDataChange?.({
-                                    custom_inventory: [...(formData.custom_inventory || []), newItem],
-                                  });
-                                }}
-                                style={{
-                                  backgroundColor: `hsl(${classThemeColor})`,
-                                  color: 'hsl(var(--background))',
-                                }}
-                              >
-                                <Plus className="w-4 h-4" />
-                              </Button>
-                            </div>
-                          </Card>
-                        ))}
+                            </Card>
+                          ))}
+                        </div>
                       </div>
                     ) : (
                       <div className="space-y-4">
@@ -1426,8 +1462,7 @@ const CharacterView = ({
                     )}
                   </div>
                 </SheetContent>
-              </Sheet>
-            </div>
+            </Sheet>
           </TabsContent>
 
           {/* Spells Tab */}
@@ -1435,16 +1470,36 @@ const CharacterView = ({
             {formData.custom_spells && formData.custom_spells.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {formData.custom_spells.map((spell) => (
-                  <FeatureCard
-                    key={spell.id}
-                    feature={spell}
-                    type="spell"
-                    onRollAction={(action, rollIndex, advMode, situational) =>
-                      handleRollAction(action, rollIndex, advMode, situational, spell.name)
-                    }
-                    onToggleFavorite={() => handleToggleFavorite(spell.id)}
-                    isFavorited={isFavorited(spell.id)}
-                  />
+                  <Collapsible key={spell.id}>
+                    <Card className="bg-card/70 border-2 backdrop-blur-sm" style={{ borderColor: `hsl(${classThemeColor} / 0.3)` }}>
+                      <CollapsibleTrigger className="w-full">
+                        <CardHeader className="flex flex-row items-center justify-between hover:bg-muted/30 transition-colors cursor-pointer">
+                          <div className="flex items-center gap-3 flex-1">
+                            <ChevronDown className="w-5 h-5 transition-transform duration-200 ui-expanded:rotate-180" />
+                            <CardTitle className="text-lg" style={{ color: `hsl(${classThemeColor})` }}>
+                              {spell.name}
+                            </CardTitle>
+                          </div>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              const updatedSpells = (formData.custom_spells || []).filter(s => s.id !== spell.id);
+                              onFormDataChange?.({ custom_spells: updatedSpells });
+                            }}
+                            className="p-2 hover:bg-destructive/20 rounded-md transition-colors"
+                          >
+                            <X className="w-4 h-4 text-destructive" />
+                          </button>
+                        </CardHeader>
+                      </CollapsibleTrigger>
+                      <CollapsibleContent>
+                        <CardContent className="pt-0">
+                          <Separator className="mb-4" style={{ backgroundColor: `hsl(${classThemeColor} / 0.2)` }} />
+                          <p className="text-sm text-muted-foreground whitespace-pre-wrap">{spell.description}</p>
+                        </CardContent>
+                      </CollapsibleContent>
+                    </Card>
+                  </Collapsible>
                 ))}
               </div>
             ) : (
@@ -1452,24 +1507,25 @@ const CharacterView = ({
                 <CardContent className="py-16 text-center">
                   <Wand2 className="w-16 h-16 mx-auto mb-4 opacity-30" style={{ color: `hsl(${classThemeColor})` }} />
                   <p className="text-muted-foreground font-medium">No spells added yet</p>
-                  <p className="text-sm text-muted-foreground mt-2">Click the + button below to add spells</p>
+                  <p className="text-sm text-muted-foreground mt-2">Click the + button to add spells</p>
                 </CardContent>
               </Card>
             )}
 
-            <div className="flex justify-center mt-6">
-              <Sheet open={isSpellDialogOpen} onOpenChange={setIsSpellDialogOpen}>
-                <SheetTrigger asChild>
-                  <button 
-                    className="p-8 rounded-full transition-all duration-300 hover:scale-110"
-                    style={{
-                      backgroundColor: `hsl(${classThemeColor} / 0.2)`,
-                      border: `2px dashed hsl(${classThemeColor})`,
-                    }}
-                  >
-                    <Plus className="w-12 h-12" style={{ color: `hsl(${classThemeColor})` }} />
-                  </button>
-                </SheetTrigger>
+            <Sheet open={isSpellDialogOpen} onOpenChange={setIsSpellDialogOpen}>
+              <SheetTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="fixed bottom-6 right-6 z-10"
+                  style={{
+                    borderColor: `hsl(${classThemeColor})`,
+                  }}
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Spell
+                </Button>
+              </SheetTrigger>
                 <SheetContent side="left" className="w-[400px] sm:w-[540px] overflow-y-auto">
                   <SheetHeader>
                     <SheetTitle className="font-cinzel" style={{ color: `hsl(${classThemeColor})` }}>
@@ -1496,48 +1552,62 @@ const CharacterView = ({
                     </div>
 
                     {spellViewMode === 'codex' ? (
-                      <div className="grid gap-2">
-                        {availableSpells.map((spell) => (
-                          <Card 
-                            key={spell.id}
-                            className="p-4 hover:bg-accent/50 transition-colors"
-                          >
-                            <div className="flex items-start justify-between gap-2">
-                              <div className="flex-1">
-                                <div className="font-medium">{spell.name}</div>
-                                {spell.element && (
-                                  <Badge className="mt-1">{spell.element}</Badge>
-                                )}
-                                {spell.description && (
-                                  <div className="text-sm text-muted-foreground mt-1">{spell.description}</div>
-                                )}
-                                {spell.damage && (
-                                  <div className="text-xs text-muted-foreground mt-1">Damage: {spell.damage}</div>
-                                )}
+                      <div className="space-y-4">
+                        <Input
+                          placeholder="Search spells..."
+                          value={spellSearchQuery}
+                          onChange={(e) => setSpellSearchQuery(e.target.value)}
+                          className="w-full"
+                        />
+                        <div className="grid gap-2 max-h-[60vh] overflow-y-auto">
+                          {availableSpells
+                            .filter((spell) => 
+                              spell.name.toLowerCase().includes(spellSearchQuery.toLowerCase()) ||
+                              (spell.description && spell.description.toLowerCase().includes(spellSearchQuery.toLowerCase())) ||
+                              (spell.element && spell.element.toLowerCase().includes(spellSearchQuery.toLowerCase()))
+                            )
+                            .map((spell) => (
+                            <Card 
+                              key={spell.id}
+                              className="p-4 hover:bg-accent/50 transition-colors"
+                            >
+                              <div className="flex items-start justify-between gap-2">
+                                <div className="flex-1">
+                                  <div className="font-medium">{spell.name}</div>
+                                  {spell.element && (
+                                    <Badge className="mt-1">{spell.element}</Badge>
+                                  )}
+                                  {spell.description && (
+                                    <div className="text-sm text-muted-foreground mt-1">{spell.description}</div>
+                                  )}
+                                  {spell.damage && (
+                                    <div className="text-xs text-muted-foreground mt-1">Damage: {spell.damage}</div>
+                                  )}
+                                </div>
+                                <Button
+                                  size="sm"
+                                  onClick={() => {
+                                    const newSpell: CustomItem = {
+                                      id: crypto.randomUUID(),
+                                      name: spell.name,
+                                      description: spell.description || '',
+                                      rollFormula: spell.damage || undefined,
+                                    };
+                                    onFormDataChange?.({
+                                      custom_spells: [...(formData.custom_spells || []), newSpell],
+                                    });
+                                  }}
+                                  style={{
+                                    backgroundColor: `hsl(${classThemeColor})`,
+                                    color: 'hsl(var(--background))',
+                                  }}
+                                >
+                                  <Plus className="w-4 h-4" />
+                                </Button>
                               </div>
-                              <Button
-                                size="sm"
-                                onClick={() => {
-                                  const newSpell: CustomItem = {
-                                    id: crypto.randomUUID(),
-                                    name: spell.name,
-                                    description: spell.description || '',
-                                    rollFormula: spell.damage || undefined,
-                                  };
-                                  onFormDataChange?.({
-                                    custom_spells: [...(formData.custom_spells || []), newSpell],
-                                  });
-                                }}
-                                style={{
-                                  backgroundColor: `hsl(${classThemeColor})`,
-                                  color: 'hsl(var(--background))',
-                                }}
-                              >
-                                <Plus className="w-4 h-4" />
-                              </Button>
-                            </div>
-                          </Card>
-                        ))}
+                            </Card>
+                          ))}
+                        </div>
                       </div>
                     ) : (
                       <div className="space-y-4">
@@ -1608,25 +1678,25 @@ const CharacterView = ({
                     )}
                   </div>
                 </SheetContent>
-              </Sheet>
-            </div>
+            </Sheet>
           </TabsContent>
 
           {/* Journal Tab */}
           <TabsContent value="journal" className="mt-6 space-y-4">
-            <div className="flex justify-center mb-6">
-              <Dialog open={isJournalDialogOpen} onOpenChange={setIsJournalDialogOpen}>
-                <DialogTrigger asChild>
-                  <button 
-                    className="p-8 rounded-full transition-all duration-300 hover:scale-110"
-                    style={{
-                      backgroundColor: `hsl(${classThemeColor} / 0.2)`,
-                      border: `2px dashed hsl(${classThemeColor})`,
-                    }}
-                  >
-                    <Plus className="w-12 h-12" style={{ color: `hsl(${classThemeColor})` }} />
-                  </button>
-                </DialogTrigger>
+            <Dialog open={isJournalDialogOpen} onOpenChange={setIsJournalDialogOpen}>
+              <DialogTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="fixed bottom-6 right-6 z-10"
+                  style={{
+                    borderColor: `hsl(${classThemeColor})`,
+                  }}
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Entry
+                </Button>
+              </DialogTrigger>
                 <DialogContent className="sm:max-w-[600px]">
                   <DialogHeader>
                     <DialogTitle className="font-cinzel" style={{ color: `hsl(${classThemeColor})` }}>
@@ -1696,8 +1766,7 @@ const CharacterView = ({
                     </div>
                   </div>
                 </DialogContent>
-              </Dialog>
-            </div>
+            </Dialog>
 
             {formData.journal_entries && formData.journal_entries.length > 0 ? (
               <div className="space-y-3">
