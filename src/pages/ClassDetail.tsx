@@ -240,8 +240,8 @@ const ClassDetail = () => {
                               open={isExpanded}
                               onOpenChange={() => toggleFeature(featureKey)}
                             >
-                              <div className="border rounded-lg overflow-hidden hover:border-primary/50 transition-colors">
-                                <CollapsibleTrigger className="w-full p-4 flex items-center justify-between hover:bg-muted/50 transition-colors">
+                              <div className={`${idx !== 0 ? 'border-t' : ''}`}>
+                                <CollapsibleTrigger className="w-full py-3 flex items-center justify-between hover:bg-muted/30 transition-colors">
                                   <div className="flex items-center gap-3 flex-1">
                                     <h4 className="font-bold text-lg">{feature.name}</h4>
                                     <Badge variant="outline" className="shrink-0">
@@ -267,7 +267,7 @@ const ClassDetail = () => {
                                 </CollapsibleTrigger>
                                 
                                 <CollapsibleContent>
-                                  <div className="p-4 pt-0 border-t bg-muted/20">
+                                  <div className="pb-3 pl-4">
                                     <p className="text-sm text-muted-foreground whitespace-pre-wrap mb-3">
                                       {feature.description || feature.text}
                                     </p>
