@@ -18,11 +18,11 @@ import {
   Wand2, 
   FileText, 
   Activity,
+  ChevronDown,
   Heart,
   Footprints,
   Sparkles,
   Package,
-  ChevronDown,
   Plus,
   X,
   TrendingUp,
@@ -1425,37 +1425,80 @@ const CharacterView = ({
               </Sheet>
             </div>
             {formData.custom_inventory && formData.custom_inventory.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
                 {formData.custom_inventory.map((item) => (
-                  <Collapsible key={item.id}>
-                    <Card className="bg-card/70 border-2 backdrop-blur-sm" style={{ borderColor: `hsl(${classThemeColor} / 0.3)` }}>
-                      <CollapsibleTrigger className="w-full">
-                        <CardHeader className="flex flex-row items-center justify-between hover:bg-muted/30 transition-colors cursor-pointer">
-                          <div className="flex items-center gap-3 flex-1">
-                            <ChevronDown className="w-5 h-5 transition-transform duration-200 ui-expanded:rotate-180" />
-                            <CardTitle className="text-lg" style={{ color: `hsl(${classThemeColor})` }}>
-                              {item.name}
-                            </CardTitle>
-                          </div>
-                          <button
+                  <Collapsible key={item.id} className="border rounded-lg">
+                    <CollapsibleTrigger className="w-full p-3 text-left hover:bg-accent/50 transition-colors flex items-center justify-between group">
+                      <div className="flex-1 flex items-center gap-3">
+                        <span className="font-medium">{item.name}</span>
+                        {item.rollFormula && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
                             onClick={(e) => {
                               e.stopPropagation();
-                              const updatedInventory = (formData.custom_inventory || []).filter(i => i.id !== item.id);
-                              onFormDataChange?.({ custom_inventory: updatedInventory });
+                              const rollResult = rollAction(
+                                {
+                                  kind: 'damage',
+                                  die: item.rollFormula,
+                                  ability: 'STR',
+                                },
+                                {
+                                  character: {
+                                    str_mod: formData.str_mod || 0,
+                                    dex_mod: formData.dex_mod || 0,
+                                    int_mod: formData.int_mod || 0,
+                                    will_mod: formData.will_mod || 0,
+                                  },
+                                }
+                              );
+                              const formatted = formatRollResult(item.name, { kind: 'damage', die: item.rollFormula }, rollResult);
+                              toast({
+                                title: 'Roll Result',
+                                description: formatted,
+                              });
+                              addLog?.({
+                                character_id: characterId,
+                                character_name: formData.name || 'Unknown',
+                                roll_type: 'damage',
+                                formula: rollResult.formula,
+                                individual_rolls: rollResult.rolls,
+                                raw_result: rollResult.rawResult,
+                                modifier: rollResult.modifier,
+                                total: rollResult.total,
+                              });
                             }}
-                            className="p-2 hover:bg-destructive/20 rounded-md transition-colors"
+                            className="h-7 w-7 p-0"
+                            style={{
+                              color: `hsl(${classThemeColor})`,
+                            }}
                           >
-                            <X className="w-4 h-4 text-destructive" />
-                          </button>
-                        </CardHeader>
-                      </CollapsibleTrigger>
-                      <CollapsibleContent>
-                        <CardContent className="pt-0">
-                          <Separator className="mb-4" style={{ backgroundColor: `hsl(${classThemeColor} / 0.2)` }} />
-                          <p className="text-sm text-muted-foreground whitespace-pre-wrap">{item.description}</p>
-                        </CardContent>
-                      </CollapsibleContent>
-                    </Card>
+                            <D20Icon className="w-4 h-4" />
+                          </Button>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onFormDataChange?.({
+                              custom_inventory: formData.custom_inventory?.filter((i) => i.id !== item.id),
+                            });
+                          }}
+                          className="h-7 w-7 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <X className="w-4 h-4" />
+                        </Button>
+                        <ChevronDown className="w-4 h-4 transition-transform ui-open:rotate-180" />
+                      </div>
+                    </CollapsibleTrigger>
+                    <CollapsibleContent className="px-4 pb-3">
+                      <div className="text-sm text-muted-foreground whitespace-pre-wrap">
+                        {item.description}
+                      </div>
+                    </CollapsibleContent>
                   </Collapsible>
                 ))}
               </div>
@@ -1645,37 +1688,80 @@ const CharacterView = ({
             </div>
             
             {formData.custom_spells && formData.custom_spells.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
                 {formData.custom_spells.map((spell) => (
-                  <Collapsible key={spell.id}>
-                    <Card className="bg-card/70 border-2 backdrop-blur-sm" style={{ borderColor: `hsl(${classThemeColor} / 0.3)` }}>
-                      <CollapsibleTrigger className="w-full">
-                        <CardHeader className="flex flex-row items-center justify-between hover:bg-muted/30 transition-colors cursor-pointer">
-                          <div className="flex items-center gap-3 flex-1">
-                            <ChevronDown className="w-5 h-5 transition-transform duration-200 ui-expanded:rotate-180" />
-                            <CardTitle className="text-lg" style={{ color: `hsl(${classThemeColor})` }}>
-                              {spell.name}
-                            </CardTitle>
-                          </div>
-                          <button
+                  <Collapsible key={spell.id} className="border rounded-lg">
+                    <CollapsibleTrigger className="w-full p-3 text-left hover:bg-accent/50 transition-colors flex items-center justify-between group">
+                      <div className="flex-1 flex items-center gap-3">
+                        <span className="font-medium">{spell.name}</span>
+                        {spell.rollFormula && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
                             onClick={(e) => {
                               e.stopPropagation();
-                              const updatedSpells = (formData.custom_spells || []).filter(s => s.id !== spell.id);
-                              onFormDataChange?.({ custom_spells: updatedSpells });
+                              const rollResult = rollAction(
+                                {
+                                  kind: 'damage',
+                                  die: spell.rollFormula,
+                                  ability: 'INT',
+                                },
+                                {
+                                  character: {
+                                    str_mod: formData.str_mod || 0,
+                                    dex_mod: formData.dex_mod || 0,
+                                    int_mod: formData.int_mod || 0,
+                                    will_mod: formData.will_mod || 0,
+                                  },
+                                }
+                              );
+                              const formatted = formatRollResult(spell.name, { kind: 'damage', die: spell.rollFormula }, rollResult);
+                              toast({
+                                title: 'Roll Result',
+                                description: formatted,
+                              });
+                              addLog?.({
+                                character_id: characterId,
+                                character_name: formData.name || 'Unknown',
+                                roll_type: 'damage',
+                                formula: rollResult.formula,
+                                individual_rolls: rollResult.rolls,
+                                raw_result: rollResult.rawResult,
+                                modifier: rollResult.modifier,
+                                total: rollResult.total,
+                              });
                             }}
-                            className="p-2 hover:bg-destructive/20 rounded-md transition-colors"
+                            className="h-7 w-7 p-0"
+                            style={{
+                              color: `hsl(${classThemeColor})`,
+                            }}
                           >
-                            <X className="w-4 h-4 text-destructive" />
-                          </button>
-                        </CardHeader>
-                      </CollapsibleTrigger>
-                      <CollapsibleContent>
-                        <CardContent className="pt-0">
-                          <Separator className="mb-4" style={{ backgroundColor: `hsl(${classThemeColor} / 0.2)` }} />
-                          <p className="text-sm text-muted-foreground whitespace-pre-wrap">{spell.description}</p>
-                        </CardContent>
-                      </CollapsibleContent>
-                    </Card>
+                            <D20Icon className="w-4 h-4" />
+                          </Button>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onFormDataChange?.({
+                              custom_spells: formData.custom_spells?.filter((s) => s.id !== spell.id),
+                            });
+                          }}
+                          className="h-7 w-7 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <X className="w-4 h-4" />
+                        </Button>
+                        <ChevronDown className="w-4 h-4 transition-transform ui-open:rotate-180" />
+                      </div>
+                    </CollapsibleTrigger>
+                    <CollapsibleContent className="px-4 pb-3">
+                      <div className="text-sm text-muted-foreground whitespace-pre-wrap">
+                        {spell.description}
+                      </div>
+                    </CollapsibleContent>
                   </Collapsible>
                 ))}
               </div>
