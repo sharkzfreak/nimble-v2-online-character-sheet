@@ -1330,17 +1330,24 @@ const CharacterView = ({
                                 </div>
                                 <Button
                                   size="sm"
-                                  onClick={() => {
-                                    const newItem: CustomItem = {
-                                      id: crypto.randomUUID(),
-                                      name: item.name,
-                                      description: item.description || '',
-                                      rollFormula: item.damage || undefined,
-                                    };
-                                    onFormDataChange?.({
-                                      custom_inventory: [...(formData.custom_inventory || []), newItem],
-                                    });
-                                  }}
+                                   onClick={() => {
+                                     const itemDescription = [
+                                       item.description,
+                                       item.type && `Type: ${item.type}`,
+                                       item.properties && `Properties: ${JSON.stringify(item.properties)}`,
+                                       item.range_value && `Range: ${item.range_value}`,
+                                     ].filter(Boolean).join('\n');
+                                     
+                                     const newItem: CustomItem = {
+                                       id: crypto.randomUUID(),
+                                       name: item.name,
+                                       description: itemDescription || 'No description available',
+                                       rollFormula: item.damage || undefined,
+                                     };
+                                     onFormDataChange?.({
+                                       custom_inventory: [...(formData.custom_inventory || []), newItem],
+                                     });
+                                   }}
                                   style={{
                                     backgroundColor: `hsl(${classThemeColor})`,
                                     color: 'hsl(var(--background))',
@@ -1432,9 +1439,7 @@ const CharacterView = ({
                       <div className="flex-1 flex items-center gap-3">
                         <span className="font-medium">{item.name}</span>
                         {item.rollFormula && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
+                          <div
                             onClick={(e) => {
                               e.stopPropagation();
                               const rollResult = rollAction(
@@ -1468,13 +1473,13 @@ const CharacterView = ({
                                 total: rollResult.total,
                               });
                             }}
-                            className="h-7 w-7 p-0"
+                            className="cursor-pointer h-7 w-7 flex items-center justify-center rounded hover:bg-accent"
                             style={{
                               color: `hsl(${classThemeColor})`,
                             }}
                           >
                             <D20Icon className="w-4 h-4" />
-                          </Button>
+                          </div>
                         )}
                       </div>
                       <div className="flex items-center gap-2">
@@ -1695,9 +1700,7 @@ const CharacterView = ({
                       <div className="flex-1 flex items-center gap-3">
                         <span className="font-medium">{spell.name}</span>
                         {spell.rollFormula && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
+                          <div
                             onClick={(e) => {
                               e.stopPropagation();
                               const rollResult = rollAction(
@@ -1731,13 +1734,13 @@ const CharacterView = ({
                                 total: rollResult.total,
                               });
                             }}
-                            className="h-7 w-7 p-0"
+                            className="cursor-pointer h-7 w-7 flex items-center justify-center rounded hover:bg-accent"
                             style={{
                               color: `hsl(${classThemeColor})`,
                             }}
                           >
                             <D20Icon className="w-4 h-4" />
-                          </Button>
+                          </div>
                         )}
                       </div>
                       <div className="flex items-center gap-2">
