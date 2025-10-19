@@ -4,25 +4,32 @@ export const D20Icon = ({ className, ...props }: SVGProps<SVGSVGElement>) => {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
+      viewBox="0 0 100 100"
       fill="none"
       stroke="currentColor"
-      strokeWidth="2"
+      strokeWidth="3"
       strokeLinecap="round"
       strokeLinejoin="round"
       className={className}
       {...props}
     >
-      {/* D20 Icosahedron outer outline only */}
-      {/* Top point */}
-      <path d="M12 2 L20 7 L18 14 L12 18 L6 14 L4 7 Z" />
-      {/* Bottom point */}
-      <path d="M12 18 L18 14 L20 17 L12 22 L4 17 L6 14 Z" />
-      {/* Left and right edges */}
-      <path d="M4 7 L6 14" />
-      <path d="M20 7 L18 14" />
-      <path d="M6 14 L4 17" />
-      <path d="M18 14 L20 17" />
+      {/* D20 Icosahedron - geometric outline */}
+      {/* Outer pentagon */}
+      <path d="M 50,8 L 82,28 L 73,62 L 27,62 L 18,28 Z" />
+      
+      {/* Bottom pentagon */}
+      <path d="M 27,62 L 50,92 L 73,62" />
+      <path d="M 18,28 L 8,50 L 27,62" />
+      <path d="M 82,28 L 92,50 L 73,62" />
+      <path d="M 8,50 L 50,92 L 92,50" />
+      
+      {/* Inner triangle connections */}
+      <path d="M 50,8 L 27,62" />
+      <path d="M 50,8 L 73,62" />
+      <path d="M 18,28 L 73,62" />
+      <path d="M 82,28 L 27,62" />
+      <path d="M 50,8 L 8,50" />
+      <path d="M 50,8 L 92,50" />
     </svg>
   );
 };
