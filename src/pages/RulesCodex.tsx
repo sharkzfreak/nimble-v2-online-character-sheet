@@ -147,9 +147,6 @@ const RulesCodex = () => {
                             <h3 className="text-2xl font-bold italic uppercase tracking-wide">
                               {classData.name}
                             </h3>
-                            <Badge variant="outline" className="ml-2 whitespace-nowrap">
-                              {classData.source_page ? `P. ${classData.source_page}` : 'P. 1'}
-                            </Badge>
                           </div>
                           
                           <p className="text-sm text-muted-foreground leading-relaxed line-clamp-3 mb-3">
@@ -161,19 +158,6 @@ const RulesCodex = () => {
                             <span className="text-primary font-bold">
                               {'♦'.repeat(classData.complexity)}
                             </span>
-                          </div>
-                        </div>
-                        
-                        <div className="mt-4 pt-4 border-t border-border/50">
-                          <div className="text-xs text-muted-foreground space-y-1">
-                            <div className="flex justify-between">
-                              <span className="font-semibold">Hit Die:</span>
-                              <span>{classData.hit_die}</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="font-semibold">Key Stats:</span>
-                              <span>{classData.key_stats.join(', ')}</span>
-                            </div>
                           </div>
                         </div>
                       </div>
