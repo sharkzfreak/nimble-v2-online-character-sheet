@@ -952,50 +952,25 @@ const CharacterView = ({
                               height: '28px',
                             }}
                           >
-                            {/* Glowing background ring - reduced opacity */}
+                            {/* Arrow icon */}
                             <div
-                              className="absolute inset-0 rounded-lg transition-all duration-500 blur-sm"
+                              className="absolute inset-0 transition-all duration-300 flex items-center justify-center"
                               style={{
-                                background: isActive 
-                                  ? 'linear-gradient(135deg, hsl(217 91% 60%), hsl(217 91% 70%))' 
-                                  : 'transparent',
-                                opacity: isActive ? 0.4 : 0,
-                                transform: isActive ? 'scale(1.2)' : 'scale(1)',
-                              }}
-                            />
-                            
-                            {/* Main arrow container */}
-                            <div
-                              className="absolute inset-0 transition-all duration-500 flex items-center justify-center"
-                              style={{
-                                opacity: isActive ? 1 : 0.4,
-                                transform: isActive ? 'scale(1)' : 'scale(0.75)',
-                                filter: isActive 
-                                  ? 'drop-shadow(0 0 3px rgba(59, 130, 246, 0.5))' 
-                                  : 'none',
+                                opacity: isActive ? 1 : 0.3,
+                                transform: isActive ? 'scale(1)' : 'scale(0.85)',
                               }}
                             >
                               <svg 
-                                width="24" 
-                                height="24" 
+                                width="20" 
+                                height="20" 
                                 viewBox="0 0 24 24"
                                 style={{
                                   fill: isActive ? '#3b82f6' : '#6b7280',
                                 }}
                               >
-                                <path d="M9 5 L18 12 L9 19 Z" />
+                                <path d="M5 3 L19 12 L5 21 L5 15 L13 12 L5 9 Z" />
                               </svg>
                             </div>
-                            
-                            {/* Inner shine effect */}
-                            {isActive && (
-                              <div
-                                className="absolute inset-0 rounded-lg transition-all duration-500 pointer-events-none"
-                                style={{
-                                  background: 'linear-gradient(135deg, rgba(255,255,255,0.3) 0%, transparent 60%)',
-                                }}
-                              />
-                            )}
                             
                             {/* Border ring */}
                             <div
