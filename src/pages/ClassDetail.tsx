@@ -243,10 +243,9 @@ const ClassDetail = () => {
                               <div className="border rounded-lg overflow-hidden hover:border-primary/50 transition-colors">
                                 <CollapsibleTrigger className="w-full p-4 flex items-center justify-between hover:bg-muted/50 transition-colors">
                                   <div className="flex items-center gap-3 flex-1">
-                                    <Badge variant="outline" className="shrink-0">
-                                      L{feature.level}
-                                    </Badge>
-                                    <h4 className="font-bold text-lg text-left">{feature.name}</h4>
+                                    <span className="font-bold text-lg">
+                                      {feature.name} <span className="text-muted-foreground font-normal">› Level {feature.level}</span>
+                                    </span>
                                     {feature.isSubclass && (
                                       <Badge variant="secondary" className="text-xs shrink-0">
                                         {feature.subclassName}
@@ -260,7 +259,7 @@ const ClassDetail = () => {
                                     )}
                                   </div>
                                   <ChevronDown 
-                                    className={`h-5 w-5 text-muted-foreground transition-transform ${
+                                    className={`h-5 w-5 text-muted-foreground transition-transform shrink-0 ml-2 ${
                                       isExpanded ? 'rotate-180' : ''
                                     }`}
                                   />
