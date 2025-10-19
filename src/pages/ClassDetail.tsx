@@ -212,9 +212,8 @@ const ClassDetail = () => {
             Class Features & Abilities
           </h2>
           
-          <ScrollArea className="h-[700px]">
-            <div className="space-y-6 pr-4">
-              {Array.from({ length: maxLevel }, (_, i) => i + 1).map((level) => {
+          <div className="space-y-6">
+            {Array.from({ length: maxLevel }, (_, i) => i + 1).map((level) => {
                 const levelFeatures = featuresByLevel[level] || [];
                 
                 if (levelFeatures.length === 0) return null;
@@ -306,8 +305,7 @@ const ClassDetail = () => {
                   </Card>
                 );
               })}
-            </div>
-          </ScrollArea>
+          </div>
         </div>
 
       </div>
