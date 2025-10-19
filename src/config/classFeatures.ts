@@ -32,6 +32,7 @@ import { SHADOWMANCER_CLASS_FEATURES } from "./shadowmancerFeatures";
 import { SHEPHERD_CLASS_FEATURES } from "./shepherdFeatures";
 import { SONGWEAVER_CLASS_FEATURES } from "./songweaverFeatures";
 import { STORMSHIFTER_CLASS_FEATURES } from "./stormshifterFeatures";
+import { ZEPHYR_CLASS_FEATURES } from "./zephyrFeatures";
 
 export const CLASS_FEATURES: ClassFeaturesData = {
   Cheat: CHEAT_CLASS_FEATURES,
@@ -43,6 +44,7 @@ export const CLASS_FEATURES: ClassFeaturesData = {
   Shepherd: SHEPHERD_CLASS_FEATURES,
   Songweaver: SONGWEAVER_CLASS_FEATURES,
   Stormshifter: STORMSHIFTER_CLASS_FEATURES,
+  Zephyr: ZEPHYR_CLASS_FEATURES,
   Berserker: [
     {
       id: "berserker_rage_1",
@@ -385,36 +387,6 @@ export const CLASS_FEATURES: ClassFeaturesData = {
       level: 20,
       description: "+1 to any 2 of your stats. Anytime you roll less than 6 on a Fury Die, change it to 6 instead.",
       requires_choice: false,
-    },
-  ],
-  Zephyr: [
-    {
-      id: "zephyr_martial_arts",
-      name: "Martial Arts",
-      level: 1,
-      description: "Unarmed strikes deal 1d6 damage and use DEX for attack and damage. After an attack action, make one unarmed strike as a bonus action.",
-      requires_choice: false,
-    },
-    {
-      id: "zephyr_ki",
-      name: "Ki Points",
-      level: 1,
-      description: "You have 3 ki points. Spend 1 ki to: Dodge/Dash/Disengage as bonus action, make 2 unarmed strikes as bonus action, or increase jump distance by 20 feet.",
-      requires_choice: false,
-    },
-    {
-      id: "zephyr_tradition",
-      name: "Monastic Tradition",
-      level: 3,
-      description: "Choose your monastery's teachings.",
-      requires_choice: true,
-      choice_type: 'single',
-      choice_count: 1,
-      options: [
-        { id: "open_hand", name: "Way of the Open Hand", description: "Master of unarmed combat techniques" },
-        { id: "shadow", name: "Way of Shadow", description: "Ninja-like stealth and deception" },
-        { id: "elements", name: "Way of the Four Elements", description: "Bend fire, water, air, and earth" },
-      ],
     },
   ],
 };
