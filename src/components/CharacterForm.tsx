@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast";
 import { Loader2, Save, ArrowLeft, BookOpen, Trash2, CheckCircle2, Cloud, CloudOff, Edit3, Eye } from "lucide-react";
 import { ClassSelector } from "@/components/ClassSelector";
@@ -47,6 +48,7 @@ const CharacterForm = ({ characterId }: CharacterFormProps) => {
   const [pendingNavigation, setPendingNavigation] = useState<string | null>(null);
   const [isEditing, setIsEditing] = useState(!characterId); // New characters start in edit mode
   const [isOwner, setIsOwner] = useState(false);
+  const [ancestries, setAncestries] = useState<any[]>([]);
   const autoSaveTimerRef = useRef<NodeJS.Timeout | null>(null);
   const initialDataRef = useRef<string>("");
   
@@ -141,10 +143,19 @@ const CharacterForm = ({ characterId }: CharacterFormProps) => {
   }, [formData, characterId, isOnline]);
 
   useEffect(() => {
+    fetchAncestries();
     if (characterId) {
       fetchCharacter();
     }
   }, [characterId]);
+
+  const fetchAncestries = async () => {
+    const { data } = await supabase
+      .from("ancestries")
+      .select("*")
+      .order("type, name");
+    if (data) setAncestries(data);
+  };
 
   const fetchCharacter = async () => {
     try {
@@ -653,13 +664,22 @@ const CharacterForm = ({ characterId }: CharacterFormProps) => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="race">Ancestry</Label>
-                      <Input
-                        id="race"
-                        value={formData.race}
-                        onChange={(e) => setFormData({ ...formData, race: e.target.value })}
-                        className="bg-input border-border"
-                        placeholder="e.g., Human, Elf, Dwarf"
-                      />
+                      {isEditing ? (
+                        <Select value={formData.race} onValueChange={(value) => setFormData({ ...formData, race: value })}>
+                          <SelectTrigger className="bg-input border-border">
+                            <SelectValue placeholder="Select ancestry" />
+                          </SelectTrigger>
+                          <SelectContent className="max-h-[300px]">
+                            {ancestries.map((ancestry) => (
+                              <SelectItem key={ancestry.id} value={ancestry.name}>
+                                {ancestry.name} ({ancestry.type})
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      ) : (
+                        <div className="p-2 bg-muted rounded-md">{formData.race || "Not selected"}</div>
+                      )}
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="level">Level</Label>

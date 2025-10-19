@@ -46,6 +46,7 @@ const RulesCodex = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [classes, setClasses] = useState<any[]>([]);
+  const [ancestries, setAncestries] = useState<any[]>([]);
   const [rules, setRules] = useState<any[]>([]);
   const [equipment, setEquipment] = useState<any[]>([]);
   const [spells, setSpells] = useState<any[]>([]);
@@ -58,14 +59,16 @@ const RulesCodex = () => {
   const fetchAllData = async () => {
     setLoading(true);
     try {
-      const [classesData, rulesData, equipmentData, spellsData] = await Promise.all([
+      const [classesData, ancestriesData, rulesData, equipmentData, spellsData] = await Promise.all([
         supabase.from("classes").select("*").order("name"),
+        supabase.from("ancestries").select("*").order("type, name"),
         supabase.from("rules").select("*").order("category, name"),
         supabase.from("equipment").select("*").order("category, name"),
         supabase.from("spells").select("*").order("element, name")
       ]);
 
       if (classesData.data) setClasses(classesData.data);
+      if (ancestriesData.data) setAncestries(ancestriesData.data);
       if (rulesData.data) setRules(rulesData.data);
       if (equipmentData.data) setEquipment(equipmentData.data);
       if (spellsData.data) setSpells(spellsData.data);
@@ -119,8 +122,9 @@ const RulesCodex = () => {
         </div>
 
         <Tabs defaultValue="classes" className="w-full">
-          <TabsList className="grid w-full grid-cols-4 max-w-2xl mb-6">
+          <TabsList className="grid w-full grid-cols-5 max-w-3xl mb-6">
             <TabsTrigger value="classes">Classes</TabsTrigger>
+            <TabsTrigger value="ancestries">Ancestries</TabsTrigger>
             <TabsTrigger value="rules">Core Rules</TabsTrigger>
             <TabsTrigger value="equipment">Equipment</TabsTrigger>
             <TabsTrigger value="spells">Spells</TabsTrigger>
@@ -176,6 +180,55 @@ const RulesCodex = () => {
               ))}
             </div>
           </TabsContent>
+
+          <TabsContent value="ancestries">
+            <div className="grid gap-4">
+              {Object.entries(
+                filterItems(ancestries, ['name', 'description', 'type']).reduce((acc, ancestry) => {
+                  if (!acc[ancestry.type]) acc[ancestry.type] = [];
+                  acc[ancestry.type].push(ancestry);
+                  return acc;
+                }, {} as Record<string, any[]>)
+              ).map(([type, typeAncestries]: [string, any[]]) => (
+                <Collapsible key={type} defaultOpen>
+                  <Card>
+                    <CollapsibleTrigger className="w-full">
+                      <CardHeader className="flex flex-row items-center justify-between space-y-0">
+                        <CardTitle>{type} Ancestries</CardTitle>
+                        <ChevronDown className="h-5 w-5 transition-transform ui-open:rotate-180" />
+                      </CardHeader>
+                    </CollapsibleTrigger>
+                    <CollapsibleContent>
+                      <CardContent>
+                        <div className="grid md:grid-cols-2 gap-4">
+                          {typeAncestries.map((ancestry: any) => (
+                            <Card key={ancestry.id} className="overflow-hidden">
+                              <CardHeader>
+                                <CardTitle className="text-lg">{ancestry.name}</CardTitle>
+                              </CardHeader>
+                              <CardContent className="space-y-2">
+                                <p className="text-sm text-muted-foreground">{ancestry.description}</p>
+                                {ancestry.traits && Object.entries(ancestry.traits as Record<string, string>).map(([traitName, traitDesc]) => (
+                                  <div key={traitName} className="bg-accent/50 p-3 rounded">
+                                    <h5 className="font-semibold text-sm mb-1">{traitName}</h5>
+                                    <p className="text-xs text-muted-foreground">{traitDesc}</p>
+                                  </div>
+                                ))}
+                                {ancestry.source_page && (
+                                  <span className="text-xs text-muted-foreground">Page {ancestry.source_page}</span>
+                                )}
+                              </CardContent>
+                            </Card>
+                          ))}
+                        </div>
+                      </CardContent>
+                    </CollapsibleContent>
+                  </Card>
+                </Collapsible>
+              ))}
+            </div>
+          </TabsContent>
+
 
           <TabsContent value="rules">
             <div className="grid gap-4">
