@@ -4,8 +4,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Upload, Wand2 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 
@@ -24,6 +25,19 @@ const FANTASY_NAMES = [
 export const BuilderStep1Identity = ({ formData, setFormData }: BuilderStepProps) => {
   const [uploadingPortrait, setUploadingPortrait] = useState(false);
   const [generatingPortrait, setGeneratingPortrait] = useState(false);
+  const [ancestries, setAncestries] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetchAncestries();
+  }, []);
+
+  const fetchAncestries = async () => {
+    const { data } = await supabase
+      .from("ancestries")
+      .select("*")
+      .order("type, name");
+    if (data) setAncestries(data);
+  };
 
   const generateRandomName = () => {
     const name = FANTASY_NAMES[Math.floor(Math.random() * FANTASY_NAMES.length)];
@@ -147,12 +161,18 @@ export const BuilderStep1Identity = ({ formData, setFormData }: BuilderStepProps
 
           <div className="space-y-2">
             <Label htmlFor="race">Race / Ancestry</Label>
-            <Input
-              id="race"
-              value={formData.race}
-              onChange={(e) => setFormData({ ...formData, race: e.target.value })}
-              placeholder="e.g., Human, Elf, Dwarf"
-            />
+            <Select value={formData.race} onValueChange={(value) => setFormData({ ...formData, race: value })}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select ancestry" />
+              </SelectTrigger>
+              <SelectContent className="max-h-[300px]">
+                {ancestries.map((ancestry) => (
+                  <SelectItem key={ancestry.id} value={ancestry.name}>
+                    {ancestry.name} ({ancestry.type})
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="space-y-2">
