@@ -28,7 +28,8 @@ import {
   TrendingUp,
   Sigma,
   Star,
-  Maximize2
+  Maximize2,
+  ArrowRight
 } from "lucide-react";
 import { ResizableCard } from "@/components/ResizableCard";
 import { D20Icon } from "@/components/icons/D20Icon";
@@ -893,7 +894,7 @@ const CharacterView = ({
                     </h1>
                     
                     {/* Action Tracker */}
-                    <div className="flex items-center gap-2.5 ml-4">
+                    <div className="flex items-center gap-1.5 ml-4">
                       {actionTracker.map((isActive, index) => {
                         const handleClick = () => {
                           const newTracker = [...actionTracker];
@@ -948,53 +949,61 @@ const CharacterView = ({
                             onMouseLeave={handleMouseUp}
                             className="group relative transition-all duration-500 hover:scale-110"
                             style={{
-                              width: '24px',
-                              height: '24px',
+                              width: '28px',
+                              height: '28px',
                             }}
                           >
-                            {/* Glowing background ring */}
+                            {/* Glowing background ring - reduced opacity */}
                             <div
-                              className="absolute inset-0 rounded-full transition-all duration-500 blur-sm"
+                              className="absolute inset-0 rounded-lg transition-all duration-500 blur-sm"
                               style={{
                                 background: isActive 
-                                  ? 'linear-gradient(135deg, hsl(142 76% 36%), hsl(142 76% 56%))' 
+                                  ? 'linear-gradient(135deg, hsl(217 91% 60%), hsl(217 91% 70%))' 
                                   : 'transparent',
-                                opacity: isActive ? 0.8 : 0,
-                                transform: isActive ? 'scale(1.3)' : 'scale(1)',
+                                opacity: isActive ? 0.4 : 0,
+                                transform: isActive ? 'scale(1.2)' : 'scale(1)',
                               }}
                             />
                             
-                            {/* Main dot with gradient */}
+                            {/* Main arrow container with gradient */}
                             <div
-                              className="absolute inset-0 rounded-full transition-all duration-500 group-hover:rotate-180"
+                              className="absolute inset-0 rounded-lg transition-all duration-500 flex items-center justify-center"
                               style={{
                                 background: isActive 
-                                  ? 'linear-gradient(135deg, hsl(142 76% 36%), hsl(142 76% 56%))' 
+                                  ? 'linear-gradient(135deg, hsl(217 91% 60%), hsl(217 91% 70%))' 
                                   : 'linear-gradient(135deg, hsl(0 0% 40%), hsl(0 0% 30%))',
                                 boxShadow: isActive 
-                                  ? '0 0 20px hsl(142 76% 36% / 0.8), inset 0 2px 4px rgba(255,255,255,0.2)' 
+                                  ? '0 0 12px hsl(217 91% 60% / 0.4), inset 0 2px 4px rgba(255,255,255,0.2)' 
                                   : 'inset 0 2px 4px rgba(0,0,0,0.2)',
                                 opacity: isActive ? 1 : 0.4,
                                 transform: isActive ? 'scale(1)' : 'scale(0.75)',
                               }}
-                            />
+                            >
+                              <ArrowRight 
+                                size={16} 
+                                strokeWidth={3}
+                                style={{
+                                  color: isActive ? 'white' : 'hsl(0 0% 60%)',
+                                }}
+                              />
+                            </div>
                             
                             {/* Inner shine effect */}
                             {isActive && (
                               <div
-                                className="absolute inset-0 rounded-full transition-all duration-500"
+                                className="absolute inset-0 rounded-lg transition-all duration-500 pointer-events-none"
                                 style={{
-                                  background: 'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.4), transparent 60%)',
+                                  background: 'linear-gradient(135deg, rgba(255,255,255,0.3) 0%, transparent 60%)',
                                 }}
                               />
                             )}
                             
                             {/* Border ring */}
                             <div
-                              className="absolute inset-0 rounded-full border-2 transition-all duration-500"
+                              className="absolute inset-0 rounded-lg border-2 transition-all duration-500"
                               style={{
                                 borderColor: isActive 
-                                  ? 'hsl(142 76% 36% / 0.3)' 
+                                  ? 'hsl(217 91% 60% / 0.3)' 
                                   : 'hsl(0 0% 40% / 0.5)',
                                 opacity: isActive ? 0 : 1,
                               }}
