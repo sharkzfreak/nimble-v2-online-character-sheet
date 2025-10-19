@@ -5,10 +5,11 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { supabase } from "@/integrations/supabase/client";
 import { CLASS_FEATURES } from "@/config/classFeatures";
 import { BERSERKER_SUBCLASS_FEATURES } from "@/config/subclassFeatures";
-import { Loader2, ArrowLeft, Sparkles } from "lucide-react";
+import { Loader2, ArrowLeft, Sparkles, ChevronDown } from "lucide-react";
 
 const ClassDetail = () => {
   const { className } = useParams<{ className: string }>();
@@ -17,6 +18,7 @@ const ClassDetail = () => {
   const [abilities, setAbilities] = useState<any[]>([]);
   const [spells, setSpells] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [expandedFeatures, setExpandedFeatures] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     fetchClassData();
@@ -103,6 +105,18 @@ const ClassDetail = () => {
     });
 
     return grouped;
+  };
+
+  const toggleFeature = (featureId: string) => {
+    setExpandedFeatures(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(featureId)) {
+        newSet.delete(featureId);
+      } else {
+        newSet.add(featureId);
+      }
+      return newSet;
+    });
   };
 
   if (loading) {
@@ -216,55 +230,77 @@ const ClassDetail = () => {
                     </CardHeader>
                     <CardContent className="pt-6">
                       <div className="space-y-4">
-                        {levelFeatures.map((feature, idx) => (
-                          <div key={feature.id || idx} className="pb-4 border-b last:border-0">
-                            <div className="flex items-start justify-between mb-2">
-                              <div className="flex items-center gap-2">
-                                <h4 className="font-bold text-lg">{feature.name}</h4>
-                                {feature.isSubclass && (
-                                  <Badge variant="secondary" className="text-xs">
-                                    {feature.subclassName}
-                                  </Badge>
-                                )}
-                              </div>
-                              <div className="flex gap-2">
-                                {feature.isAbility && (
-                                  <Badge variant="secondary">Ability</Badge>
-                                )}
-                                {feature.requires_choice && (
-                                  <Badge variant="outline">Choice Required</Badge>
-                                )}
-                              </div>
-                            </div>
-                            <p className="text-sm text-muted-foreground mb-3 whitespace-pre-wrap">
-                              {feature.description || feature.text}
-                            </p>
-                            
-                            {feature.options && feature.options.length > 0 && (
-                              <div className="mt-3 pl-4 border-l-2 border-primary/30">
-                                <p className="text-xs font-semibold mb-2">Options:</p>
-                                <div className="space-y-2">
-                                  {feature.options.map((option: any) => (
-                                    <div key={option.id} className="text-sm">
-                                      <strong>{option.name}:</strong>{" "}
-                                      <span className="text-muted-foreground">
-                                        {option.description}
-                                      </span>
-                                    </div>
-                                  ))}
-                                </div>
-                              </div>
-                            )}
+                        {levelFeatures.map((feature, idx) => {
+                          const featureKey = `${feature.id || idx}-${level}`;
+                          const isExpanded = expandedFeatures.has(featureKey);
+                          
+                          return (
+                            <Collapsible
+                              key={featureKey}
+                              open={isExpanded}
+                              onOpenChange={() => toggleFeature(featureKey)}
+                            >
+                              <div className="border rounded-lg overflow-hidden hover:border-primary/50 transition-colors">
+                                <CollapsibleTrigger className="w-full p-4 flex items-center justify-between hover:bg-muted/50 transition-colors">
+                                  <div className="flex items-center gap-3 flex-1">
+                                    <Badge variant="outline" className="shrink-0">
+                                      L{feature.level}
+                                    </Badge>
+                                    <h4 className="font-bold text-lg text-left">{feature.name}</h4>
+                                    {feature.isSubclass && (
+                                      <Badge variant="secondary" className="text-xs shrink-0">
+                                        {feature.subclassName}
+                                      </Badge>
+                                    )}
+                                    {feature.isAbility && (
+                                      <Badge variant="secondary" className="shrink-0">Ability</Badge>
+                                    )}
+                                    {feature.requires_choice && (
+                                      <Badge variant="outline" className="shrink-0">Choice Required</Badge>
+                                    )}
+                                  </div>
+                                  <ChevronDown 
+                                    className={`h-5 w-5 text-muted-foreground transition-transform ${
+                                      isExpanded ? 'rotate-180' : ''
+                                    }`}
+                                  />
+                                </CollapsibleTrigger>
+                                
+                                <CollapsibleContent>
+                                  <div className="p-4 pt-0 border-t bg-muted/20">
+                                    <p className="text-sm text-muted-foreground whitespace-pre-wrap mb-3">
+                                      {feature.description || feature.text}
+                                    </p>
+                                    
+                                    {feature.options && feature.options.length > 0 && (
+                                      <div className="mt-3 pl-4 border-l-2 border-primary/30">
+                                        <p className="text-xs font-semibold mb-2">Options:</p>
+                                        <div className="space-y-2">
+                                          {feature.options.map((option: any) => (
+                                            <div key={option.id} className="text-sm">
+                                              <strong>{option.name}:</strong>{" "}
+                                              <span className="text-muted-foreground">
+                                                {option.description}
+                                              </span>
+                                            </div>
+                                          ))}
+                                        </div>
+                                      </div>
+                                    )}
 
-                            {feature.category && (
-                              <div className="mt-2">
-                                <Badge variant="outline" className="text-xs">
-                                  {feature.category}
-                                </Badge>
+                                    {feature.category && (
+                                      <div className="mt-2">
+                                        <Badge variant="outline" className="text-xs">
+                                          {feature.category}
+                                        </Badge>
+                                      </div>
+                                    )}
+                                  </div>
+                                </CollapsibleContent>
                               </div>
-                            )}
-                          </div>
-                        ))}
+                            </Collapsible>
+                          );
+                        })}
                       </div>
                     </CardContent>
                   </Card>
