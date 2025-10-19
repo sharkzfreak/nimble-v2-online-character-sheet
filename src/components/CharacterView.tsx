@@ -185,17 +185,17 @@ const CharacterView = ({
   // Favorites tab state
   const [favoritesTabActive, setFavoritesTabActive] = useState(false);
   
-  // Heroic reactions and actions state
+  // Heroic reactions state
   const [heroicReactions, setHeroicReactions] = useState<Array<{ id: string; name: string; description: string }>>([]);
 
-  // Fetch heroic reactions and actions from rules codex
+  // Fetch heroic reactions from rules codex
   useEffect(() => {
-    const fetchHeroicRules = async () => {
+    const fetchHeroicReactions = async () => {
       const { data, error } = await supabase
         .from('rules')
         .select('*')
         .eq('category', 'Core Rules')
-        .or('name.ilike.%heroic reaction%,name.ilike.%heroic action%');
+        .ilike('name', '%heroic%');
       
       if (data && !error) {
         setHeroicReactions(data.map(rule => ({
@@ -206,7 +206,7 @@ const CharacterView = ({
       }
     };
     
-    fetchHeroicRules();
+    fetchHeroicReactions();
   }, []);
 
   // Build action tiles from favorites
@@ -1218,43 +1218,6 @@ const CharacterView = ({
                 </DialogContent>
               </Dialog>
             </div>
-
-            {(classFeatures.length > 0 || (formData.custom_features && formData.custom_features.length > 0)) ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {classFeatures.map((feature) => (
-                  <FeatureCard
-                    key={feature.id}
-                    feature={feature}
-                    type="feature"
-                    onRollAction={(action, rollIndex, advMode, situational) =>
-                      handleRollAction(action, rollIndex, advMode, situational, feature.name)
-                    }
-                    onToggleFavorite={() => handleToggleFavorite(feature.id)}
-                    isFavorited={isFavorited(feature.id)}
-                  />
-                ))}
-                {formData.custom_features?.map((feature) => (
-                  <FeatureCard
-                    key={feature.id}
-                    feature={feature}
-                    type="feature"
-                    onRollAction={(action, rollIndex, advMode, situational) =>
-                      handleRollAction(action, rollIndex, advMode, situational, feature.name)
-                    }
-                    onToggleFavorite={() => handleToggleFavorite(feature.id)}
-                    isFavorited={isFavorited(feature.id)}
-                  />
-                ))}
-              </div>
-            ) : (
-              <Card className="bg-card/70 border-2 backdrop-blur-sm" style={{ borderColor: `hsl(${classThemeColor} / 0.3)` }}>
-                <CardContent className="py-16 text-center">
-                  <Sparkles className="w-16 h-16 mx-auto mb-4 opacity-30" style={{ color: `hsl(${classThemeColor})` }} />
-                  <p className="text-muted-foreground font-medium">No features yet</p>
-                  <p className="text-sm text-muted-foreground mt-2">Class features will appear here automatically</p>
-                </CardContent>
-              </Card>
-            )}
           </TabsContent>
 
           {/* Inventory Tab */}
