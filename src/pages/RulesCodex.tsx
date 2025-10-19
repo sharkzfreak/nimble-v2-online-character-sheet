@@ -24,6 +24,12 @@ import songweaverImg from "@/assets/class-songweaver.jpg";
 import stormshifterImg from "@/assets/class-stormshifter.jpg";
 import zephyrImg from "@/assets/class-zephyr.jpg";
 
+// Import story-based subclass images
+import beastmasterImg from "@/assets/subclass-beastmaster.png";
+import reaverImg from "@/assets/subclass-reaver.png";
+import spellbladeImg from "@/assets/subclass-spellblade.png";
+import oathbreakerImg from "@/assets/subclass-oathbreaker.png";
+
 const CLASS_IMAGES: Record<string, string> = {
   "Berserker": berserkerImg,
   "Cheat": cheatImg,
@@ -37,6 +43,13 @@ const CLASS_IMAGES: Record<string, string> = {
   "Songweaver": songweaverImg,
   "Stormshifter": stormshifterImg,
   "Zephyr": zephyrImg,
+};
+
+const SUBCLASS_IMAGES: Record<string, string> = {
+  "Beastmaster": beastmasterImg,
+  "Reaver": reaverImg,
+  "Spellblade": spellbladeImg,
+  "Oathbreaker": oathbreakerImg,
 };
 
 // Custom/homebrew classes that should be marked
@@ -184,7 +197,7 @@ const RulesCodex = () => {
               ))}
             </div>
 
-            {/* DM-Granted Subclasses Card */}
+            {/* Story-Based Subclasses Card */}
             <Card 
               className="mt-8 hover:shadow-xl transition-all cursor-pointer group overflow-hidden bg-gradient-to-r from-destructive/10 via-card to-destructive/10 border-destructive/30"
               onClick={() => navigate('/codex/dm-subclasses')}
@@ -193,7 +206,7 @@ const RulesCodex = () => {
                 <div className="flex items-center justify-center gap-3 mb-2">
                   <Skull className="h-6 w-6 text-destructive group-hover:animate-pulse" />
                   <CardTitle className="text-2xl font-bold uppercase tracking-wider">
-                    DM-Granted Subclasses
+                    Story-Based Subclasses
                   </CardTitle>
                   <Skull className="h-6 w-6 text-destructive group-hover:animate-pulse" />
                 </div>
@@ -202,25 +215,53 @@ const RulesCodex = () => {
                 </p>
               </CardHeader>
               <CardContent className="pt-6">
-                <div className="flex items-center justify-center gap-8 text-center">
-                  <div className="flex-1">
-                    <h4 className="font-semibold text-lg mb-1">Beastmaster</h4>
+                <div className="grid grid-cols-4 gap-6">
+                  <div className="text-center space-y-2">
+                    <div className="aspect-[3/4] overflow-hidden rounded-lg border border-border/50">
+                      <img 
+                        src={SUBCLASS_IMAGES["Beastmaster"]} 
+                        alt="Beastmaster" 
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                    </div>
+                    <h4 className="font-semibold text-lg">Beastmaster</h4>
                     <p className="text-xs text-muted-foreground">Hunter • Page 81</p>
                   </div>
-                  <div className="flex-1">
-                    <h4 className="font-semibold text-lg mb-1">Reaver</h4>
+                  <div className="text-center space-y-2">
+                    <div className="aspect-[3/4] overflow-hidden rounded-lg border border-border/50">
+                      <img 
+                        src={SUBCLASS_IMAGES["Reaver"]} 
+                        alt="Reaver" 
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                    </div>
+                    <h4 className="font-semibold text-lg">Reaver</h4>
                     <p className="text-xs text-muted-foreground">Shadowmancer • Page 79</p>
                   </div>
-                  <div className="flex-1">
-                    <h4 className="font-semibold text-lg mb-1">Spellblade</h4>
+                  <div className="text-center space-y-2">
+                    <div className="aspect-[3/4] overflow-hidden rounded-lg border border-border/50">
+                      <img 
+                        src={SUBCLASS_IMAGES["Spellblade"]} 
+                        alt="Spellblade" 
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                    </div>
+                    <h4 className="font-semibold text-lg">Spellblade</h4>
                     <p className="text-xs text-muted-foreground">Commander • Page 77</p>
                   </div>
-                  <div className="flex-1">
-                    <h4 className="font-semibold text-lg mb-1">Oathbreaker</h4>
+                  <div className="text-center space-y-2">
+                    <div className="aspect-[3/4] overflow-hidden rounded-lg border border-border/50">
+                      <img 
+                        src={SUBCLASS_IMAGES["Oathbreaker"]} 
+                        alt="Oathbreaker" 
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                    </div>
+                    <h4 className="font-semibold text-lg">Oathbreaker</h4>
                     <p className="text-xs text-muted-foreground">Oathsworn • Page 75</p>
                   </div>
                 </div>
-                <div className="mt-4 text-center text-sm text-destructive font-semibold">
+                <div className="mt-6 text-center text-sm text-destructive font-semibold">
                   Click to view details →
                 </div>
               </CardContent>

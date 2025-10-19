@@ -5,6 +5,19 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, ArrowLeft, Skull } from "lucide-react";
 
+// Import story-based subclass images
+import beastmasterImg from "@/assets/subclass-beastmaster.png";
+import reaverImg from "@/assets/subclass-reaver.png";
+import spellbladeImg from "@/assets/subclass-spellblade.png";
+import oathbreakerImg from "@/assets/subclass-oathbreaker.png";
+
+const SUBCLASS_IMAGES: Record<string, string> = {
+  "Beastmaster": beastmasterImg,
+  "Reaver": reaverImg,
+  "Spellblade": spellbladeImg,
+  "Oathbreaker": oathbreakerImg,
+};
+
 const DMSubclasses = () => {
   const navigate = useNavigate();
   const [subclasses, setSubclasses] = useState<any[]>([]);
@@ -54,7 +67,7 @@ const DMSubclasses = () => {
         <div className="mb-8 animate-fade-in">
           <div className="flex items-center gap-3 mb-2">
             <Skull className="h-8 w-8 text-destructive" />
-            <h1 className="text-4xl font-bold text-foreground">DM-Granted Subclasses</h1>
+            <h1 className="text-4xl font-bold text-foreground">Story-Based Subclasses</h1>
           </div>
           <p className="text-muted-foreground">Special subclasses that can only be granted by the Dungeon Master</p>
           <div className="mt-4 p-4 bg-destructive/10 border border-destructive/30 rounded-lg">
@@ -70,6 +83,15 @@ const DMSubclasses = () => {
               key={subclass.id} 
               className="overflow-hidden bg-gradient-to-br from-card via-card/90 to-destructive/10 border-destructive/20 hover:shadow-xl transition-all hover:scale-[1.02]"
             >
+              {/* Subclass Image */}
+              <div className="aspect-[3/2] overflow-hidden relative">
+                <img 
+                  src={SUBCLASS_IMAGES[subclass.name] || beastmasterImg}
+                  alt={subclass.name}
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-card via-card/50 to-transparent" />
+              </div>
               <CardHeader className="border-b border-destructive/20">
                 <div className="flex items-start justify-between">
                   <div>
