@@ -8,7 +8,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, ArrowLeft, Sparkles, ChevronDown } from "lucide-react";
+import { Loader2, ArrowLeft, Sparkles, ChevronDown, Crown } from "lucide-react";
 
 // Import class images
 import berserkerImg from "@/assets/class-berserker.jpg";
@@ -183,6 +183,49 @@ const RulesCodex = () => {
                 </Card>
               ))}
             </div>
+            
+            {/* DM-Granted Subclasses Card */}
+            <Card 
+              className="mt-8 hover:shadow-xl transition-all cursor-pointer overflow-hidden border-2 border-amber-500/30 bg-gradient-to-r from-amber-500/10 to-card/50"
+              onClick={() => navigate('/codex/dm-subclasses')}
+            >
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <Crown className="h-6 w-6 text-amber-500" />
+                    <div>
+                      <CardTitle className="text-2xl">DM-Granted Subclasses</CardTitle>
+                      <CardDescription>
+                        Special subclasses that require Dungeon Master approval
+                      </CardDescription>
+                    </div>
+                  </div>
+                  <Badge className="bg-amber-500/20 text-amber-600 border-amber-500/50">
+                    Requires DM Approval
+                  </Badge>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-4 gap-4">
+                  <div className="text-center p-3 bg-background/50 rounded border border-border/50">
+                    <p className="font-semibold text-sm">Beastmaster</p>
+                    <p className="text-xs text-muted-foreground">Hunter</p>
+                  </div>
+                  <div className="text-center p-3 bg-background/50 rounded border border-border/50">
+                    <p className="font-semibold text-sm">Reaver</p>
+                    <p className="text-xs text-muted-foreground">Shadowmancer</p>
+                  </div>
+                  <div className="text-center p-3 bg-background/50 rounded border border-border/50">
+                    <p className="font-semibold text-sm">Spellblade</p>
+                    <p className="text-xs text-muted-foreground">Commander</p>
+                  </div>
+                  <div className="text-center p-3 bg-background/50 rounded border border-border/50">
+                    <p className="font-semibold text-sm">Oathbreaker</p>
+                    <p className="text-xs text-muted-foreground">Oathsworn</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
 
           <TabsContent value="ancestries">
