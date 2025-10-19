@@ -24,9 +24,11 @@ export interface ClassFeaturesData {
 }
 
 import { CHEAT_CLASS_FEATURES } from "./cheatFeatures";
+import { COMMANDER_CLASS_FEATURES } from "./commanderFeatures";
 
 export const CLASS_FEATURES: ClassFeaturesData = {
   Cheat: CHEAT_CLASS_FEATURES,
+  Commander: COMMANDER_CLASS_FEATURES,
   Berserker: [
     {
       id: "berserker_rage_1",
@@ -369,45 +371,6 @@ export const CLASS_FEATURES: ClassFeaturesData = {
       level: 20,
       description: "+1 to any 2 of your stats. Anytime you roll less than 6 on a Fury Die, change it to 6 instead.",
       requires_choice: false,
-    },
-  ],
-  Commander: [
-    {
-      id: "commander_rally",
-      name: "Rally",
-      level: 1,
-      description: "As an action, grant an ally within 30 feet a bonus action to move or attack. Usable a number of times equal to your WILL modifier per short rest.",
-      requires_choice: false,
-    },
-    {
-      id: "commander_fighting_style",
-      name: "Fighting Style",
-      level: 1,
-      description: "Choose your preferred combat style.",
-      requires_choice: true,
-      choice_type: 'single',
-      choice_count: 1,
-      options: [
-        { id: "defense", name: "Defense", description: "+1 to Armor while wearing armor" },
-        { id: "dueling", name: "Dueling", description: "+2 damage when wielding a single one-handed weapon" },
-        { id: "great_weapon", name: "Great Weapon", description: "Reroll 1s and 2s on damage dice with two-handed weapons" },
-        { id: "protection", name: "Protection", description: "Impose disadvantage on attacks against nearby allies" },
-      ],
-    },
-    {
-      id: "commander_tactics",
-      name: "Tactical Superiority",
-      level: 3,
-      description: "Learn maneuvers that enhance your battlefield control.",
-      requires_choice: true,
-      choice_type: 'multi',
-      choice_count: 2,
-      options: [
-        { id: "disarm", name: "Disarming Strike", description: "Force target to drop one item" },
-        { id: "trip", name: "Trip Attack", description: "Knock target prone on hit" },
-        { id: "riposte", name: "Riposte", description: "Make a counterattack when missed" },
-        { id: "precision", name: "Precision Attack", description: "Add bonus to attack roll" },
-      ],
     },
   ],
   Hunter: [
