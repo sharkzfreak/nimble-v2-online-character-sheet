@@ -25,10 +25,12 @@ export interface ClassFeaturesData {
 
 import { CHEAT_CLASS_FEATURES } from "./cheatFeatures";
 import { COMMANDER_CLASS_FEATURES } from "./commanderFeatures";
+import { HUNTER_CLASS_FEATURES } from "./hunterFeatures";
 
 export const CLASS_FEATURES: ClassFeaturesData = {
   Cheat: CHEAT_CLASS_FEATURES,
   Commander: COMMANDER_CLASS_FEATURES,
+  Hunter: HUNTER_CLASS_FEATURES,
   Berserker: [
     {
       id: "berserker_rage_1",
@@ -371,44 +373,6 @@ export const CLASS_FEATURES: ClassFeaturesData = {
       level: 20,
       description: "+1 to any 2 of your stats. Anytime you roll less than 6 on a Fury Die, change it to 6 instead.",
       requires_choice: false,
-    },
-  ],
-  Hunter: [
-    {
-      id: "hunter_favored_enemy",
-      name: "Favored Enemy",
-      level: 1,
-      description: "Choose a type of creature. Gain +2 to tracking and damage against that enemy type.",
-      requires_choice: true,
-      choice_type: 'single',
-      choice_count: 1,
-      options: [
-        { id: "beasts", name: "Beasts" },
-        { id: "humanoids", name: "Humanoids" },
-        { id: "undead", name: "Undead" },
-        { id: "aberrations", name: "Aberrations" },
-      ],
-    },
-    {
-      id: "hunter_marksman",
-      name: "Marksman",
-      level: 1,
-      description: "You ignore half and three-quarters cover with ranged attacks, and your ranged attacks have +10 feet range.",
-      requires_choice: false,
-    },
-    {
-      id: "hunter_archetype",
-      name: "Hunter Archetype",
-      level: 3,
-      description: "Choose your hunting specialty.",
-      requires_choice: true,
-      choice_type: 'single',
-      choice_count: 1,
-      options: [
-        { id: "beast_master", name: "Beast Master", description: "Bond with a loyal animal companion" },
-        { id: "stalker", name: "Stalker", description: "Master of ambush and stealth kills" },
-        { id: "warden", name: "Warden", description: "Protector of the wild and natural balance" },
-      ],
     },
   ],
   Mage: [
