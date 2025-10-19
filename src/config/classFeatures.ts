@@ -29,6 +29,7 @@ import { HUNTER_CLASS_FEATURES } from "./hunterFeatures";
 import { MAGE_CLASS_FEATURES } from "./mageFeatures";
 import { OATHSWORN_CLASS_FEATURES } from "./oathswornFeatures";
 import { SHADOWMANCER_CLASS_FEATURES } from "./shadowmancerFeatures";
+import { SHEPHERD_CLASS_FEATURES } from "./shepherdFeatures";
 
 export const CLASS_FEATURES: ClassFeaturesData = {
   Cheat: CHEAT_CLASS_FEATURES,
@@ -37,6 +38,7 @@ export const CLASS_FEATURES: ClassFeaturesData = {
   Mage: MAGE_CLASS_FEATURES,
   Oathsworn: OATHSWORN_CLASS_FEATURES,
   Shadowmancer: SHADOWMANCER_CLASS_FEATURES,
+  Shepherd: SHEPHERD_CLASS_FEATURES,
   Berserker: [
     {
       id: "berserker_rage_1",
@@ -379,44 +381,6 @@ export const CLASS_FEATURES: ClassFeaturesData = {
       level: 20,
       description: "+1 to any 2 of your stats. Anytime you roll less than 6 on a Fury Die, change it to 6 instead.",
       requires_choice: false,
-    },
-  ],
-  Shepherd: [
-    {
-      id: "shepherd_companion",
-      name: "Faithful Companion",
-      level: 1,
-      description: "You have a loyal animal or spirit companion that fights alongside you.",
-      requires_choice: true,
-      choice_type: 'single',
-      choice_count: 1,
-      options: [
-        { id: "wolf", name: "Wolf", description: "Fast and fierce, pack tactics" },
-        { id: "bear", name: "Bear", description: "Tough and strong, high HP" },
-        { id: "hawk", name: "Hawk", description: "Flying scout, sharp senses" },
-        { id: "panther", name: "Panther", description: "Stealthy ambush predator" },
-      ],
-    },
-    {
-      id: "shepherd_healing",
-      name: "Healing Touch",
-      level: 1,
-      description: "You can restore 1d8 + WILL HP to a creature you touch. Usable a number of times equal to your WILL modifier per long rest.",
-      requires_choice: false,
-    },
-    {
-      id: "shepherd_circle",
-      name: "Shepherd's Circle",
-      level: 3,
-      description: "Choose your role as a shepherd.",
-      requires_choice: true,
-      choice_type: 'single',
-      choice_count: 1,
-      options: [
-        { id: "life", name: "Circle of Life", description: "Enhanced healing and protection" },
-        { id: "nature", name: "Circle of Nature", description: "Control plants and beasts" },
-        { id: "spirits", name: "Circle of Spirits", description: "Commune with the dead and guide souls" },
-      ],
     },
   ],
   Songweaver: [
