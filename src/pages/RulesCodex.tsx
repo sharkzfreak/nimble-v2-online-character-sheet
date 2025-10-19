@@ -447,28 +447,40 @@ const RulesCodex = () => {
                   acc[spell.element].push(spell);
                   return acc;
                 }, {} as Record<string, any[]>)
-              ).map(([element, elementSpells]: [string, any[]]) => (
-                <Card key={element}>
-                  <CardHeader>
-                    <CardTitle className="capitalize">{element} Spells</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-3">
-                      {elementSpells.map((spell: any) => (
-                        <div key={spell.id} className="pb-3 border-b last:border-0">
-                          <h4 className="font-semibold text-sm mb-1">{spell.name}</h4>
-                          <p className="text-sm text-muted-foreground mb-2">{spell.description}</p>
-                          <div className="grid grid-cols-3 gap-2 text-xs text-muted-foreground">
-                            {spell.damage && <div><strong>Damage:</strong> {spell.damage}</div>}
-                            {spell.range_value && <div><strong>Range:</strong> {spell.range_value}</div>}
-                            {spell.duration && <div><strong>Duration:</strong> {spell.duration}</div>}
+              ).map(([element, elementSpells]: [string, any[]]) => {
+                // Sort spells by tier within each element
+                const sortedSpells = [...elementSpells].sort((a, b) => {
+                  const getTier = (name: string) => {
+                    if (name.includes('Cantrip')) return 0;
+                    const match = name.match(/Tier (\d+)/);
+                    return match ? parseInt(match[1]) : 0;
+                  };
+                  return getTier(a.name) - getTier(b.name);
+                });
+                
+                return (
+                  <Card key={element}>
+                    <CardHeader>
+                      <CardTitle className="capitalize">{element} Spells</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-3">
+                        {sortedSpells.map((spell: any) => (
+                          <div key={spell.id} className="pb-3 border-b last:border-0">
+                            <h4 className="font-semibold text-sm mb-1">{spell.name}</h4>
+                            <p className="text-sm text-muted-foreground mb-2">{spell.description}</p>
+                            <div className="grid grid-cols-3 gap-2 text-xs text-muted-foreground">
+                              {spell.damage && <div><strong>Damage:</strong> {spell.damage}</div>}
+                              {spell.range_value && <div><strong>Range:</strong> {spell.range_value}</div>}
+                              {spell.duration && <div><strong>Duration:</strong> {spell.duration}</div>}
+                            </div>
                           </div>
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
             </div>
           </TabsContent>
         </Tabs>
