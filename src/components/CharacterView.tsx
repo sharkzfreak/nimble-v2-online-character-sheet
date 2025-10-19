@@ -1136,36 +1136,22 @@ const CharacterView = ({
 
           {/* Features Tab */}
           <TabsContent value="features" className="mt-6 space-y-4">
-            <FeaturesTimeline
-              className={formData.class}
-              currentLevel={formData.level}
-              classFeatures={formData.custom_features?.map((f, i) => ({
-                id: f.id,
-                name: f.name,
-                level: 1,
-                description: f.description,
-                requires_choice: false,
-                selection: [],
-              })) || []}
-              onLevelUpClick={() => setIsLevelUpWizardOpen(true)}
-              onToggleFavorite={handleToggleFavorite}
-              isFavorited={isFavorited}
-            />
-
-            <Dialog open={isFeatureDialogOpen} onOpenChange={setIsFeatureDialogOpen}>
-              <DialogTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="fixed bottom-6 right-6 z-10"
-                  style={{
-                    borderColor: `hsl(${classThemeColor})`,
-                  }}
-                >
-                  <Plus className="w-4 h-4 mr-2" />
-                  Add Feature
-                </Button>
-              </DialogTrigger>
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-xl font-semibold">Class Features</h3>
+              <Dialog open={isFeatureDialogOpen} onOpenChange={setIsFeatureDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    style={{
+                      borderColor: `hsl(${classThemeColor})`,
+                      color: `hsl(${classThemeColor})`,
+                    }}
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Add Feature
+                  </Button>
+                </DialogTrigger>
                 <DialogContent className="sm:max-w-[600px]">
                   <DialogHeader>
                     <DialogTitle className="font-cinzel" style={{ color: `hsl(${classThemeColor})` }}>
@@ -1250,70 +1236,44 @@ const CharacterView = ({
                     </div>
                   </div>
                 </DialogContent>
-            </Dialog>
+              </Dialog>
+            </div>
+            
+            <FeaturesTimeline
+              className={formData.class}
+              currentLevel={formData.level}
+              classFeatures={formData.custom_features?.map((f, i) => ({
+                id: f.id,
+                name: f.name,
+                level: 1,
+                description: f.description,
+                requires_choice: false,
+                selection: [],
+              })) || []}
+              onLevelUpClick={() => setIsLevelUpWizardOpen(true)}
+              onToggleFavorite={handleToggleFavorite}
+              isFavorited={isFavorited}
+            />
           </TabsContent>
 
           {/* Inventory Tab */}
           <TabsContent value="inventory" className="mt-6 space-y-4">
-            {formData.custom_inventory && formData.custom_inventory.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {formData.custom_inventory.map((item) => (
-                  <Collapsible key={item.id}>
-                    <Card className="bg-card/70 border-2 backdrop-blur-sm" style={{ borderColor: `hsl(${classThemeColor} / 0.3)` }}>
-                      <CollapsibleTrigger className="w-full">
-                        <CardHeader className="flex flex-row items-center justify-between hover:bg-muted/30 transition-colors cursor-pointer">
-                          <div className="flex items-center gap-3 flex-1">
-                            <ChevronDown className="w-5 h-5 transition-transform duration-200 ui-expanded:rotate-180" />
-                            <CardTitle className="text-lg" style={{ color: `hsl(${classThemeColor})` }}>
-                              {item.name}
-                            </CardTitle>
-                          </div>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              const updatedInventory = (formData.custom_inventory || []).filter(i => i.id !== item.id);
-                              onFormDataChange?.({ custom_inventory: updatedInventory });
-                            }}
-                            className="p-2 hover:bg-destructive/20 rounded-md transition-colors"
-                          >
-                            <X className="w-4 h-4 text-destructive" />
-                          </button>
-                        </CardHeader>
-                      </CollapsibleTrigger>
-                      <CollapsibleContent>
-                        <CardContent className="pt-0">
-                          <Separator className="mb-4" style={{ backgroundColor: `hsl(${classThemeColor} / 0.2)` }} />
-                          <p className="text-sm text-muted-foreground whitespace-pre-wrap">{item.description}</p>
-                        </CardContent>
-                      </CollapsibleContent>
-                    </Card>
-                  </Collapsible>
-                ))}
-              </div>
-            ) : (
-              <Card className="bg-card/70 border-2 backdrop-blur-sm" style={{ borderColor: `hsl(${classThemeColor} / 0.3)` }}>
-                <CardContent className="py-16 text-center">
-                  <Package className="w-16 h-16 mx-auto mb-4 opacity-30" style={{ color: `hsl(${classThemeColor})` }} />
-                  <p className="text-muted-foreground font-medium">No items in inventory</p>
-                  <p className="text-sm text-muted-foreground mt-2">Click the + button to add items</p>
-                </CardContent>
-              </Card>
-            )}
-
-            <Sheet open={isInventoryDialogOpen} onOpenChange={setIsInventoryDialogOpen}>
-              <SheetTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="fixed bottom-6 right-6 z-10"
-                  style={{
-                    borderColor: `hsl(${classThemeColor})`,
-                  }}
-                >
-                  <Plus className="w-4 h-4 mr-2" />
-                  Add Item
-                </Button>
-              </SheetTrigger>
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-xl font-semibold">Inventory</h3>
+              <Sheet open={isInventoryDialogOpen} onOpenChange={setIsInventoryDialogOpen}>
+                <SheetTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    style={{
+                      borderColor: `hsl(${classThemeColor})`,
+                      color: `hsl(${classThemeColor})`,
+                    }}
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Add Item
+                  </Button>
+                </SheetTrigger>
                 <SheetContent side="left" className="w-[400px] sm:w-[540px] overflow-y-auto">
                   <SheetHeader>
                     <SheetTitle className="font-cinzel" style={{ color: `hsl(${classThemeColor})` }}>
@@ -1421,16 +1381,16 @@ const CharacterView = ({
                         </div>
                         <div>
                           <label htmlFor="item-formula" className="text-sm font-medium mb-2 block">
-                            Roll Formula (optional)
+                            Damage/Effect Roll (optional)
                           </label>
                           <Input
                             id="item-formula"
                             value={newItemFormula}
                             onChange={(e) => setNewItemFormula(e.target.value)}
-                            placeholder="e.g., 2d4+2"
+                            placeholder="e.g., 1d8+3"
                             className="w-full font-mono"
                           />
-                          <p className="text-xs text-muted-foreground mt-1">For potions or consumables with effects</p>
+                          <p className="text-xs text-muted-foreground mt-1">Weapon damage or effect dice</p>
                         </div>
                         <Button
                           onClick={() => {
@@ -1462,29 +1422,26 @@ const CharacterView = ({
                     )}
                   </div>
                 </SheetContent>
-            </Sheet>
-          </TabsContent>
-
-          {/* Spells Tab */}
-          <TabsContent value="spells" className="mt-6 space-y-4">
-            {formData.custom_spells && formData.custom_spells.length > 0 ? (
+              </Sheet>
+            </div>
+            {formData.custom_inventory && formData.custom_inventory.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {formData.custom_spells.map((spell) => (
-                  <Collapsible key={spell.id}>
+                {formData.custom_inventory.map((item) => (
+                  <Collapsible key={item.id}>
                     <Card className="bg-card/70 border-2 backdrop-blur-sm" style={{ borderColor: `hsl(${classThemeColor} / 0.3)` }}>
                       <CollapsibleTrigger className="w-full">
                         <CardHeader className="flex flex-row items-center justify-between hover:bg-muted/30 transition-colors cursor-pointer">
                           <div className="flex items-center gap-3 flex-1">
                             <ChevronDown className="w-5 h-5 transition-transform duration-200 ui-expanded:rotate-180" />
                             <CardTitle className="text-lg" style={{ color: `hsl(${classThemeColor})` }}>
-                              {spell.name}
+                              {item.name}
                             </CardTitle>
                           </div>
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
-                              const updatedSpells = (formData.custom_spells || []).filter(s => s.id !== spell.id);
-                              onFormDataChange?.({ custom_spells: updatedSpells });
+                              const updatedInventory = (formData.custom_inventory || []).filter(i => i.id !== item.id);
+                              onFormDataChange?.({ custom_inventory: updatedInventory });
                             }}
                             className="p-2 hover:bg-destructive/20 rounded-md transition-colors"
                           >
@@ -1495,7 +1452,7 @@ const CharacterView = ({
                       <CollapsibleContent>
                         <CardContent className="pt-0">
                           <Separator className="mb-4" style={{ backgroundColor: `hsl(${classThemeColor} / 0.2)` }} />
-                          <p className="text-sm text-muted-foreground whitespace-pre-wrap">{spell.description}</p>
+                          <p className="text-sm text-muted-foreground whitespace-pre-wrap">{item.description}</p>
                         </CardContent>
                       </CollapsibleContent>
                     </Card>
@@ -1505,27 +1462,33 @@ const CharacterView = ({
             ) : (
               <Card className="bg-card/70 border-2 backdrop-blur-sm" style={{ borderColor: `hsl(${classThemeColor} / 0.3)` }}>
                 <CardContent className="py-16 text-center">
-                  <Wand2 className="w-16 h-16 mx-auto mb-4 opacity-30" style={{ color: `hsl(${classThemeColor})` }} />
-                  <p className="text-muted-foreground font-medium">No spells added yet</p>
-                  <p className="text-sm text-muted-foreground mt-2">Click the + button to add spells</p>
+                  <Package className="w-16 h-16 mx-auto mb-4 opacity-30" style={{ color: `hsl(${classThemeColor})` }} />
+                  <p className="text-muted-foreground font-medium">No items in inventory</p>
+                  <p className="text-sm text-muted-foreground mt-2">Click the + button to add items</p>
                 </CardContent>
               </Card>
             )}
 
-            <Sheet open={isSpellDialogOpen} onOpenChange={setIsSpellDialogOpen}>
-              <SheetTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="fixed bottom-6 right-6 z-10"
-                  style={{
-                    borderColor: `hsl(${classThemeColor})`,
-                  }}
-                >
-                  <Plus className="w-4 h-4 mr-2" />
-                  Add Spell
-                </Button>
-              </SheetTrigger>
+          </TabsContent>
+
+          {/* Spells Tab */}
+          <TabsContent value="spells" className="mt-6 space-y-4">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-xl font-semibold">Spells</h3>
+              <Sheet open={isSpellDialogOpen} onOpenChange={setIsSpellDialogOpen}>
+                <SheetTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    style={{
+                      borderColor: `hsl(${classThemeColor})`,
+                      color: `hsl(${classThemeColor})`,
+                    }}
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Add Spell
+                  </Button>
+                </SheetTrigger>
                 <SheetContent side="left" className="w-[400px] sm:w-[540px] overflow-y-auto">
                   <SheetHeader>
                     <SheetTitle className="font-cinzel" style={{ color: `hsl(${classThemeColor})` }}>
@@ -1678,25 +1641,74 @@ const CharacterView = ({
                     )}
                   </div>
                 </SheetContent>
-            </Sheet>
+              </Sheet>
+            </div>
+            
+            {formData.custom_spells && formData.custom_spells.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {formData.custom_spells.map((spell) => (
+                  <Collapsible key={spell.id}>
+                    <Card className="bg-card/70 border-2 backdrop-blur-sm" style={{ borderColor: `hsl(${classThemeColor} / 0.3)` }}>
+                      <CollapsibleTrigger className="w-full">
+                        <CardHeader className="flex flex-row items-center justify-between hover:bg-muted/30 transition-colors cursor-pointer">
+                          <div className="flex items-center gap-3 flex-1">
+                            <ChevronDown className="w-5 h-5 transition-transform duration-200 ui-expanded:rotate-180" />
+                            <CardTitle className="text-lg" style={{ color: `hsl(${classThemeColor})` }}>
+                              {spell.name}
+                            </CardTitle>
+                          </div>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              const updatedSpells = (formData.custom_spells || []).filter(s => s.id !== spell.id);
+                              onFormDataChange?.({ custom_spells: updatedSpells });
+                            }}
+                            className="p-2 hover:bg-destructive/20 rounded-md transition-colors"
+                          >
+                            <X className="w-4 h-4 text-destructive" />
+                          </button>
+                        </CardHeader>
+                      </CollapsibleTrigger>
+                      <CollapsibleContent>
+                        <CardContent className="pt-0">
+                          <Separator className="mb-4" style={{ backgroundColor: `hsl(${classThemeColor} / 0.2)` }} />
+                          <p className="text-sm text-muted-foreground whitespace-pre-wrap">{spell.description}</p>
+                        </CardContent>
+                      </CollapsibleContent>
+                    </Card>
+                  </Collapsible>
+                ))}
+              </div>
+            ) : (
+              <Card className="bg-card/70 border-2 backdrop-blur-sm" style={{ borderColor: `hsl(${classThemeColor} / 0.3)` }}>
+                <CardContent className="py-16 text-center">
+                  <Wand2 className="w-16 h-16 mx-auto mb-4 opacity-30" style={{ color: `hsl(${classThemeColor})` }} />
+                  <p className="text-muted-foreground font-medium">No spells added yet</p>
+                  <p className="text-sm text-muted-foreground mt-2">Click the + button to add spells</p>
+                </CardContent>
+              </Card>
+            )}
+
           </TabsContent>
 
           {/* Journal Tab */}
           <TabsContent value="journal" className="mt-6 space-y-4">
-            <Dialog open={isJournalDialogOpen} onOpenChange={setIsJournalDialogOpen}>
-              <DialogTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="fixed bottom-6 right-6 z-10"
-                  style={{
-                    borderColor: `hsl(${classThemeColor})`,
-                  }}
-                >
-                  <Plus className="w-4 h-4 mr-2" />
-                  Add Entry
-                </Button>
-              </DialogTrigger>
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-xl font-semibold">Journal</h3>
+              <Dialog open={isJournalDialogOpen} onOpenChange={setIsJournalDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    style={{
+                      borderColor: `hsl(${classThemeColor})`,
+                      color: `hsl(${classThemeColor})`,
+                    }}
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Add Entry
+                  </Button>
+                </DialogTrigger>
                 <DialogContent className="sm:max-w-[600px]">
                   <DialogHeader>
                     <DialogTitle className="font-cinzel" style={{ color: `hsl(${classThemeColor})` }}>
@@ -1766,7 +1778,8 @@ const CharacterView = ({
                     </div>
                   </div>
                 </DialogContent>
-            </Dialog>
+              </Dialog>
+            </div>
 
             {formData.journal_entries && formData.journal_entries.length > 0 ? (
               <div className="space-y-3">
