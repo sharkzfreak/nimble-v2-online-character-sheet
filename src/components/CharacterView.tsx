@@ -187,26 +187,54 @@ const CharacterView = ({
   
   // Heroic reactions state
   const [heroicReactions, setHeroicReactions] = useState<Array<{ id: string; name: string; description: string }>>([]);
+  
+  // Available equipment and spells from codex
+  const [availableEquipment, setAvailableEquipment] = useState<any[]>([]);
+  const [availableSpells, setAvailableSpells] = useState<any[]>([]);
+  const [showCodexItems, setShowCodexItems] = useState(false);
+  const [showCodexSpells, setShowCodexSpells] = useState(false);
 
-  // Fetch heroic reactions from rules codex
+
+  // Fetch heroic reactions, equipment, and spells from rules codex
   useEffect(() => {
-    const fetchHeroicReactions = async () => {
-      const { data, error } = await supabase
+    const fetchCodexData = async () => {
+      // Fetch heroic reactions
+      const { data: heroicData } = await supabase
         .from('rules')
         .select('*')
         .eq('category', 'Core Rules')
         .ilike('name', '%heroic%');
       
-      if (data && !error) {
-        setHeroicReactions(data.map(rule => ({
+      if (heroicData) {
+        setHeroicReactions(heroicData.map(rule => ({
           id: rule.id,
           name: rule.name,
           description: rule.description
         })));
       }
+      
+      // Fetch equipment
+      const { data: equipmentData } = await supabase
+        .from('equipment')
+        .select('*')
+        .order('name');
+      
+      if (equipmentData) {
+        setAvailableEquipment(equipmentData);
+      }
+      
+      // Fetch spells
+      const { data: spellsData } = await supabase
+        .from('spells')
+        .select('*')
+        .order('name');
+      
+      if (spellsData) {
+        setAvailableSpells(spellsData);
+      }
     };
     
-    fetchHeroicReactions();
+    fetchCodexData();
   }, []);
 
   // Build action tiles from favorites
@@ -1222,106 +1250,6 @@ const CharacterView = ({
 
           {/* Inventory Tab */}
           <TabsContent value="inventory" className="mt-6 space-y-4">
-            <div className="flex justify-center mb-6">
-              <Dialog open={isInventoryDialogOpen} onOpenChange={setIsInventoryDialogOpen}>
-                <DialogTrigger asChild>
-                  <button 
-                    className="p-8 rounded-full transition-all duration-300 hover:scale-110"
-                    style={{
-                      backgroundColor: `hsl(${classThemeColor} / 0.2)`,
-                      border: `2px dashed hsl(${classThemeColor})`,
-                    }}
-                  >
-                    <Plus className="w-12 h-12" style={{ color: `hsl(${classThemeColor})` }} />
-                  </button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-[600px]">
-                  <DialogHeader>
-                    <DialogTitle className="font-cinzel" style={{ color: `hsl(${classThemeColor})` }}>
-                      New Inventory Item
-                    </DialogTitle>
-                  </DialogHeader>
-                  <div className="space-y-4">
-                    <div>
-                      <label htmlFor="item-name" className="text-sm font-medium mb-2 block">
-                        Name
-                      </label>
-                      <Input
-                        id="item-name"
-                        value={newItemName}
-                        onChange={(e) => setNewItemName(e.target.value)}
-                        placeholder="Item name..."
-                        className="w-full"
-                      />
-                    </div>
-                    <div>
-                      <label htmlFor="item-description" className="text-sm font-medium mb-2 block">
-                        Description
-                      </label>
-                      <Textarea
-                        id="item-description"
-                        value={newItemDescription}
-                        onChange={(e) => setNewItemDescription(e.target.value)}
-                        placeholder="Describe the item..."
-                        className="min-h-[100px] w-full"
-                      />
-                    </div>
-                    <div>
-                      <label htmlFor="item-formula" className="text-sm font-medium mb-2 block">
-                        Roll Formula (optional)
-                      </label>
-                      <Input
-                        id="item-formula"
-                        value={newItemFormula}
-                        onChange={(e) => setNewItemFormula(e.target.value)}
-                        placeholder="e.g., 2d4+2"
-                        className="w-full font-mono"
-                      />
-                      <p className="text-xs text-muted-foreground mt-1">For potions or consumables with effects</p>
-                    </div>
-                    <div className="flex justify-end gap-2">
-                      <Button 
-                        variant="outline" 
-                        onClick={() => {
-                          setIsInventoryDialogOpen(false);
-                          setNewItemName("");
-                          setNewItemDescription("");
-                          setNewItemFormula("");
-                        }}
-                      >
-                        Cancel
-                      </Button>
-                      <Button
-                        onClick={() => {
-                          if (newItemName.trim()) {
-                            const newItem: CustomItem = {
-                              id: crypto.randomUUID(),
-                              name: newItemName,
-                              description: newItemDescription,
-                              rollFormula: newItemFormula || undefined,
-                            };
-                            onFormDataChange?.({
-                              custom_inventory: [...(formData.custom_inventory || []), newItem],
-                            });
-                            setIsInventoryDialogOpen(false);
-                            setNewItemName("");
-                            setNewItemDescription("");
-                            setNewItemFormula("");
-                          }
-                        }}
-                        style={{
-                          backgroundColor: `hsl(${classThemeColor})`,
-                          color: 'hsl(var(--background))',
-                        }}
-                      >
-                        Add Item
-                      </Button>
-                    </div>
-                  </div>
-                </DialogContent>
-              </Dialog>
-            </div>
-
             {formData.custom_inventory && formData.custom_inventory.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {formData.custom_inventory.map((item) => (
@@ -1342,16 +1270,13 @@ const CharacterView = ({
                 <CardContent className="py-16 text-center">
                   <Package className="w-16 h-16 mx-auto mb-4 opacity-30" style={{ color: `hsl(${classThemeColor})` }} />
                   <p className="text-muted-foreground font-medium">No items in inventory</p>
-                  <p className="text-sm text-muted-foreground mt-2">Click the + button above to add items</p>
+                  <p className="text-sm text-muted-foreground mt-2">Click the + button below to add items</p>
                 </CardContent>
               </Card>
             )}
-          </TabsContent>
 
-          {/* Spells Tab */}
-          <TabsContent value="spells" className="mt-6 space-y-4">
-            <div className="flex justify-center mb-6">
-              <Dialog open={isSpellDialogOpen} onOpenChange={setIsSpellDialogOpen}>
+            <div className="flex justify-center mt-6">
+              <Dialog open={isInventoryDialogOpen} onOpenChange={setIsInventoryDialogOpen}>
                 <DialogTrigger asChild>
                   <button 
                     className="p-8 rounded-full transition-all duration-300 hover:scale-110"
@@ -1363,93 +1288,135 @@ const CharacterView = ({
                     <Plus className="w-12 h-12" style={{ color: `hsl(${classThemeColor})` }} />
                   </button>
                 </DialogTrigger>
-                <DialogContent className="sm:max-w-[600px]">
+                <DialogContent className="sm:max-w-[700px] max-h-[80vh] overflow-y-auto">
                   <DialogHeader>
                     <DialogTitle className="font-cinzel" style={{ color: `hsl(${classThemeColor})` }}>
-                      New Spell
+                      Add Item
                     </DialogTitle>
                   </DialogHeader>
-                  <div className="space-y-4">
-                    <div>
-                      <label htmlFor="spell-name" className="text-sm font-medium mb-2 block">
-                        Name
-                      </label>
-                      <Input
-                        id="spell-name"
-                        value={newSpellName}
-                        onChange={(e) => setNewSpellName(e.target.value)}
-                        placeholder="Spell name..."
-                        className="w-full"
-                      />
-                    </div>
-                    <div>
-                      <label htmlFor="spell-description" className="text-sm font-medium mb-2 block">
-                        Description
-                      </label>
-                      <Textarea
-                        id="spell-description"
-                        value={newSpellDescription}
-                        onChange={(e) => setNewSpellDescription(e.target.value)}
-                        placeholder="Describe the spell effects..."
-                        className="min-h-[100px] w-full"
-                      />
-                    </div>
-                    <div>
-                      <label htmlFor="spell-formula" className="text-sm font-medium mb-2 block">
-                        Damage/Effect Roll (optional)
-                      </label>
-                      <Input
-                        id="spell-formula"
-                        value={newSpellFormula}
-                        onChange={(e) => setNewSpellFormula(e.target.value)}
-                        placeholder="e.g., 8d6"
-                        className="w-full font-mono"
-                      />
-                      <p className="text-xs text-muted-foreground mt-1">Damage dice or healing amount</p>
-                    </div>
-                    <div className="flex justify-end gap-2">
-                      <Button 
-                        variant="outline" 
-                        onClick={() => {
-                          setIsSpellDialogOpen(false);
-                          setNewSpellName("");
-                          setNewSpellDescription("");
-                          setNewSpellFormula("");
-                        }}
-                      >
-                        Cancel
-                      </Button>
-                      <Button
-                        onClick={() => {
-                          if (newSpellName.trim()) {
-                            const newSpell: CustomItem = {
-                              id: crypto.randomUUID(),
-                              name: newSpellName,
-                              description: newSpellDescription,
-                              rollFormula: newSpellFormula || undefined,
-                            };
-                            onFormDataChange?.({
-                              custom_spells: [...(formData.custom_spells || []), newSpell],
-                            });
-                            setIsSpellDialogOpen(false);
-                            setNewSpellName("");
-                            setNewSpellDescription("");
-                            setNewSpellFormula("");
-                          }
-                        }}
-                        style={{
-                          backgroundColor: `hsl(${classThemeColor})`,
-                          color: 'hsl(var(--background))',
-                        }}
-                      >
-                        Add Spell
-                      </Button>
-                    </div>
-                  </div>
+                  
+                  <Tabs defaultValue="custom" className="w-full">
+                    <TabsList className="grid w-full grid-cols-2">
+                      <TabsTrigger value="custom">Custom Item</TabsTrigger>
+                      <TabsTrigger value="codex">From Codex</TabsTrigger>
+                    </TabsList>
+                    
+                    <TabsContent value="custom" className="space-y-4">
+                      <div>
+                        <label htmlFor="item-name" className="text-sm font-medium mb-2 block">
+                          Name
+                        </label>
+                        <Input
+                          id="item-name"
+                          value={newItemName}
+                          onChange={(e) => setNewItemName(e.target.value)}
+                          placeholder="Item name..."
+                          className="w-full"
+                        />
+                      </div>
+                      <div>
+                        <label htmlFor="item-description" className="text-sm font-medium mb-2 block">
+                          Description
+                        </label>
+                        <Textarea
+                          id="item-description"
+                          value={newItemDescription}
+                          onChange={(e) => setNewItemDescription(e.target.value)}
+                          placeholder="Describe the item..."
+                          className="min-h-[100px] w-full"
+                        />
+                      </div>
+                      <div>
+                        <label htmlFor="item-formula" className="text-sm font-medium mb-2 block">
+                          Roll Formula (optional)
+                        </label>
+                        <Input
+                          id="item-formula"
+                          value={newItemFormula}
+                          onChange={(e) => setNewItemFormula(e.target.value)}
+                          placeholder="e.g., 2d4+2"
+                          className="w-full font-mono"
+                        />
+                        <p className="text-xs text-muted-foreground mt-1">For potions or consumables with effects</p>
+                      </div>
+                      <div className="flex justify-end gap-2">
+                        <Button 
+                          variant="outline" 
+                          onClick={() => {
+                            setIsInventoryDialogOpen(false);
+                            setNewItemName("");
+                            setNewItemDescription("");
+                            setNewItemFormula("");
+                          }}
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          onClick={() => {
+                            if (newItemName.trim()) {
+                              const newItem: CustomItem = {
+                                id: crypto.randomUUID(),
+                                name: newItemName,
+                                description: newItemDescription,
+                                rollFormula: newItemFormula || undefined,
+                              };
+                              onFormDataChange?.({
+                                custom_inventory: [...(formData.custom_inventory || []), newItem],
+                              });
+                              setIsInventoryDialogOpen(false);
+                              setNewItemName("");
+                              setNewItemDescription("");
+                              setNewItemFormula("");
+                            }
+                          }}
+                          style={{
+                            backgroundColor: `hsl(${classThemeColor})`,
+                            color: 'hsl(var(--background))',
+                          }}
+                        >
+                          Add Item
+                        </Button>
+                      </div>
+                    </TabsContent>
+                    
+                    <TabsContent value="codex" className="space-y-4">
+                      <div className="grid gap-2 max-h-[400px] overflow-y-auto">
+                        {availableEquipment.map((item) => (
+                          <Card 
+                            key={item.id}
+                            className="p-4 cursor-pointer hover:bg-accent/50 transition-colors"
+                            onClick={() => {
+                              const newItem: CustomItem = {
+                                id: crypto.randomUUID(),
+                                name: item.name,
+                                description: item.description || '',
+                                rollFormula: item.damage || undefined,
+                              };
+                              onFormDataChange?.({
+                                custom_inventory: [...(formData.custom_inventory || []), newItem],
+                              });
+                              setIsInventoryDialogOpen(false);
+                            }}
+                          >
+                            <div className="font-medium">{item.name}</div>
+                            {item.description && (
+                              <div className="text-sm text-muted-foreground mt-1">{item.description}</div>
+                            )}
+                            {item.damage && (
+                              <div className="text-xs text-muted-foreground mt-1">Damage: {item.damage}</div>
+                            )}
+                          </Card>
+                        ))}
+                      </div>
+                    </TabsContent>
+                  </Tabs>
                 </DialogContent>
               </Dialog>
             </div>
+          </TabsContent>
 
+          {/* Spells Tab */}
+          <TabsContent value="spells" className="mt-6 space-y-4">
             {formData.custom_spells && formData.custom_spells.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {formData.custom_spells.map((spell) => (
@@ -1470,10 +1437,152 @@ const CharacterView = ({
                 <CardContent className="py-16 text-center">
                   <Wand2 className="w-16 h-16 mx-auto mb-4 opacity-30" style={{ color: `hsl(${classThemeColor})` }} />
                   <p className="text-muted-foreground font-medium">No spells added yet</p>
-                  <p className="text-sm text-muted-foreground mt-2">Click the + button above to add spells</p>
+                  <p className="text-sm text-muted-foreground mt-2">Click the + button below to add spells</p>
                 </CardContent>
               </Card>
             )}
+
+            <div className="flex justify-center mt-6">
+              <Dialog open={isSpellDialogOpen} onOpenChange={setIsSpellDialogOpen}>
+                <DialogTrigger asChild>
+                  <button 
+                    className="p-8 rounded-full transition-all duration-300 hover:scale-110"
+                    style={{
+                      backgroundColor: `hsl(${classThemeColor} / 0.2)`,
+                      border: `2px dashed hsl(${classThemeColor})`,
+                    }}
+                  >
+                    <Plus className="w-12 h-12" style={{ color: `hsl(${classThemeColor})` }} />
+                  </button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[700px] max-h-[80vh] overflow-y-auto">
+                  <DialogHeader>
+                    <DialogTitle className="font-cinzel" style={{ color: `hsl(${classThemeColor})` }}>
+                      Add Spell
+                    </DialogTitle>
+                  </DialogHeader>
+                  
+                  <Tabs defaultValue="custom" className="w-full">
+                    <TabsList className="grid w-full grid-cols-2">
+                      <TabsTrigger value="custom">Custom Spell</TabsTrigger>
+                      <TabsTrigger value="codex">From Codex</TabsTrigger>
+                    </TabsList>
+                    
+                    <TabsContent value="custom" className="space-y-4">
+                      <div>
+                        <label htmlFor="spell-name" className="text-sm font-medium mb-2 block">
+                          Name
+                        </label>
+                        <Input
+                          id="spell-name"
+                          value={newSpellName}
+                          onChange={(e) => setNewSpellName(e.target.value)}
+                          placeholder="Spell name..."
+                          className="w-full"
+                        />
+                      </div>
+                      <div>
+                        <label htmlFor="spell-description" className="text-sm font-medium mb-2 block">
+                          Description
+                        </label>
+                        <Textarea
+                          id="spell-description"
+                          value={newSpellDescription}
+                          onChange={(e) => setNewSpellDescription(e.target.value)}
+                          placeholder="Describe the spell effects..."
+                          className="min-h-[100px] w-full"
+                        />
+                      </div>
+                      <div>
+                        <label htmlFor="spell-formula" className="text-sm font-medium mb-2 block">
+                          Damage/Effect Roll (optional)
+                        </label>
+                        <Input
+                          id="spell-formula"
+                          value={newSpellFormula}
+                          onChange={(e) => setNewSpellFormula(e.target.value)}
+                          placeholder="e.g., 8d6"
+                          className="w-full font-mono"
+                        />
+                        <p className="text-xs text-muted-foreground mt-1">Damage dice or healing amount</p>
+                      </div>
+                      <div className="flex justify-end gap-2">
+                        <Button 
+                          variant="outline" 
+                          onClick={() => {
+                            setIsSpellDialogOpen(false);
+                            setNewSpellName("");
+                            setNewSpellDescription("");
+                            setNewSpellFormula("");
+                          }}
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          onClick={() => {
+                            if (newSpellName.trim()) {
+                              const newSpell: CustomItem = {
+                                id: crypto.randomUUID(),
+                                name: newSpellName,
+                                description: newSpellDescription,
+                                rollFormula: newSpellFormula || undefined,
+                              };
+                              onFormDataChange?.({
+                                custom_spells: [...(formData.custom_spells || []), newSpell],
+                              });
+                              setIsSpellDialogOpen(false);
+                              setNewSpellName("");
+                              setNewSpellDescription("");
+                              setNewSpellFormula("");
+                            }
+                          }}
+                          style={{
+                            backgroundColor: `hsl(${classThemeColor})`,
+                            color: 'hsl(var(--background))',
+                          }}
+                        >
+                          Add Spell
+                        </Button>
+                      </div>
+                    </TabsContent>
+                    
+                    <TabsContent value="codex" className="space-y-4">
+                      <div className="grid gap-2 max-h-[400px] overflow-y-auto">
+                        {availableSpells.map((spell) => (
+                          <Card 
+                            key={spell.id}
+                            className="p-4 cursor-pointer hover:bg-accent/50 transition-colors"
+                            onClick={() => {
+                              const newSpell: CustomItem = {
+                                id: crypto.randomUUID(),
+                                name: spell.name,
+                                description: spell.description || '',
+                                rollFormula: spell.damage || undefined,
+                              };
+                              onFormDataChange?.({
+                                custom_spells: [...(formData.custom_spells || []), newSpell],
+                              });
+                              setIsSpellDialogOpen(false);
+                            }}
+                          >
+                            <div className="font-medium">{spell.name}</div>
+                            {spell.element && (
+                              <Badge className="mt-1">{spell.element}</Badge>
+                            )}
+                            {spell.description && (
+                              <div className="text-sm text-muted-foreground mt-1">{spell.description}</div>
+                            )}
+                            {spell.damage && (
+                              <div className="text-xs text-muted-foreground mt-1">Damage: {spell.damage}</div>
+                            )}
+                          </Card>
+                        ))}
+                      </div>
+                    </TabsContent>
+                  </Tabs>
+                </DialogContent>
+              </Dialog>
+            </div>
           </TabsContent>
 
           {/* Journal Tab */}
