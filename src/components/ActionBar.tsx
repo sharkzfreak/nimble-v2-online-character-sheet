@@ -22,6 +22,22 @@ interface ActionBarProps {
   situational?: number;
 }
 
+// Helper to get display text from binding
+const getBindingLabel = (binding: RollBinding): string => {
+  let parts: string[] = [];
+  
+  if (binding.kind === 'attack' || binding.kind === 'check' || binding.kind === 'save') {
+    if (binding.ability) parts.push(binding.ability);
+    if (binding.flat) parts.push(`${binding.flat >= 0 ? '+' : ''}${binding.flat}`);
+  } else if (binding.kind === 'damage' || binding.kind === 'healing') {
+    if (binding.die) parts.push(binding.die);
+    if (binding.ability) parts.push(`+ ${binding.ability}`);
+    if (binding.flat) parts.push(`${binding.flat >= 0 ? '+' : ''}${binding.flat}`);
+  }
+  
+  return parts.join(' ') || binding.kind;
+};
+
 const getChipIcon = (kind: RollBinding['kind']): string => {
   const icons = {
     attack: '🗡️',
@@ -44,19 +60,6 @@ const getChipColor = (kind: RollBinding['kind']): string => {
   return colors[kind] || 'bg-muted hover:bg-muted/80';
 };
 
-const formatBinding = (binding: RollBinding): string => {
-  let parts: string[] = [];
-  
-  if (binding.kind === 'attack' || binding.kind === 'check' || binding.kind === 'save') {
-    if (binding.ability) parts.push(binding.ability);
-    if (binding.flat) parts.push(`${binding.flat >= 0 ? '+' : ''}${binding.flat}`);
-  } else if (binding.kind === 'damage' || binding.kind === 'healing') {
-    if (binding.die) parts.push(binding.die);
-    if (binding.ability) parts.push(`+${binding.ability}`);
-  }
-  
-  return parts.join(' ') || binding.kind;
-};
 
 export const ActionBar = ({ tiles, onRollAction, onToggleFavorite, advMode = 'normal', situational = 0 }: ActionBarProps) => {
   const [filter, setFilter] = useState<string>('all');
@@ -114,7 +117,7 @@ export const ActionBar = ({ tiles, onRollAction, onToggleFavorite, advMode = 'no
                             onClick={() => onRollAction(binding, `${tile.name} - ${action.label}`, advMode, situational)}
                           >
                             <span>{getChipIcon(binding.kind)}</span>
-                            <span className="text-xs">{formatBinding(binding)}</span>
+                            <span className="text-xs">{getBindingLabel(binding)}</span>
                           </Button>
                         </TooltipTrigger>
                         <TooltipContent>

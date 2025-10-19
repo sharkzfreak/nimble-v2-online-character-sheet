@@ -60,6 +60,8 @@ import { rollAction, formatRollResult } from "@/utils/rollEngine";
 import { getFeaturesAtLevel } from "@/config/classFeatures";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import { EditItemDialog } from "./EditItemDialog";
+import { Search } from "lucide-react";
 
 interface JournalEntry {
   id: string;
@@ -183,6 +185,14 @@ const CharacterView = ({
   const [newItemDescription, setNewItemDescription] = useState("");
   const [newItemFormula, setNewItemFormula] = useState("");
   const [inventorySearchQuery, setInventorySearchQuery] = useState("");
+  
+  // Edit item dialog
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [editingItem, setEditingItem] = useState<CustomItem | null>(null);
+  const [editingItemType, setEditingItemType] = useState<'feature' | 'spell' | 'inventory' | null>(null);
+  
+  // Feature search
+  const [featureSearchQuery, setFeatureSearchQuery] = useState("");
   
   // Level-up wizard state
   const [isLevelUpWizardOpen, setIsLevelUpWizardOpen] = useState(false);
@@ -1192,13 +1202,10 @@ const CharacterView = ({
 
           {/* Actions Tab */}
           <TabsContent value="actions" className="mt-6 space-y-4">
-            <Tabs defaultValue="action-tiles" className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="action-tiles">Actions</TabsTrigger>
-                <TabsTrigger value="reactions">Reactions</TabsTrigger>
-              </TabsList>
+            {/* No tabs - combined actions and reactions */}
               
-              <TabsContent value="action-tiles" className="mt-4">
+              {/* Combined Actions & Reactions */}
+              <div className="mt-4 space-y-4">
                 <ActionBar
                   tiles={actionTiles}
                   onRollAction={(binding, label, adv, sit) => executeRoll(binding, label, { advMode: adv, situational: sit })}
@@ -1206,39 +1213,45 @@ const CharacterView = ({
                   advMode={advMode}
                   situational={situational}
                 />
-              </TabsContent>
-              
-              <TabsContent value="reactions" className="mt-4 space-y-4">
-                {heroicReactions.length > 0 ? (
-                  <div className="grid gap-4">
-                    {heroicReactions.map((reaction) => (
-                      <Card key={reaction.id} className="bg-card/70 border-2 backdrop-blur-sm" style={{ borderColor: `hsl(${classThemeColor} / 0.3)` }}>
-                        <CardHeader>
-                          <CardTitle className="text-lg" style={{ color: `hsl(${classThemeColor})` }}>
-                            {reaction.name}
-                          </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <p className="text-sm text-muted-foreground whitespace-pre-wrap">{reaction.description}</p>
-                        </CardContent>
-                      </Card>
-                    ))}
+                
+                {/* Reactions Section */}
+                {heroicReactions.length > 0 && (
+                  <div className="space-y-3">
+                    <h3 className="text-lg font-semibold" style={{ color: `hsl(${classThemeColor})` }}>Heroic Reactions</h3>
+                    <div className="grid gap-3">
+                      {heroicReactions.map((reaction) => (
+                        <Card key={reaction.id} className="bg-card/70 border-2 backdrop-blur-sm" style={{ borderColor: `hsl(${classThemeColor} / 0.3)` }}>
+                          <CardHeader>
+                            <CardTitle className="text-base" style={{ color: `hsl(${classThemeColor})` }}>
+                              {reaction.name}
+                            </CardTitle>
+                          </CardHeader>
+                          <CardContent>
+                            <p className="text-sm text-muted-foreground whitespace-pre-wrap">{reaction.description}</p>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
                   </div>
-                ) : (
-                  <Card className="bg-card/70 border-2 backdrop-blur-sm" style={{ borderColor: `hsl(${classThemeColor} / 0.3)` }}>
-                    <CardContent className="py-16 text-center">
-                      <p className="text-muted-foreground">No heroic reactions available</p>
-                    </CardContent>
-                  </Card>
                 )}
-              </TabsContent>
-            </Tabs>
+              </div>
           </TabsContent>
 
           {/* Features Tab */}
           <TabsContent value="features" className="mt-6 space-y-4">
-            <div className="flex justify-between items-center mb-4">
+            <div className="flex justify-between items-center gap-2 mb-4">
               <h3 className="text-xl font-semibold">Class Features</h3>
+              <div className="flex items-center gap-2 flex-1 max-w-md">
+                <div className="relative flex-1">
+                  <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search features..."
+                    value={featureSearchQuery}
+                    onChange={(e) => setFeatureSearchQuery(e.target.value)}
+                    className="pl-8"
+                  />
+                </div>
+              </div>
               <Dialog open={isFeatureDialogOpen} onOpenChange={setIsFeatureDialogOpen}>
                 <DialogTrigger asChild>
                   <Button
@@ -1340,27 +1353,83 @@ const CharacterView = ({
               </Dialog>
             </div>
             
-            <FeaturesTimeline
-              className={formData.class}
-              currentLevel={formData.level}
-              classFeatures={formData.custom_features?.map((f, i) => ({
-                id: f.id,
-                name: f.name,
-                level: 1,
-                description: f.description,
-                requires_choice: false,
-                selection: [],
-              })) || []}
-              onLevelUpClick={() => setIsLevelUpWizardOpen(true)}
-              onToggleFavorite={handleToggleFavorite}
-              isFavorited={isFavorited}
-            />
+            {/* Custom Features List */}
+            {formData.custom_features && formData.custom_features.length > 0 ? (
+              <div className="space-y-2">
+                {formData.custom_features
+                  .filter((feature) => 
+                    !featureSearchQuery || 
+                    feature.name.toLowerCase().includes(featureSearchQuery.toLowerCase()) ||
+                    (feature.description && feature.description.toLowerCase().includes(featureSearchQuery.toLowerCase()))
+                  )
+                  .map((feature) => (
+                  <Collapsible key={feature.id} className="border rounded-lg">
+                    <CollapsibleTrigger 
+                      className="w-full p-3 text-left hover:bg-accent/50 transition-colors flex items-center justify-between group"
+                      onContextMenu={(e) => {
+                        e.preventDefault();
+                        setEditingItem(feature);
+                        setEditingItemType('feature');
+                        setEditDialogOpen(true);
+                      }}
+                    >
+                      <div className="flex-1 flex items-center gap-3">
+                        <span className="font-medium">{feature.name}</span>
+                        {feature.actions && feature.actions.length > 0 && (
+                          <Badge variant="secondary" className="text-xs">
+                            {feature.actions.length} action{feature.actions.length > 1 ? 's' : ''}
+                          </Badge>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onFormDataChange?.({
+                              custom_features: formData.custom_features?.filter((f) => f.id !== feature.id),
+                            });
+                          }}
+                          className="h-7 w-7 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <X className="w-4 h-4" />
+                        </Button>
+                        <ChevronDown className="w-4 h-4 transition-transform ui-open:rotate-180" />
+                      </div>
+                    </CollapsibleTrigger>
+                    <CollapsibleContent className="px-4 pb-3">
+                      <div className="text-sm text-muted-foreground whitespace-pre-wrap">
+                        {feature.description}
+                      </div>
+                    </CollapsibleContent>
+                  </Collapsible>
+                ))}
+              </div>
+            ) : (
+              <Card className="bg-card/70 border-2 backdrop-blur-sm" style={{ borderColor: `hsl(${classThemeColor} / 0.3)` }}>
+                <CardContent className="py-16 text-center">
+                  <Sparkles className="w-16 h-16 mx-auto mb-4 opacity-30" style={{ color: `hsl(${classThemeColor})` }} />
+                  <p className="text-muted-foreground font-medium">No custom features yet</p>
+                  <p className="text-sm text-muted-foreground mt-2">Click + to add features</p>
+                </CardContent>
+              </Card>
+            )}
           </TabsContent>
 
           {/* Inventory Tab */}
           <TabsContent value="inventory" className="mt-6 space-y-4">
-            <div className="flex justify-between items-center mb-4">
+            <div className="flex justify-between items-center gap-2 mb-4">
               <h3 className="text-xl font-semibold">Inventory</h3>
+              <div className="relative flex-1 max-w-md">
+                <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search inventory..."
+                  value={inventorySearchQuery}
+                  onChange={(e) => setInventorySearchQuery(e.target.value)}
+                  className="pl-8"
+                />
+              </div>
               <Sheet open={isInventoryDialogOpen} onOpenChange={setIsInventoryDialogOpen}>
                 <SheetTrigger asChild>
                   <Button
@@ -1534,11 +1603,29 @@ const CharacterView = ({
             </div>
             {formData.custom_inventory && formData.custom_inventory.length > 0 ? (
               <div className="space-y-2">
-                {formData.custom_inventory.map((item) => (
+                {formData.custom_inventory
+                  .filter((item) =>
+                    item.name.toLowerCase().includes(inventorySearchQuery.toLowerCase()) ||
+                    (item.description && item.description.toLowerCase().includes(inventorySearchQuery.toLowerCase()))
+                  )
+                  .map((item) => (
                   <Collapsible key={item.id} className="border rounded-lg">
-                    <CollapsibleTrigger className="w-full p-3 text-left hover:bg-accent/50 transition-colors flex items-center justify-between group">
+                    <CollapsibleTrigger 
+                      className="w-full p-3 text-left hover:bg-accent/50 transition-colors flex items-center justify-between group"
+                      onContextMenu={(e) => {
+                        e.preventDefault();
+                        setEditingItem(item);
+                        setEditingItemType('inventory');
+                        setEditDialogOpen(true);
+                      }}
+                    >
                       <div className="flex-1 flex items-center gap-3">
                         <span className="font-medium">{item.name}</span>
+                        {item.actions && item.actions.length > 0 && (
+                          <Badge variant="secondary" className="text-xs">
+                            {item.actions.length} action{item.actions.length > 1 ? 's' : ''}
+                          </Badge>
+                        )}
                         {item.rollFormula && (
                           <div
                             onClick={(e) => {
@@ -1622,8 +1709,17 @@ const CharacterView = ({
 
           {/* Spells Tab */}
           <TabsContent value="spells" className="mt-6 space-y-4">
-            <div className="flex justify-between items-center mb-4">
+            <div className="flex justify-between items-center gap-2 mb-4">
               <h3 className="text-xl font-semibold">Spells</h3>
+              <div className="relative flex-1 max-w-md">
+                <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search spells..."
+                  value={spellSearchQuery}
+                  onChange={(e) => setSpellSearchQuery(e.target.value)}
+                  className="pl-8"
+                />
+              </div>
               <Sheet open={isSpellDialogOpen} onOpenChange={setIsSpellDialogOpen}>
                 <SheetTrigger asChild>
                   <Button
@@ -1795,11 +1891,29 @@ const CharacterView = ({
             
             {formData.custom_spells && formData.custom_spells.length > 0 ? (
               <div className="space-y-2">
-                {formData.custom_spells.map((spell) => (
+                {formData.custom_spells
+                  .filter((spell) =>
+                    spell.name.toLowerCase().includes(spellSearchQuery.toLowerCase()) ||
+                    (spell.description && spell.description.toLowerCase().includes(spellSearchQuery.toLowerCase()))
+                  )
+                  .map((spell) => (
                   <Collapsible key={spell.id} className="border rounded-lg">
-                    <CollapsibleTrigger className="w-full p-3 text-left hover:bg-accent/50 transition-colors flex items-center justify-between group">
+                    <CollapsibleTrigger 
+                      className="w-full p-3 text-left hover:bg-accent/50 transition-colors flex items-center justify-between group"
+                      onContextMenu={(e) => {
+                        e.preventDefault();
+                        setEditingItem(spell);
+                        setEditingItemType('spell');
+                        setEditDialogOpen(true);
+                      }}
+                    >
                       <div className="flex-1 flex items-center gap-3">
                         <span className="font-medium">{spell.name}</span>
+                        {spell.actions && spell.actions.length > 0 && (
+                          <Badge variant="secondary" className="text-xs">
+                            {spell.actions.length} action{spell.actions.length > 1 ? 's' : ''}
+                          </Badge>
+                        )}
                         {spell.rollFormula && (
                           <div
                             onClick={(e) => {
@@ -2091,6 +2205,37 @@ const CharacterView = ({
           breakdown={currentFormula}
           onResetOverride={handleResetOverride}
         />
+        
+        {/* Edit Item Dialog */}
+        {editingItem && editingItemType && (
+          <EditItemDialog
+            open={editDialogOpen}
+            onOpenChange={setEditDialogOpen}
+            item={editingItem}
+            classColor={classThemeColor}
+            onSave={(updates) => {
+              if (editingItemType === 'feature') {
+                const updated = formData.custom_features?.map((f) =>
+                  f.id === editingItem.id ? { ...f, ...updates } : f
+                );
+                onFormDataChange?.({ custom_features: updated });
+              } else if (editingItemType === 'spell') {
+                const updated = formData.custom_spells?.map((s) =>
+                  s.id === editingItem.id ? { ...s, ...updates } : s
+                );
+                onFormDataChange?.({ custom_spells: updated });
+              } else if (editingItemType === 'inventory') {
+                const updated = formData.custom_inventory?.map((i) =>
+                  i.id === editingItem.id ? { ...i, ...updates } : i
+                );
+                onFormDataChange?.({ custom_inventory: updated });
+              }
+              setEditDialogOpen(false);
+              setEditingItem(null);
+              setEditingItemType(null);
+            }}
+          />
+        )}
       </main>
 
       {/* Right Column - Chat/Dice Log */}
