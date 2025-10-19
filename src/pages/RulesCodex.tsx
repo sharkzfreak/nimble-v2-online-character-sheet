@@ -5,8 +5,36 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, ArrowLeft } from "lucide-react";
+
+// Import class images
+import berserkerImg from "@/assets/class-berserker.jpg";
+import cheatImg from "@/assets/class-cheat.jpg";
+import commanderImg from "@/assets/class-commander.jpg";
+import hunterImg from "@/assets/class-hunter.jpg";
+import mageImg from "@/assets/class-mage.jpg";
+import oathswornImg from "@/assets/class-oathsworn.jpg";
+import shadowmancerImg from "@/assets/class-shadowmancer.jpg";
+import shepherdImg from "@/assets/class-shepherd.jpg";
+import songweaverImg from "@/assets/class-songweaver.jpg";
+import stormshifterImg from "@/assets/class-stormshifter.jpg";
+import zephyrImg from "@/assets/class-zephyr.jpg";
+
+const CLASS_IMAGES: Record<string, string> = {
+  "Berserker": berserkerImg,
+  "Cheat": cheatImg,
+  "Commander": commanderImg,
+  "Hunter": hunterImg,
+  "Mage": mageImg,
+  "Oathsworn": oathswornImg,
+  "Shadowmancer": shadowmancerImg,
+  "Shepherd": shepherdImg,
+  "Songweaver": songweaverImg,
+  "Stormshifter": stormshifterImg,
+  "Zephyr": zephyrImg,
+};
 
 const RulesCodex = () => {
   const navigate = useNavigate();
@@ -93,43 +121,63 @@ const RulesCodex = () => {
           </TabsList>
 
           <TabsContent value="classes">
-            <ScrollArea className="h-[600px]">
-              <div className="grid gap-4 md:grid-cols-2">
+            <ScrollArea className="h-[700px]">
+              <div className="grid gap-6 md:grid-cols-2 pr-4">
                 {filterItems(classes, ['name', 'description']).map((classData: any) => (
                   <Card 
                     key={classData.id} 
-                    className="hover:shadow-lg transition-all cursor-pointer hover-scale"
+                    className="hover:shadow-xl transition-all cursor-pointer group overflow-hidden bg-gradient-to-r from-card to-card/50"
                     onClick={() => navigate(`/codex/class/${classData.name}`)}
                   >
-                    <CardHeader>
-                      <CardTitle className="flex items-center justify-between">
-                        {classData.name}
-                        <span className="text-sm text-muted-foreground">
-                          {'♦'.repeat(classData.complexity)}
-                        </span>
-                      </CardTitle>
-                      <CardDescription>
-                        Key Stats: {classData.key_stats.join(', ')} | Hit Die: {classData.hit_die}
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-sm text-muted-foreground mb-4">{classData.description}</p>
-                      <div className="grid grid-cols-2 gap-2 text-xs">
-                        <div><strong>Starting HP:</strong> {classData.starting_hp}</div>
-                        <div><strong>Saves:</strong> {classData.saves.join(', ')}</div>
-                        <div><strong>Armor:</strong> {classData.armor || 'None'}</div>
-                        <div><strong>Weapons:</strong> {classData.weapons}</div>
+                    <div className="flex">
+                      {/* Class Image */}
+                      <div className="w-48 h-48 flex-shrink-0 overflow-hidden relative">
+                        <img 
+                          src={CLASS_IMAGES[classData.name] || berserkerImg}
+                          alt={classData.name}
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent to-card/30" />
                       </div>
-                      {classData.starting_gear && (
-                        <div className="mt-3">
-                          <strong className="text-xs">Starting Gear:</strong>
-                          <p className="text-xs text-muted-foreground">{classData.starting_gear.join(', ')}</p>
+                      
+                      {/* Class Info */}
+                      <div className="flex-1 p-6 flex flex-col justify-between">
+                        <div>
+                          <div className="flex items-start justify-between mb-2">
+                            <h3 className="text-2xl font-bold italic uppercase tracking-wide">
+                              {classData.name}
+                            </h3>
+                            <Badge variant="outline" className="ml-2 whitespace-nowrap">
+                              {classData.source_page ? `P. ${classData.source_page}` : 'P. 1'}
+                            </Badge>
+                          </div>
+                          
+                          <p className="text-sm text-muted-foreground leading-relaxed line-clamp-3 mb-3">
+                            {classData.description}
+                          </p>
+                          
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-semibold">Class Complexity:</span>
+                            <span className="text-primary font-bold">
+                              {'♦'.repeat(classData.complexity)}
+                            </span>
+                          </div>
                         </div>
-                      )}
-                      <div className="mt-4 text-xs text-primary font-medium">
-                        Click to view all features →
+                        
+                        <div className="mt-4 pt-4 border-t border-border/50">
+                          <div className="text-xs text-muted-foreground space-y-1">
+                            <div className="flex justify-between">
+                              <span className="font-semibold">Hit Die:</span>
+                              <span>{classData.hit_die}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="font-semibold">Key Stats:</span>
+                              <span>{classData.key_stats.join(', ')}</span>
+                            </div>
+                          </div>
+                        </div>
                       </div>
-                    </CardContent>
+                    </div>
                   </Card>
                 ))}
               </div>
