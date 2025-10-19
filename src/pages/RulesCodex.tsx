@@ -186,29 +186,36 @@ const RulesCodex = () => {
                   return acc;
                 }, {} as Record<string, any[]>)
                 ).map(([category, categoryRules]: [string, any[]]) => (
-                <Card key={category}>
-                  <CardHeader>
-                    <CardTitle className="capitalize">{category.replace('_', ' ')}</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-2">
-                      {categoryRules.map((rule: any) => (
-                        <Collapsible key={rule.id}>
-                          <CollapsibleTrigger className="w-full flex items-center justify-between p-3 hover:bg-accent rounded transition-colors">
-                            <h4 className="font-semibold text-sm">{rule.name}</h4>
-                            <ChevronDown className="h-4 w-4 transition-transform ui-open:rotate-180" />
-                          </CollapsibleTrigger>
-                          <CollapsibleContent className="px-3 pb-3">
-                            <p className="text-sm text-muted-foreground whitespace-pre-line">{rule.description}</p>
-                            {rule.source_page && (
-                              <span className="text-xs text-muted-foreground mt-2 block">Page {rule.source_page}</span>
-                            )}
-                          </CollapsibleContent>
-                        </Collapsible>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
+                <Collapsible key={category} defaultOpen>
+                  <Card>
+                    <CollapsibleTrigger className="w-full">
+                      <CardHeader className="flex flex-row items-center justify-between space-y-0">
+                        <CardTitle className="capitalize">{category.replace('_', ' ')}</CardTitle>
+                        <ChevronDown className="h-5 w-5 transition-transform ui-open:rotate-180" />
+                      </CardHeader>
+                    </CollapsibleTrigger>
+                    <CollapsibleContent>
+                      <CardContent>
+                        <div className="grid md:grid-cols-2 gap-2">
+                          {categoryRules.map((rule: any) => (
+                            <Collapsible key={rule.id}>
+                              <CollapsibleTrigger className="w-full flex items-center justify-between p-3 hover:bg-accent rounded transition-colors">
+                                <h4 className="font-semibold text-sm">{rule.name}</h4>
+                                <ChevronDown className="h-4 w-4 transition-transform ui-open:rotate-180" />
+                              </CollapsibleTrigger>
+                              <CollapsibleContent className="px-3 pb-3">
+                                <p className="text-sm text-muted-foreground whitespace-pre-line">{rule.description}</p>
+                                {rule.source_page && (
+                                  <span className="text-xs text-muted-foreground mt-2 block">Page {rule.source_page}</span>
+                                )}
+                              </CollapsibleContent>
+                            </Collapsible>
+                          ))}
+                        </div>
+                      </CardContent>
+                    </CollapsibleContent>
+                  </Card>
+                </Collapsible>
               ))}
             </div>
           </TabsContent>
