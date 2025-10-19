@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { supabase } from "@/integrations/supabase/client";
 import { CLASS_FEATURES } from "@/config/classFeatures";
+import { BERSERKER_SUBCLASS_FEATURES } from "@/config/subclassFeatures";
 import { Loader2, ArrowLeft, Sparkles } from "lucide-react";
 
 const ClassDetail = () => {
@@ -76,6 +77,19 @@ const ClassDetail = () => {
       }
       grouped[feature.level].push(feature);
     });
+
+    // Add subclass features for Berserker
+    if (className === 'Berserker') {
+      BERSERKER_SUBCLASS_FEATURES.forEach(subclassFeature => {
+        if (!grouped[subclassFeature.level]) {
+          grouped[subclassFeature.level] = [];
+        }
+        grouped[subclassFeature.level].push({
+          ...subclassFeature,
+          isSubclass: true,
+        });
+      });
+    }
 
     abilities.forEach((ability) => {
       const level = ability.level_requirement || 1;
@@ -205,15 +219,24 @@ const ClassDetail = () => {
                         {levelFeatures.map((feature, idx) => (
                           <div key={feature.id || idx} className="pb-4 border-b last:border-0">
                             <div className="flex items-start justify-between mb-2">
-                              <h4 className="font-bold text-lg">{feature.name}</h4>
-                              {feature.isAbility && (
-                                <Badge variant="secondary">Ability</Badge>
-                              )}
-                              {feature.requires_choice && (
-                                <Badge variant="outline">Choice Required</Badge>
-                              )}
+                              <div className="flex items-center gap-2">
+                                <h4 className="font-bold text-lg">{feature.name}</h4>
+                                {feature.isSubclass && (
+                                  <Badge variant="secondary" className="text-xs">
+                                    {feature.subclassName}
+                                  </Badge>
+                                )}
+                              </div>
+                              <div className="flex gap-2">
+                                {feature.isAbility && (
+                                  <Badge variant="secondary">Ability</Badge>
+                                )}
+                                {feature.requires_choice && (
+                                  <Badge variant="outline">Choice Required</Badge>
+                                )}
+                              </div>
                             </div>
-                            <p className="text-sm text-muted-foreground mb-3">
+                            <p className="text-sm text-muted-foreground mb-3 whitespace-pre-wrap">
                               {feature.description || feature.text}
                             </p>
                             
