@@ -95,6 +95,8 @@ const CharacterForm = ({ characterId }: CharacterFormProps) => {
     custom_inventory: [] as Array<{ id: string; name: string; description?: string; rollFormula?: string; actions?: any }>,
   });
 
+  const [actionTracker, setActionTracker] = useState([true, true, true]);
+
   const handleClassChange = (classId: string, classData: any) => {
     setFormData({
       ...formData,
@@ -473,6 +475,8 @@ const CharacterForm = ({ characterId }: CharacterFormProps) => {
             calculateDefense={calculateDefense}
             calculateInitiative={calculateInitiative}
             calculateCarryWeight={calculateCarryWeight}
+            actionTracker={actionTracker}
+            onActionTrackerChange={setActionTracker}
             onFormDataChange={(updates) => {
               setFormData({ ...formData, ...updates });
             }}

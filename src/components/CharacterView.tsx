@@ -120,6 +120,8 @@ interface CharacterViewProps {
   calculateInitiative: () => number;
   calculateCarryWeight: () => number;
   onFormDataChange?: (updates: Partial<CharacterViewProps['formData']>) => void;
+  actionTracker?: boolean[];
+  onActionTrackerChange?: (tracker: boolean[]) => void;
 }
 
 const CharacterView = ({
@@ -130,6 +132,8 @@ const CharacterView = ({
   calculateInitiative,
   calculateCarryWeight,
   onFormDataChange,
+  actionTracker = [true, true, true],
+  onActionTrackerChange,
 }: CharacterViewProps) => {
   const { data: ruleset, isLoading: rulesetLoading } = useNimbleRuleset();
   const { addLog, animationsEnabled } = useDiceLog();
@@ -874,18 +878,60 @@ const CharacterView = ({
             <div className="flex flex-col gap-6 mb-8">
               <div className="flex-1 flex flex-col justify-start gap-4">
                 <div>
-                  <h1 
-                    className="text-4xl md:text-5xl lg:text-6xl font-bold font-cinzel mb-3"
-                    style={{
-                      background: `linear-gradient(135deg, hsl(${classThemeColor}), hsl(var(--accent)))`,
-                      WebkitBackgroundClip: 'text',
-                      WebkitTextFillColor: 'transparent',
-                      backgroundClip: 'text',
-                      filter: `drop-shadow(0 0 20px hsl(${classThemeColor} / 0.4))`
-                    }}
-                  >
-                    {formData.name || "Unnamed Character"}
-                  </h1>
+                  <div className="flex items-center gap-4 mb-3">
+                    <h1 
+                      className="text-4xl md:text-5xl lg:text-6xl font-bold font-cinzel"
+                      style={{
+                        background: `linear-gradient(135deg, hsl(${classThemeColor}), hsl(var(--accent)))`,
+                        WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent',
+                        backgroundClip: 'text',
+                        filter: `drop-shadow(0 0 20px hsl(${classThemeColor} / 0.4))`
+                      }}
+                    >
+                      {formData.name || "Unnamed Character"}
+                    </h1>
+                    
+                    {/* Action Tracker */}
+                    <div className="flex items-center gap-2 ml-4">
+                      {actionTracker.map((isActive, index) => (
+                        <button
+                          key={index}
+                          onClick={() => {
+                            const newTracker = [...actionTracker];
+                            newTracker[index] = !isActive;
+                            onActionTrackerChange?.(newTracker);
+                          }}
+                          className="group relative transition-all duration-300"
+                          style={{
+                            width: '20px',
+                            height: '20px',
+                          }}
+                        >
+                          <div
+                            className="absolute inset-0 rounded-full transition-all duration-300"
+                            style={{
+                              backgroundColor: isActive 
+                                ? `hsl(${classThemeColor})` 
+                                : `hsl(${classThemeColor} / 0.2)`,
+                              boxShadow: isActive 
+                                ? `0 0 15px hsl(${classThemeColor} / 0.6)` 
+                                : 'none',
+                              opacity: isActive ? 1 : 0.3,
+                              transform: isActive ? 'scale(1)' : 'scale(0.8)',
+                            }}
+                          />
+                          <div
+                            className="absolute inset-0 rounded-full border-2 transition-all duration-300"
+                            style={{
+                              borderColor: `hsl(${classThemeColor} / 0.5)`,
+                              opacity: isActive ? 0 : 1,
+                            }}
+                          />
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                   
                   {/* Single Identity Line */}
                   <div className="flex flex-wrap items-center gap-3 text-lg md:text-xl">
