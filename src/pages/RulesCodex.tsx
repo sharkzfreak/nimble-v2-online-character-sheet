@@ -329,30 +329,30 @@ const RulesCodex = () => {
                     <CardHeader>
                       <CardTitle>{type} Weapons</CardTitle>
                     </CardHeader>
-                    <CardContent>
-                      <div className="overflow-x-auto">
-                        <table className="w-full">
-                          <thead>
-                            <tr className="border-b">
-                              <th className="text-left py-2 px-3 font-semibold">ITEM</th>
-                              <th className="text-left py-2 px-3 font-semibold">DAMAGE</th>
-                              <th className="text-left py-2 px-3 font-semibold">PROPERTIES</th>
-                              <th className="text-left py-2 px-3 font-semibold">COST</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {items.map((item: any) => (
-                              <tr key={item.id} className="border-b last:border-0">
-                                <td className="py-2 px-3">{item.name}</td>
-                                <td className="py-2 px-3">{item.damage}</td>
-                                <td className="py-2 px-3">{item.properties?.properties || ''}</td>
-                                <td className="py-2 px-3">{item.cost}</td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    </CardContent>
+                     <CardContent>
+                       <div className="overflow-x-auto">
+                         <table className="w-full text-sm">
+                           <thead>
+                             <tr className="border-b border-border/50">
+                               <th className="text-left py-2 px-3 font-semibold uppercase tracking-wide">Item</th>
+                               <th className="text-left py-2 px-3 font-semibold uppercase tracking-wide">Damage</th>
+                               <th className="text-left py-2 px-3 font-semibold uppercase tracking-wide">Properties</th>
+                               <th className="text-left py-2 px-3 font-semibold uppercase tracking-wide">Cost</th>
+                             </tr>
+                           </thead>
+                           <tbody>
+                             {items.map((item: any) => (
+                               <tr key={item.id} className="border-b border-border/30 last:border-0 hover:bg-accent/30 transition-colors">
+                                 <td className="py-2 px-3">{item.name}</td>
+                                 <td className="py-2 px-3 text-muted-foreground">{item.damage}</td>
+                                 <td className="py-2 px-3 text-muted-foreground">{item.properties?.properties || '—'}</td>
+                                 <td className="py-2 px-3 text-muted-foreground">{item.cost}</td>
+                               </tr>
+                             ))}
+                           </tbody>
+                         </table>
+                       </div>
+                     </CardContent>
                   </Card>
                 ))}
               </div>
@@ -372,31 +372,31 @@ const RulesCodex = () => {
                       <CardHeader>
                         <CardTitle>{type}</CardTitle>
                       </CardHeader>
-                      <CardContent>
-                        <div className="overflow-x-auto">
-                          <table className="w-full">
-                            <thead>
-                              <tr className="border-b">
-                                <th className="text-left py-2 px-2 font-semibold text-sm">ITEM</th>
-                                <th className="text-left py-2 px-2 font-semibold text-sm">ARMOR</th>
-                                <th className="text-left py-2 px-2 font-semibold text-sm">COST</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {items.map((item: any) => (
-                                <tr key={item.id} className="border-b last:border-0">
-                                  <td className="py-2 px-2 text-sm">{item.name}</td>
-                                  <td className="py-2 px-2 text-sm">
-                                    {item.defense}
-                                    {item.properties?.armor_bonus ? ` ${item.properties.armor_bonus}` : ''}
-                                  </td>
-                                  <td className="py-2 px-2 text-sm">{item.cost}</td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                        </div>
-                      </CardContent>
+                     <CardContent>
+                       <div className="overflow-x-auto">
+                         <table className="w-full text-sm">
+                           <thead>
+                             <tr className="border-b border-border/50">
+                               <th className="text-left py-2 px-3 font-semibold uppercase tracking-wide">Item</th>
+                               <th className="text-left py-2 px-3 font-semibold uppercase tracking-wide">Armor</th>
+                               <th className="text-left py-2 px-3 font-semibold uppercase tracking-wide">Cost</th>
+                             </tr>
+                           </thead>
+                           <tbody>
+                             {items.map((item: any) => (
+                               <tr key={item.id} className="border-b border-border/30 last:border-0 hover:bg-accent/30 transition-colors">
+                                 <td className="py-2 px-3">{item.name}</td>
+                                 <td className="py-2 px-3 text-muted-foreground">
+                                   {item.defense}
+                                   {item.properties?.armor_bonus ? ` ${item.properties.armor_bonus}` : ''}
+                                 </td>
+                                 <td className="py-2 px-3 text-muted-foreground">{item.cost}</td>
+                               </tr>
+                             ))}
+                           </tbody>
+                         </table>
+                       </div>
+                     </CardContent>
                     </Card>
                   ))}
                 </div>
