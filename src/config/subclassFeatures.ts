@@ -4,6 +4,7 @@ import { COMMANDER_SUBCLASS_FEATURES } from './commanderFeatures';
 import { HUNTER_SUBCLASS_FEATURES } from './hunterFeatures';
 import { MAGE_SUBCLASS_FEATURES } from './mageFeatures';
 import { VENGEANCE_SUBCLASS_FEATURES, REFUGE_SUBCLASS_FEATURES } from './oathswornFeatures';
+import { SHADOWMANCER_SUBCLASS_FEATURES } from './shadowmancerFeatures';
 
 export interface SubclassFeature {
   id: string;
@@ -89,6 +90,8 @@ export const OATHSWORN_SUBCLASS_FEATURES = [
   ...REFUGE_SUBCLASS_FEATURES,
 ];
 
+export const ALL_SHADOWMANCER_SUBCLASS_FEATURES = SHADOWMANCER_SUBCLASS_FEATURES;
+
 export function getSubclassFeatures(subclassId: string): SubclassFeature[] {
   const allSubclassFeatures = [
     ...BERSERKER_SUBCLASS_FEATURES,
@@ -97,6 +100,7 @@ export function getSubclassFeatures(subclassId: string): SubclassFeature[] {
     ...HUNTER_SUBCLASS_FEATURES,
     ...MAGE_SUBCLASS_FEATURES,
     ...OATHSWORN_SUBCLASS_FEATURES,
+    ...SHADOWMANCER_SUBCLASS_FEATURES,
   ];
   return allSubclassFeatures.filter(f => f.subclassId === subclassId);
 }
@@ -109,10 +113,11 @@ export function getSubclassFeaturesAtLevel(subclassId: string, level: number): S
     ...HUNTER_SUBCLASS_FEATURES,
     ...MAGE_SUBCLASS_FEATURES,
     ...OATHSWORN_SUBCLASS_FEATURES,
+    ...SHADOWMANCER_SUBCLASS_FEATURES,
   ];
   return allSubclassFeatures.filter(
     f => f.subclassId === subclassId && f.level === level
   );
 }
 
-export { CHEAT_SUBCLASS_FEATURES, COMMANDER_SUBCLASS_FEATURES, HUNTER_SUBCLASS_FEATURES, MAGE_SUBCLASS_FEATURES, VENGEANCE_SUBCLASS_FEATURES, REFUGE_SUBCLASS_FEATURES };
+export { CHEAT_SUBCLASS_FEATURES, COMMANDER_SUBCLASS_FEATURES, HUNTER_SUBCLASS_FEATURES, MAGE_SUBCLASS_FEATURES, VENGEANCE_SUBCLASS_FEATURES, REFUGE_SUBCLASS_FEATURES, SHADOWMANCER_SUBCLASS_FEATURES };

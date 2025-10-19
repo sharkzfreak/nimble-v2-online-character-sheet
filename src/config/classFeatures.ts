@@ -28,6 +28,7 @@ import { COMMANDER_CLASS_FEATURES } from "./commanderFeatures";
 import { HUNTER_CLASS_FEATURES } from "./hunterFeatures";
 import { MAGE_CLASS_FEATURES } from "./mageFeatures";
 import { OATHSWORN_CLASS_FEATURES } from "./oathswornFeatures";
+import { SHADOWMANCER_CLASS_FEATURES } from "./shadowmancerFeatures";
 
 export const CLASS_FEATURES: ClassFeaturesData = {
   Cheat: CHEAT_CLASS_FEATURES,
@@ -35,6 +36,7 @@ export const CLASS_FEATURES: ClassFeaturesData = {
   Hunter: HUNTER_CLASS_FEATURES,
   Mage: MAGE_CLASS_FEATURES,
   Oathsworn: OATHSWORN_CLASS_FEATURES,
+  Shadowmancer: SHADOWMANCER_CLASS_FEATURES,
   Berserker: [
     {
       id: "berserker_rage_1",
@@ -377,36 +379,6 @@ export const CLASS_FEATURES: ClassFeaturesData = {
       level: 20,
       description: "+1 to any 2 of your stats. Anytime you roll less than 6 on a Fury Die, change it to 6 instead.",
       requires_choice: false,
-    },
-  ],
-  Shadowmancer: [
-    {
-      id: "shadowmancer_summon",
-      name: "Shadow Minions",
-      level: 1,
-      description: "As an action, summon 1d4 shadow minions. They have 1 HP, +2 to hit, deal 1d4 damage, and vanish after 1 minute or when reduced to 0 HP.",
-      requires_choice: false,
-    },
-    {
-      id: "shadowmancer_darkness",
-      name: "Eyes of Night",
-      level: 1,
-      description: "You have darkvision to 120 feet. As an action, you can create magical darkness in a 15-foot radius for 10 minutes.",
-      requires_choice: false,
-    },
-    {
-      id: "shadowmancer_path",
-      name: "Shadow Path",
-      level: 3,
-      description: "Choose how you wield shadow magic.",
-      requires_choice: true,
-      choice_type: 'single',
-      choice_count: 1,
-      options: [
-        { id: "horde", name: "Path of the Horde", description: "Summon more and stronger minions" },
-        { id: "veil", name: "Path of the Veil", description: "Master illusions and stealth" },
-        { id: "void", name: "Path of the Void", description: "Drain life and deal necrotic damage" },
-      ],
     },
   ],
   Shepherd: [
