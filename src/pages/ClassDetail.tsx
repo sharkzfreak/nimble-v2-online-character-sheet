@@ -80,32 +80,6 @@ const ClassDetail = () => {
       grouped[feature.level].push(feature);
     });
 
-    // Add subclass features for Berserker
-    if (className === 'Berserker') {
-      BERSERKER_SUBCLASS_FEATURES.forEach(subclassFeature => {
-        if (!grouped[subclassFeature.level]) {
-          grouped[subclassFeature.level] = [];
-        }
-        grouped[subclassFeature.level].push({
-          ...subclassFeature,
-          isSubclass: true,
-        });
-      });
-    }
-
-    // Add subclass features for Cheat
-    if (className === 'Cheat') {
-      CHEAT_SUBCLASS_FEATURES.forEach(subclassFeature => {
-        if (!grouped[subclassFeature.level]) {
-          grouped[subclassFeature.level] = [];
-        }
-        grouped[subclassFeature.level].push({
-          ...subclassFeature,
-          isSubclass: true,
-        });
-      });
-    }
-
     abilities.forEach((ability) => {
       const level = ability.level_requirement || 1;
       if (!grouped[level]) {
@@ -116,6 +90,44 @@ const ClassDetail = () => {
         isAbility: true,
       });
     });
+
+    return grouped;
+  };
+
+  const getSubclassFeaturesByLevel = () => {
+    const grouped: Record<number, Record<string, any[]>> = {};
+
+    if (className === 'Berserker') {
+      BERSERKER_SUBCLASS_FEATURES.forEach(subclassFeature => {
+        const level = subclassFeature.level;
+        if (!grouped[level]) {
+          grouped[level] = {};
+        }
+        if (!grouped[level][subclassFeature.subclassName]) {
+          grouped[level][subclassFeature.subclassName] = [];
+        }
+        grouped[level][subclassFeature.subclassName].push({
+          ...subclassFeature,
+          isSubclass: true,
+        });
+      });
+    }
+
+    if (className === 'Cheat') {
+      CHEAT_SUBCLASS_FEATURES.forEach(subclassFeature => {
+        const level = subclassFeature.level;
+        if (!grouped[level]) {
+          grouped[level] = {};
+        }
+        if (!grouped[level][subclassFeature.subclassName]) {
+          grouped[level][subclassFeature.subclassName] = [];
+        }
+        grouped[level][subclassFeature.subclassName].push({
+          ...subclassFeature,
+          isSubclass: true,
+        });
+      });
+    }
 
     return grouped;
   };
@@ -155,6 +167,7 @@ const ClassDetail = () => {
   }
 
   const featuresByLevel = groupFeaturesByLevel();
+  const subclassFeaturesByLevel = getSubclassFeaturesByLevel();
   const maxLevel = Math.max(...Object.keys(featuresByLevel).map(Number), 10);
 
   return (
@@ -259,11 +272,6 @@ const ClassDetail = () => {
                                     <Badge variant="outline" className="shrink-0">
                                       Level {feature.level}
                                     </Badge>
-                                    {feature.isSubclass && (
-                                      <Badge variant="secondary" className="text-xs shrink-0">
-                                        {feature.subclassName}
-                                      </Badge>
-                                    )}
                                     {feature.isAbility && (
                                       <Badge variant="secondary" className="shrink-0">Ability</Badge>
                                     )}
@@ -307,6 +315,99 @@ const ClassDetail = () => {
                                         </Badge>
                                       </div>
                                     )}
+                                  </div>
+                                </CollapsibleContent>
+                              </div>
+                            </Collapsible>
+                          );
+                        })}
+
+                        {/* Render subclass features grouped by subclass */}
+                        {subclassFeaturesByLevel[level] && Object.entries(subclassFeaturesByLevel[level]).map(([subclassName, subclassFeatures], subclassIdx) => {
+                          const subclassKey = `subclass-${subclassName}-${level}`;
+                          const isSubclassExpanded = expandedFeatures.has(subclassKey);
+                          
+                          return (
+                            <Collapsible
+                              key={subclassKey}
+                              open={isSubclassExpanded}
+                              onOpenChange={() => toggleFeature(subclassKey)}
+                            >
+                              <div className={`${levelFeatures.length > 0 || subclassIdx > 0 ? 'border-t' : ''}`}>
+                                <CollapsibleTrigger className="w-full py-3 flex items-center justify-between hover:bg-muted/30 transition-colors bg-primary/5">
+                                  <div className="flex items-center gap-3 flex-1">
+                                    <h4 className="font-bold text-lg">{subclassName}</h4>
+                                    <Badge variant="secondary" className="shrink-0">Subclass</Badge>
+                                  </div>
+                                  <ChevronDown 
+                                    className={`h-5 w-5 text-muted-foreground transition-transform shrink-0 ml-2 ${
+                                      isSubclassExpanded ? 'rotate-180' : ''
+                                    }`}
+                                  />
+                                </CollapsibleTrigger>
+                                
+                                <CollapsibleContent>
+                                  <div className="pl-6 space-y-3 pb-3">
+                                    {subclassFeatures.map((feature: any, featureIdx: number) => {
+                                      const nestedFeatureKey = `${feature.id || featureIdx}-${subclassName}-${level}`;
+                                      const isNestedExpanded = expandedFeatures.has(nestedFeatureKey);
+                                      
+                                      return (
+                                        <Collapsible
+                                          key={nestedFeatureKey}
+                                          open={isNestedExpanded}
+                                          onOpenChange={() => toggleFeature(nestedFeatureKey)}
+                                        >
+                                          <div className={`${featureIdx !== 0 ? 'border-t border-muted' : ''}`}>
+                                            <CollapsibleTrigger className="w-full py-2 flex items-center justify-between hover:bg-muted/20 transition-colors">
+                                              <div className="flex items-center gap-2 flex-1">
+                                                <h5 className="font-semibold text-base">{feature.name}</h5>
+                                                {feature.requires_choice && (
+                                                  <Badge variant="outline" className="text-xs shrink-0">Choice Required</Badge>
+                                                )}
+                                              </div>
+                                              <ChevronDown 
+                                                className={`h-4 w-4 text-muted-foreground transition-transform shrink-0 ml-2 ${
+                                                  isNestedExpanded ? 'rotate-180' : ''
+                                                }`}
+                                              />
+                                            </CollapsibleTrigger>
+                                            
+                                            <CollapsibleContent>
+                                              <div className="pb-2 pl-4">
+                                                <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+                                                  {feature.description || feature.text}
+                                                </p>
+                                                
+                                                {feature.options && feature.options.length > 0 && (
+                                                  <div className="mt-2 pl-3 border-l-2 border-primary/20">
+                                                    <p className="text-xs font-semibold mb-1">Options:</p>
+                                                    <div className="space-y-1">
+                                                      {feature.options.map((option: any) => (
+                                                        <div key={option.id} className="text-sm">
+                                                          <strong>{option.name}:</strong>{" "}
+                                                          <span className="text-muted-foreground">
+                                                            {option.description}
+                                                          </span>
+                                                        </div>
+                                                      ))}
+                                                    </div>
+                                                  </div>
+                                                )}
+
+                                                {feature.category && (
+                                                  <div className="mt-2">
+                                                    <Badge variant="outline" className="text-xs">
+                                                      {feature.category}
+                                                    </Badge>
+                                                  </div>
+                                                )}
+                                              </div>
+                                            </CollapsibleContent>
+                                          </div>
+                                        </Collapsible>
+                                      );
+                                    })}
                                   </div>
                                 </CollapsibleContent>
                               </div>
