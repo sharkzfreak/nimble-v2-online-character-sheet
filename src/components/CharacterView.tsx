@@ -893,7 +893,7 @@ const CharacterView = ({
                     </h1>
                     
                     {/* Action Tracker */}
-                    <div className="flex items-center gap-2 ml-4">
+                    <div className="flex items-center gap-2.5 ml-4 p-2 rounded-lg bg-background/50 backdrop-blur-sm border border-border/50">
                       {actionTracker.map((isActive, index) => (
                         <button
                           key={index}
@@ -902,29 +902,56 @@ const CharacterView = ({
                             newTracker[index] = !isActive;
                             onActionTrackerChange?.(newTracker);
                           }}
-                          className="group relative transition-all duration-300"
+                          className="group relative transition-all duration-500 hover:scale-110"
                           style={{
-                            width: '20px',
-                            height: '20px',
+                            width: '24px',
+                            height: '24px',
                           }}
                         >
+                          {/* Glowing background ring */}
                           <div
-                            className="absolute inset-0 rounded-full transition-all duration-300"
+                            className="absolute inset-0 rounded-full transition-all duration-500 blur-sm"
                             style={{
-                              backgroundColor: isActive 
-                                ? `hsl(${classThemeColor})` 
-                                : `hsl(${classThemeColor} / 0.2)`,
-                              boxShadow: isActive 
-                                ? `0 0 15px hsl(${classThemeColor} / 0.6)` 
-                                : 'none',
-                              opacity: isActive ? 1 : 0.3,
-                              transform: isActive ? 'scale(1)' : 'scale(0.8)',
+                              background: isActive 
+                                ? `linear-gradient(135deg, hsl(${classThemeColor}), hsl(var(--accent)))` 
+                                : 'transparent',
+                              opacity: isActive ? 0.8 : 0,
+                              transform: isActive ? 'scale(1.3)' : 'scale(1)',
                             }}
                           />
+                          
+                          {/* Main dot with gradient */}
                           <div
-                            className="absolute inset-0 rounded-full border-2 transition-all duration-300"
+                            className="absolute inset-0 rounded-full transition-all duration-500 group-hover:rotate-180"
                             style={{
-                              borderColor: `hsl(${classThemeColor} / 0.5)`,
+                              background: isActive 
+                                ? `linear-gradient(135deg, hsl(${classThemeColor}), hsl(var(--accent)))` 
+                                : `linear-gradient(135deg, hsl(${classThemeColor} / 0.15), hsl(var(--muted)))`,
+                              boxShadow: isActive 
+                                ? `0 0 20px hsl(${classThemeColor} / 0.8), inset 0 2px 4px rgba(255,255,255,0.2)` 
+                                : 'inset 0 2px 4px rgba(0,0,0,0.2)',
+                              opacity: isActive ? 1 : 0.4,
+                              transform: isActive ? 'scale(1)' : 'scale(0.75)',
+                            }}
+                          />
+                          
+                          {/* Inner shine effect */}
+                          {isActive && (
+                            <div
+                              className="absolute inset-0 rounded-full transition-all duration-500"
+                              style={{
+                                background: 'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.4), transparent 60%)',
+                              }}
+                            />
+                          )}
+                          
+                          {/* Border ring */}
+                          <div
+                            className="absolute inset-0 rounded-full border-2 transition-all duration-500"
+                            style={{
+                              borderColor: isActive 
+                                ? `hsl(${classThemeColor} / 0.3)` 
+                                : `hsl(${classThemeColor} / 0.5)`,
                               opacity: isActive ? 0 : 1,
                             }}
                           />
