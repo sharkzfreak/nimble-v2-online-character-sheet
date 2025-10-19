@@ -17,6 +17,7 @@ interface ActionTile {
 interface ActionBarProps {
   tiles: ActionTile[];
   onRollAction: (binding: RollBinding, actionLabel: string, advMode: AdvMode, situational: number) => void;
+  onToggleFavorite?: (itemId: string) => void;
   advMode?: AdvMode;
   situational?: number;
 }
@@ -57,7 +58,7 @@ const formatBinding = (binding: RollBinding): string => {
   return parts.join(' ') || binding.kind;
 };
 
-export const ActionBar = ({ tiles, onRollAction, advMode = 'normal', situational = 0 }: ActionBarProps) => {
+export const ActionBar = ({ tiles, onRollAction, onToggleFavorite, advMode = 'normal', situational = 0 }: ActionBarProps) => {
   const [filter, setFilter] = useState<string>('all');
 
   const filteredTiles = tiles.filter(tile => {
@@ -90,7 +91,14 @@ export const ActionBar = ({ tiles, onRollAction, advMode = 'normal', situational
             <div key={tile.id} className="action-tile">
               <div className="action-tile-header">
                 <span className="font-semibold">{tile.name}</span>
-                {tile.starred && <Star className="w-4 h-4 fill-yellow-500 text-yellow-500" />}
+                {tile.starred && onToggleFavorite && (
+                  <button
+                    onClick={() => onToggleFavorite(tile.id)}
+                    className="hover:opacity-70 transition-opacity"
+                  >
+                    <Star className="w-4 h-4 fill-yellow-500 text-yellow-500" />
+                  </button>
+                )}
               </div>
               
               <div className="flex flex-wrap gap-2">

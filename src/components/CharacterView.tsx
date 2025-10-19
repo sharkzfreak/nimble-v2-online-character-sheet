@@ -185,17 +185,17 @@ const CharacterView = ({
   // Favorites tab state
   const [favoritesTabActive, setFavoritesTabActive] = useState(false);
   
-  // Heroic reactions state
+  // Heroic reactions and actions state
   const [heroicReactions, setHeroicReactions] = useState<Array<{ id: string; name: string; description: string }>>([]);
 
-  // Fetch heroic reactions from rules codex
+  // Fetch heroic reactions and actions from rules codex
   useEffect(() => {
-    const fetchHeroicReactions = async () => {
+    const fetchHeroicRules = async () => {
       const { data, error } = await supabase
         .from('rules')
         .select('*')
         .eq('category', 'Core Rules')
-        .ilike('name', '%heroic reaction%');
+        .or('name.ilike.%heroic reaction%,name.ilike.%heroic action%');
       
       if (data && !error) {
         setHeroicReactions(data.map(rule => ({
@@ -206,7 +206,7 @@ const CharacterView = ({
       }
     };
     
-    fetchHeroicReactions();
+    fetchHeroicRules();
   }, []);
 
   // Build action tiles from favorites
@@ -1068,6 +1068,7 @@ const CharacterView = ({
                 <ActionBar
                   tiles={actionTiles}
                   onRollAction={(binding, label, adv, sit) => executeRoll(binding, label, { advMode: adv, situational: sit })}
+                  onToggleFavorite={handleToggleFavorite}
                   advMode={advMode}
                   situational={situational}
                 />
