@@ -433,28 +433,6 @@ const CharacterForm = ({ characterId }: CharacterFormProps) => {
           </Button>
           
           <div className="flex flex-wrap gap-2">
-            {/* Mode Toggle - Only show for existing characters */}
-            {characterId && isOwner && (
-              <Button
-                onClick={handleToggleMode}
-                variant={isEditing ? "default" : "outline"}
-                size="sm"
-                className="hover-scale"
-              >
-                {isEditing ? (
-                  <>
-                    <Eye className="mr-2 h-4 w-4" />
-                    View Mode
-                  </>
-                ) : (
-                  <>
-                    <Edit3 className="mr-2 h-4 w-4" />
-                    Edit Mode
-                  </>
-                )}
-              </Button>
-            )}
-            
             {/* Delete Button - Only show in edit mode */}
             {characterId && isOwner && isEditing && (
               <AlertDialog>
