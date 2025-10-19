@@ -47,6 +47,7 @@ const RulesCodex = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [classes, setClasses] = useState<any[]>([]);
   const [ancestries, setAncestries] = useState<any[]>([]);
+  const [backgrounds, setBackgrounds] = useState<any[]>([]);
   const [rules, setRules] = useState<any[]>([]);
   const [equipment, setEquipment] = useState<any[]>([]);
   const [spells, setSpells] = useState<any[]>([]);
@@ -59,9 +60,10 @@ const RulesCodex = () => {
   const fetchAllData = async () => {
     setLoading(true);
     try {
-      const [classesData, ancestriesData, rulesData, equipmentData, spellsData] = await Promise.all([
+      const [classesData, ancestriesData, backgroundsData, rulesData, equipmentData, spellsData] = await Promise.all([
         supabase.from("classes").select("*").order("name"),
         supabase.from("ancestries").select("*").order("type, name"),
+        supabase.from("backgrounds").select("*").order("name"),
         supabase.from("rules").select("*").order("category, name"),
         supabase.from("equipment").select("*").order("category, name"),
         supabase.from("spells").select("*").order("element, name")
@@ -69,6 +71,7 @@ const RulesCodex = () => {
 
       if (classesData.data) setClasses(classesData.data);
       if (ancestriesData.data) setAncestries(ancestriesData.data);
+      if (backgroundsData.data) setBackgrounds(backgroundsData.data);
       if (rulesData.data) setRules(rulesData.data);
       if (equipmentData.data) setEquipment(equipmentData.data);
       if (spellsData.data) setSpells(spellsData.data);
@@ -122,9 +125,10 @@ const RulesCodex = () => {
         </div>
 
         <Tabs defaultValue="classes" className="w-full">
-          <TabsList className="grid w-full grid-cols-5 max-w-3xl mb-6">
+          <TabsList className="grid w-full grid-cols-6 max-w-4xl mb-6">
             <TabsTrigger value="classes">Classes</TabsTrigger>
             <TabsTrigger value="ancestries">Ancestries</TabsTrigger>
+            <TabsTrigger value="backgrounds">Backgrounds</TabsTrigger>
             <TabsTrigger value="rules">Core Rules</TabsTrigger>
             <TabsTrigger value="equipment">Equipment</TabsTrigger>
             <TabsTrigger value="spells">Spells</TabsTrigger>
@@ -229,6 +233,42 @@ const RulesCodex = () => {
             </div>
           </TabsContent>
 
+          <TabsContent value="backgrounds">
+            <div className="grid md:grid-cols-2 gap-6">
+              {filterItems(backgrounds, ['name', 'description']).map((background: any) => (
+                <Card key={background.id} className="overflow-hidden">
+                  <CardHeader>
+                    <CardTitle>{background.name}</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <p className="text-sm text-muted-foreground">{background.description}</p>
+                    
+                    {background.skill_bonus && (
+                      <div className="bg-accent/50 p-3 rounded">
+                        <h5 className="font-semibold text-sm mb-1">Skill Bonus</h5>
+                        <p className="text-xs text-muted-foreground">{background.skill_bonus}</p>
+                      </div>
+                    )}
+                    
+                    {background.starting_equipment && background.starting_equipment.length > 0 && (
+                      <div className="bg-accent/50 p-3 rounded">
+                        <h5 className="font-semibold text-sm mb-1">Starting Equipment</h5>
+                        <ul className="text-xs text-muted-foreground list-disc list-inside">
+                          {background.starting_equipment.map((item: string, idx: number) => (
+                            <li key={idx}>{item}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    
+                    {background.source_page && (
+                      <span className="text-xs text-muted-foreground">Page {background.source_page}</span>
+                    )}
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </TabsContent>
 
           <TabsContent value="rules">
             <div className="grid gap-4">
