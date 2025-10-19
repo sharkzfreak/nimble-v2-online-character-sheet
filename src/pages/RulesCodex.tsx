@@ -417,37 +417,6 @@ const RulesCodex = () => {
                           </tr>
                         </thead>
                         <tbody>
-                          {filterItems(equipment.filter((e: any) => e.category === 'Gear'), ['name']).map((item: any) => (
-                            <tr key={item.id} className="border-b border-border/30 last:border-0 hover:bg-accent/30 transition-colors">
-                              <td className="py-2 px-3">{item.name}</td>
-                              <td className="py-2 px-3 text-muted-foreground">
-                                {item.properties?.notes ? item.properties.notes.join('. ') : item.description || '—'}
-                              </td>
-                              <td className="py-2 px-3 text-muted-foreground">{item.cost}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-
-              {/* Gear Section */}
-              <div>
-                <h3 className="text-2xl font-bold mb-4">Gear</h3>
-                <Card>
-                  <CardContent className="pt-6">
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-sm">
-                        <thead>
-                          <tr className="border-b border-border/50">
-                            <th className="text-left py-2 px-3 font-semibold uppercase tracking-wide">Item</th>
-                            <th className="text-left py-2 px-3 font-semibold uppercase tracking-wide">Properties</th>
-                            <th className="text-left py-2 px-3 font-semibold uppercase tracking-wide">Cost</th>
-                          </tr>
-                        </thead>
-                        <tbody>
                           {filterItems(equipment.filter((e: any) => e.category === 'Gear'), ['name', 'description']).map((item: any) => (
                             <tr key={item.id} className="border-b border-border/30 last:border-0 hover:bg-accent/30 transition-colors">
                               <td className="py-2 px-3">{item.name}</td>
