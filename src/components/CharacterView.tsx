@@ -184,6 +184,30 @@ const CharacterView = ({
   
   // Favorites tab state
   const [favoritesTabActive, setFavoritesTabActive] = useState(false);
+  
+  // Heroic reactions state
+  const [heroicReactions, setHeroicReactions] = useState<Array<{ id: string; name: string; description: string }>>([]);
+
+  // Fetch heroic reactions from rules codex
+  useEffect(() => {
+    const fetchHeroicReactions = async () => {
+      const { data, error } = await supabase
+        .from('rules')
+        .select('*')
+        .eq('category', 'Core Rules')
+        .ilike('name', '%heroic reaction%');
+      
+      if (data && !error) {
+        setHeroicReactions(data.map(rule => ({
+          id: rule.id,
+          name: rule.name,
+          description: rule.description
+        })));
+      }
+    };
+    
+    fetchHeroicReactions();
+  }, []);
 
   // Build action tiles from favorites
   const actionTiles = (formData.favorites || []).map((fav: FavoriteItem) => ({
@@ -1034,13 +1058,46 @@ const CharacterView = ({
 
           {/* Actions Tab */}
           <TabsContent value="actions" className="mt-6 space-y-4">
-            {/* Action Bar at the top */}
-            <ActionBar
-              tiles={actionTiles}
-              onRollAction={(binding, label, adv, sit) => executeRoll(binding, label, { advMode: adv, situational: sit })}
-              advMode={advMode}
-              situational={situational}
-            />
+            <Tabs defaultValue="action-tiles" className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="action-tiles">Actions</TabsTrigger>
+                <TabsTrigger value="reactions">Reactions</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="action-tiles" className="mt-4">
+                <ActionBar
+                  tiles={actionTiles}
+                  onRollAction={(binding, label, adv, sit) => executeRoll(binding, label, { advMode: adv, situational: sit })}
+                  advMode={advMode}
+                  situational={situational}
+                />
+              </TabsContent>
+              
+              <TabsContent value="reactions" className="mt-4 space-y-4">
+                {heroicReactions.length > 0 ? (
+                  <div className="grid gap-4">
+                    {heroicReactions.map((reaction) => (
+                      <Card key={reaction.id} className="bg-card/70 border-2 backdrop-blur-sm" style={{ borderColor: `hsl(${classThemeColor} / 0.3)` }}>
+                        <CardHeader>
+                          <CardTitle className="text-lg" style={{ color: `hsl(${classThemeColor})` }}>
+                            {reaction.name}
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <p className="text-sm text-muted-foreground whitespace-pre-wrap">{reaction.description}</p>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                ) : (
+                  <Card className="bg-card/70 border-2 backdrop-blur-sm" style={{ borderColor: `hsl(${classThemeColor} / 0.3)` }}>
+                    <CardContent className="py-16 text-center">
+                      <p className="text-muted-foreground">No heroic reactions available</p>
+                    </CardContent>
+                  </Card>
+                )}
+              </TabsContent>
+            </Tabs>
           </TabsContent>
 
           {/* Features Tab */}
