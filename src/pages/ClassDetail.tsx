@@ -243,9 +243,10 @@ const ClassDetail = () => {
                               <div className="border rounded-lg overflow-hidden hover:border-primary/50 transition-colors">
                                 <CollapsibleTrigger className="w-full p-4 flex items-center justify-between hover:bg-muted/50 transition-colors">
                                   <div className="flex items-center gap-3 flex-1">
-                                    <span className="font-bold text-lg">
-                                      {feature.name} <span className="text-muted-foreground font-normal">› Level {feature.level}</span>
-                                    </span>
+                                    <h4 className="font-bold text-lg">{feature.name}</h4>
+                                    <Badge variant="outline" className="shrink-0">
+                                      Level {feature.level}
+                                    </Badge>
                                     {feature.isSubclass && (
                                       <Badge variant="secondary" className="text-xs shrink-0">
                                         {feature.subclassName}
