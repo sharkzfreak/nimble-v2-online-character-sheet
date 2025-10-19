@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { User, Session } from "@supabase/supabase-js";
-import { Plus, LogOut, Scroll, Sword, Shield, BookOpen, Trash2 } from "lucide-react";
+import { Plus, LogOut, Scroll, BookOpen, Eye, Pencil, Copy, Trash2 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import {
   AlertDialog,
@@ -24,11 +24,14 @@ interface Character {
   name: string;
   race: string;
   class: string;
+  level: number;
   strength: number;
   dexterity: number;
   intelligence: number;
   will: number;
   created_at: string;
+  portrait_url?: string;
+  background?: string;
 }
 
 const Dashboard = () => {
@@ -99,6 +102,37 @@ const Dashboard = () => {
     e.stopPropagation();
     setCharacterToDelete(character);
     setDeleteDialogOpen(true);
+  };
+
+  const handleCopy = async (e: React.MouseEvent, character: Character) => {
+    e.stopPropagation();
+    try {
+      const { id, created_at, ...characterData } = character as any;
+      const { data, error } = await supabase
+        .from("characters")
+        .insert({
+          ...characterData,
+          name: `${character.name} (Copy)`,
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      toast({
+        title: "Character copied",
+        description: `Created a copy of ${character.name}`,
+      });
+
+      fetchCharacters();
+    } catch (error) {
+      console.error("Error copying character:", error);
+      toast({
+        title: "Error",
+        description: "Failed to copy character",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleDeleteConfirm = async () => {
@@ -199,70 +233,89 @@ const Dashboard = () => {
               </Button>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {characters.map((character) => (
                 <Card
                   key={character.id}
-                  className="bg-card border-border shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-glow)] transition-all duration-300 cursor-pointer hover-scale animate-fade-in relative"
-                  onClick={() => navigate(`/character/${character.id}`)}
+                  className="bg-card border-border shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-glow)] transition-all duration-300 overflow-hidden animate-fade-in"
                 >
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="absolute top-2 right-2 text-destructive hover:text-destructive hover:bg-destructive/10"
-                    onClick={(e) => handleDeleteClick(e, character)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-foreground">
-                      <Sword className="w-5 h-5 text-primary" />
-                      {character.name}
-                    </CardTitle>
-                    <CardDescription className="text-muted-foreground">
-                      {character.race} {character.class}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="bg-[var(--stat-card-bg)] p-3 rounded border border-[var(--stat-card-border)]">
-                        <div className="flex items-center gap-2 mb-1">
-                          <Shield className="w-4 h-4 text-accent" />
-                          <span className="text-xs text-muted-foreground">Health</span>
-                        </div>
-                        <span className="text-xl font-bold text-foreground">
-                          {calculateHealth(character.strength)}
-                        </span>
+                  <div className="flex flex-col">
+                    {/* Header with portrait and info */}
+                    <div 
+                      className="flex items-center gap-4 p-4 bg-gradient-to-r from-muted/50 to-transparent"
+                      style={{
+                        backgroundImage: character.portrait_url 
+                          ? `linear-gradient(to right, rgba(0,0,0,0.7), rgba(0,0,0,0.3)), url(${character.portrait_url})`
+                          : undefined,
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center'
+                      }}
+                    >
+                      <div className="w-16 h-16 rounded-lg overflow-hidden bg-muted flex-shrink-0 border-2 border-border">
+                        {character.portrait_url ? (
+                          <img 
+                            src={character.portrait_url} 
+                            alt={character.name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/20 to-accent/20">
+                            <span className="text-2xl font-bold text-primary">
+                              {character.name.charAt(0)}
+                            </span>
+                          </div>
+                        )}
                       </div>
-                      <div className="bg-[var(--stat-card-bg)] p-3 rounded border border-[var(--stat-card-border)]">
-                        <div className="flex items-center gap-2 mb-1">
-                          <Shield className="w-4 h-4 text-accent" />
-                          <span className="text-xs text-muted-foreground">Defense</span>
-                        </div>
-                        <span className="text-xl font-bold text-foreground">
-                          {calculateDefense(character.dexterity, character.will)}
-                        </span>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-bold text-lg text-foreground truncate">
+                          {character.name}
+                        </h3>
+                        <p className="text-sm text-muted-foreground">
+                          Level {character.level || 1} | {character.class || 'Adventurer'} {character.background ? `| ${character.background}` : ''}
+                        </p>
                       </div>
                     </div>
-                    <div className="grid grid-cols-4 gap-2 mt-4">
-                      <div className="text-center">
-                        <div className="text-xs text-muted-foreground">STR</div>
-                        <div className="text-lg font-semibold text-primary">{character.strength}</div>
-                      </div>
-                      <div className="text-center">
-                        <div className="text-xs text-muted-foreground">DEX</div>
-                        <div className="text-lg font-semibold text-primary">{character.dexterity}</div>
-                      </div>
-                      <div className="text-center">
-                        <div className="text-xs text-muted-foreground">INT</div>
-                        <div className="text-lg font-semibold text-primary">{character.intelligence}</div>
-                      </div>
-                      <div className="text-center">
-                        <div className="text-xs text-muted-foreground">WILL</div>
-                        <div className="text-lg font-semibold text-primary">{character.will}</div>
-                      </div>
+
+                    {/* Action buttons */}
+                    <div className="grid grid-cols-4 border-t border-border">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="rounded-none border-r border-border hover:bg-accent/10"
+                        onClick={() => navigate(`/character/${character.id}`)}
+                      >
+                        <Eye className="h-4 w-4 mr-1" />
+                        <span className="text-xs">VIEW</span>
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="rounded-none border-r border-border hover:bg-accent/10"
+                        onClick={() => navigate(`/character/${character.id}/edit`)}
+                      >
+                        <Pencil className="h-4 w-4 mr-1" />
+                        <span className="text-xs">EDIT</span>
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="rounded-none border-r border-border hover:bg-accent/10"
+                        onClick={(e) => handleCopy(e, character)}
+                      >
+                        <Copy className="h-4 w-4 mr-1" />
+                        <span className="text-xs">COPY</span>
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="rounded-none hover:bg-destructive/10 text-destructive hover:text-destructive"
+                        onClick={(e) => handleDeleteClick(e, character)}
+                      >
+                        <Trash2 className="h-4 w-4 mr-1" />
+                        <span className="text-xs">DELETE</span>
+                      </Button>
                     </div>
-                  </CardContent>
+                  </div>
                 </Card>
               ))}
             </div>
