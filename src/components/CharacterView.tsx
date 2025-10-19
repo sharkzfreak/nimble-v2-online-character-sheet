@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -165,12 +166,14 @@ const CharacterView = ({
   
   // Spell dialog state
   const [isSpellDialogOpen, setIsSpellDialogOpen] = useState(false);
+  const [spellViewMode, setSpellViewMode] = useState<'codex' | 'custom'>('codex');
   const [newSpellName, setNewSpellName] = useState("");
   const [newSpellDescription, setNewSpellDescription] = useState("");
   const [newSpellFormula, setNewSpellFormula] = useState("");
   
   // Inventory dialog state
   const [isInventoryDialogOpen, setIsInventoryDialogOpen] = useState(false);
+  const [inventoryViewMode, setInventoryViewMode] = useState<'codex' | 'custom'>('codex');
   const [newItemName, setNewItemName] = useState("");
   const [newItemDescription, setNewItemDescription] = useState("");
   const [newItemFormula, setNewItemFormula] = useState("");
@@ -1276,8 +1279,8 @@ const CharacterView = ({
             )}
 
             <div className="flex justify-center mt-6">
-              <Dialog open={isInventoryDialogOpen} onOpenChange={setIsInventoryDialogOpen}>
-                <DialogTrigger asChild>
+              <Sheet open={isInventoryDialogOpen} onOpenChange={setIsInventoryDialogOpen}>
+                <SheetTrigger asChild>
                   <button 
                     className="p-8 rounded-full transition-all duration-300 hover:scale-110"
                     style={{
@@ -1287,70 +1290,112 @@ const CharacterView = ({
                   >
                     <Plus className="w-12 h-12" style={{ color: `hsl(${classThemeColor})` }} />
                   </button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-[700px] max-h-[80vh] overflow-y-auto">
-                  <DialogHeader>
-                    <DialogTitle className="font-cinzel" style={{ color: `hsl(${classThemeColor})` }}>
+                </SheetTrigger>
+                <SheetContent side="left" className="w-[400px] sm:w-[540px] overflow-y-auto">
+                  <SheetHeader>
+                    <SheetTitle className="font-cinzel" style={{ color: `hsl(${classThemeColor})` }}>
                       Add Item
-                    </DialogTitle>
-                  </DialogHeader>
+                    </SheetTitle>
+                  </SheetHeader>
                   
-                  <Tabs defaultValue="custom" className="w-full">
-                    <TabsList className="grid w-full grid-cols-2">
-                      <TabsTrigger value="custom">Custom Item</TabsTrigger>
-                      <TabsTrigger value="codex">From Codex</TabsTrigger>
-                    </TabsList>
-                    
-                    <TabsContent value="custom" className="space-y-4">
-                      <div>
-                        <label htmlFor="item-name" className="text-sm font-medium mb-2 block">
-                          Name
-                        </label>
-                        <Input
-                          id="item-name"
-                          value={newItemName}
-                          onChange={(e) => setNewItemName(e.target.value)}
-                          placeholder="Item name..."
-                          className="w-full"
-                        />
+                  <div className="mt-6 space-y-4">
+                    <div className="flex gap-2">
+                      <Button
+                        variant={inventoryViewMode === 'codex' ? 'default' : 'outline'}
+                        onClick={() => setInventoryViewMode('codex')}
+                        className="flex-1"
+                      >
+                        From Codex
+                      </Button>
+                      <Button
+                        variant={inventoryViewMode === 'custom' ? 'default' : 'outline'}
+                        onClick={() => setInventoryViewMode('custom')}
+                        className="flex-1"
+                      >
+                        Custom Item
+                      </Button>
+                    </div>
+
+                    {inventoryViewMode === 'codex' ? (
+                      <div className="grid gap-2">
+                        {availableEquipment.map((item) => (
+                          <Card 
+                            key={item.id}
+                            className="p-4 hover:bg-accent/50 transition-colors"
+                          >
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="flex-1">
+                                <div className="font-medium">{item.name}</div>
+                                {item.description && (
+                                  <div className="text-sm text-muted-foreground mt-1">{item.description}</div>
+                                )}
+                                {item.damage && (
+                                  <div className="text-xs text-muted-foreground mt-1">Damage: {item.damage}</div>
+                                )}
+                              </div>
+                              <Button
+                                size="sm"
+                                onClick={() => {
+                                  const newItem: CustomItem = {
+                                    id: crypto.randomUUID(),
+                                    name: item.name,
+                                    description: item.description || '',
+                                    rollFormula: item.damage || undefined,
+                                  };
+                                  onFormDataChange?.({
+                                    custom_inventory: [...(formData.custom_inventory || []), newItem],
+                                  });
+                                }}
+                                style={{
+                                  backgroundColor: `hsl(${classThemeColor})`,
+                                  color: 'hsl(var(--background))',
+                                }}
+                              >
+                                <Plus className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          </Card>
+                        ))}
                       </div>
-                      <div>
-                        <label htmlFor="item-description" className="text-sm font-medium mb-2 block">
-                          Description
-                        </label>
-                        <Textarea
-                          id="item-description"
-                          value={newItemDescription}
-                          onChange={(e) => setNewItemDescription(e.target.value)}
-                          placeholder="Describe the item..."
-                          className="min-h-[100px] w-full"
-                        />
-                      </div>
-                      <div>
-                        <label htmlFor="item-formula" className="text-sm font-medium mb-2 block">
-                          Roll Formula (optional)
-                        </label>
-                        <Input
-                          id="item-formula"
-                          value={newItemFormula}
-                          onChange={(e) => setNewItemFormula(e.target.value)}
-                          placeholder="e.g., 2d4+2"
-                          className="w-full font-mono"
-                        />
-                        <p className="text-xs text-muted-foreground mt-1">For potions or consumables with effects</p>
-                      </div>
-                      <div className="flex justify-end gap-2">
-                        <Button 
-                          variant="outline" 
-                          onClick={() => {
-                            setIsInventoryDialogOpen(false);
-                            setNewItemName("");
-                            setNewItemDescription("");
-                            setNewItemFormula("");
-                          }}
-                        >
-                          Cancel
-                        </Button>
+                    ) : (
+                      <div className="space-y-4">
+                        <div>
+                          <label htmlFor="item-name" className="text-sm font-medium mb-2 block">
+                            Name
+                          </label>
+                          <Input
+                            id="item-name"
+                            value={newItemName}
+                            onChange={(e) => setNewItemName(e.target.value)}
+                            placeholder="Item name..."
+                            className="w-full"
+                          />
+                        </div>
+                        <div>
+                          <label htmlFor="item-description" className="text-sm font-medium mb-2 block">
+                            Description
+                          </label>
+                          <Textarea
+                            id="item-description"
+                            value={newItemDescription}
+                            onChange={(e) => setNewItemDescription(e.target.value)}
+                            placeholder="Describe the item..."
+                            className="min-h-[100px] w-full"
+                          />
+                        </div>
+                        <div>
+                          <label htmlFor="item-formula" className="text-sm font-medium mb-2 block">
+                            Roll Formula (optional)
+                          </label>
+                          <Input
+                            id="item-formula"
+                            value={newItemFormula}
+                            onChange={(e) => setNewItemFormula(e.target.value)}
+                            placeholder="e.g., 2d4+2"
+                            className="w-full font-mono"
+                          />
+                          <p className="text-xs text-muted-foreground mt-1">For potions or consumables with effects</p>
+                        </div>
                         <Button
                           onClick={() => {
                             if (newItemName.trim()) {
@@ -1363,55 +1408,25 @@ const CharacterView = ({
                               onFormDataChange?.({
                                 custom_inventory: [...(formData.custom_inventory || []), newItem],
                               });
-                              setIsInventoryDialogOpen(false);
                               setNewItemName("");
                               setNewItemDescription("");
                               setNewItemFormula("");
+                              setInventoryViewMode('codex');
                             }
                           }}
+                          className="w-full"
                           style={{
                             backgroundColor: `hsl(${classThemeColor})`,
                             color: 'hsl(var(--background))',
                           }}
                         >
-                          Add Item
+                          Add Custom Item
                         </Button>
                       </div>
-                    </TabsContent>
-                    
-                    <TabsContent value="codex" className="space-y-4">
-                      <div className="grid gap-2 max-h-[400px] overflow-y-auto">
-                        {availableEquipment.map((item) => (
-                          <Card 
-                            key={item.id}
-                            className="p-4 cursor-pointer hover:bg-accent/50 transition-colors"
-                            onClick={() => {
-                              const newItem: CustomItem = {
-                                id: crypto.randomUUID(),
-                                name: item.name,
-                                description: item.description || '',
-                                rollFormula: item.damage || undefined,
-                              };
-                              onFormDataChange?.({
-                                custom_inventory: [...(formData.custom_inventory || []), newItem],
-                              });
-                              setIsInventoryDialogOpen(false);
-                            }}
-                          >
-                            <div className="font-medium">{item.name}</div>
-                            {item.description && (
-                              <div className="text-sm text-muted-foreground mt-1">{item.description}</div>
-                            )}
-                            {item.damage && (
-                              <div className="text-xs text-muted-foreground mt-1">Damage: {item.damage}</div>
-                            )}
-                          </Card>
-                        ))}
-                      </div>
-                    </TabsContent>
-                  </Tabs>
-                </DialogContent>
-              </Dialog>
+                    )}
+                  </div>
+                </SheetContent>
+              </Sheet>
             </div>
           </TabsContent>
 
@@ -1443,8 +1458,8 @@ const CharacterView = ({
             )}
 
             <div className="flex justify-center mt-6">
-              <Dialog open={isSpellDialogOpen} onOpenChange={setIsSpellDialogOpen}>
-                <DialogTrigger asChild>
+              <Sheet open={isSpellDialogOpen} onOpenChange={setIsSpellDialogOpen}>
+                <SheetTrigger asChild>
                   <button 
                     className="p-8 rounded-full transition-all duration-300 hover:scale-110"
                     style={{
@@ -1454,70 +1469,115 @@ const CharacterView = ({
                   >
                     <Plus className="w-12 h-12" style={{ color: `hsl(${classThemeColor})` }} />
                   </button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-[700px] max-h-[80vh] overflow-y-auto">
-                  <DialogHeader>
-                    <DialogTitle className="font-cinzel" style={{ color: `hsl(${classThemeColor})` }}>
+                </SheetTrigger>
+                <SheetContent side="left" className="w-[400px] sm:w-[540px] overflow-y-auto">
+                  <SheetHeader>
+                    <SheetTitle className="font-cinzel" style={{ color: `hsl(${classThemeColor})` }}>
                       Add Spell
-                    </DialogTitle>
-                  </DialogHeader>
+                    </SheetTitle>
+                  </SheetHeader>
                   
-                  <Tabs defaultValue="custom" className="w-full">
-                    <TabsList className="grid w-full grid-cols-2">
-                      <TabsTrigger value="custom">Custom Spell</TabsTrigger>
-                      <TabsTrigger value="codex">From Codex</TabsTrigger>
-                    </TabsList>
-                    
-                    <TabsContent value="custom" className="space-y-4">
-                      <div>
-                        <label htmlFor="spell-name" className="text-sm font-medium mb-2 block">
-                          Name
-                        </label>
-                        <Input
-                          id="spell-name"
-                          value={newSpellName}
-                          onChange={(e) => setNewSpellName(e.target.value)}
-                          placeholder="Spell name..."
-                          className="w-full"
-                        />
+                  <div className="mt-6 space-y-4">
+                    <div className="flex gap-2">
+                      <Button
+                        variant={spellViewMode === 'codex' ? 'default' : 'outline'}
+                        onClick={() => setSpellViewMode('codex')}
+                        className="flex-1"
+                      >
+                        From Codex
+                      </Button>
+                      <Button
+                        variant={spellViewMode === 'custom' ? 'default' : 'outline'}
+                        onClick={() => setSpellViewMode('custom')}
+                        className="flex-1"
+                      >
+                        Custom Spell
+                      </Button>
+                    </div>
+
+                    {spellViewMode === 'codex' ? (
+                      <div className="grid gap-2">
+                        {availableSpells.map((spell) => (
+                          <Card 
+                            key={spell.id}
+                            className="p-4 hover:bg-accent/50 transition-colors"
+                          >
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="flex-1">
+                                <div className="font-medium">{spell.name}</div>
+                                {spell.element && (
+                                  <Badge className="mt-1">{spell.element}</Badge>
+                                )}
+                                {spell.description && (
+                                  <div className="text-sm text-muted-foreground mt-1">{spell.description}</div>
+                                )}
+                                {spell.damage && (
+                                  <div className="text-xs text-muted-foreground mt-1">Damage: {spell.damage}</div>
+                                )}
+                              </div>
+                              <Button
+                                size="sm"
+                                onClick={() => {
+                                  const newSpell: CustomItem = {
+                                    id: crypto.randomUUID(),
+                                    name: spell.name,
+                                    description: spell.description || '',
+                                    rollFormula: spell.damage || undefined,
+                                  };
+                                  onFormDataChange?.({
+                                    custom_spells: [...(formData.custom_spells || []), newSpell],
+                                  });
+                                }}
+                                style={{
+                                  backgroundColor: `hsl(${classThemeColor})`,
+                                  color: 'hsl(var(--background))',
+                                }}
+                              >
+                                <Plus className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          </Card>
+                        ))}
                       </div>
-                      <div>
-                        <label htmlFor="spell-description" className="text-sm font-medium mb-2 block">
-                          Description
-                        </label>
-                        <Textarea
-                          id="spell-description"
-                          value={newSpellDescription}
-                          onChange={(e) => setNewSpellDescription(e.target.value)}
-                          placeholder="Describe the spell effects..."
-                          className="min-h-[100px] w-full"
-                        />
-                      </div>
-                      <div>
-                        <label htmlFor="spell-formula" className="text-sm font-medium mb-2 block">
-                          Damage/Effect Roll (optional)
-                        </label>
-                        <Input
-                          id="spell-formula"
-                          value={newSpellFormula}
-                          onChange={(e) => setNewSpellFormula(e.target.value)}
-                          placeholder="e.g., 8d6"
-                          className="w-full font-mono"
-                        />
-                        <p className="text-xs text-muted-foreground mt-1">Damage dice or healing amount</p>
-                      </div>
-                      <div className="flex justify-end gap-2">
-                        <Button 
-                          variant="outline" 
-                          onClick={() => {
-                            setIsSpellDialogOpen(false);
-                            setNewSpellName("");
-                            setNewSpellDescription("");
-                            setNewSpellFormula("");
-                          }}
-                        >
-                          Cancel
-                        </Button>
+                    ) : (
+                      <div className="space-y-4">
+                        <div>
+                          <label htmlFor="spell-name" className="text-sm font-medium mb-2 block">
+                            Name
+                          </label>
+                          <Input
+                            id="spell-name"
+                            value={newSpellName}
+                            onChange={(e) => setNewSpellName(e.target.value)}
+                            placeholder="Spell name..."
+                            className="w-full"
+                          />
+                        </div>
+                        <div>
+                          <label htmlFor="spell-description" className="text-sm font-medium mb-2 block">
+                            Description
+                          </label>
+                          <Textarea
+                            id="spell-description"
+                            value={newSpellDescription}
+                            onChange={(e) => setNewSpellDescription(e.target.value)}
+                            placeholder="Describe the spell effects..."
+                            className="min-h-[100px] w-full"
+                          />
+                        </div>
+                        <div>
+                          <label htmlFor="spell-formula" className="text-sm font-medium mb-2 block">
+                            Damage/Effect Roll (optional)
+                          </label>
+                          <Input
+                            id="spell-formula"
+                            value={newSpellFormula}
+                            onChange={(e) => setNewSpellFormula(e.target.value)}
+                            placeholder="e.g., 8d6"
+                            className="w-full font-mono"
+                          />
+                          <p className="text-xs text-muted-foreground mt-1">Damage dice or healing amount</p>
+                        </div>
                         <Button
                           onClick={() => {
                             if (newSpellName.trim()) {
@@ -1530,58 +1590,25 @@ const CharacterView = ({
                               onFormDataChange?.({
                                 custom_spells: [...(formData.custom_spells || []), newSpell],
                               });
-                              setIsSpellDialogOpen(false);
                               setNewSpellName("");
                               setNewSpellDescription("");
                               setNewSpellFormula("");
+                              setSpellViewMode('codex');
                             }
                           }}
+                          className="w-full"
                           style={{
                             backgroundColor: `hsl(${classThemeColor})`,
                             color: 'hsl(var(--background))',
                           }}
                         >
-                          Add Spell
+                          Add Custom Spell
                         </Button>
                       </div>
-                    </TabsContent>
-                    
-                    <TabsContent value="codex" className="space-y-4">
-                      <div className="grid gap-2 max-h-[400px] overflow-y-auto">
-                        {availableSpells.map((spell) => (
-                          <Card 
-                            key={spell.id}
-                            className="p-4 cursor-pointer hover:bg-accent/50 transition-colors"
-                            onClick={() => {
-                              const newSpell: CustomItem = {
-                                id: crypto.randomUUID(),
-                                name: spell.name,
-                                description: spell.description || '',
-                                rollFormula: spell.damage || undefined,
-                              };
-                              onFormDataChange?.({
-                                custom_spells: [...(formData.custom_spells || []), newSpell],
-                              });
-                              setIsSpellDialogOpen(false);
-                            }}
-                          >
-                            <div className="font-medium">{spell.name}</div>
-                            {spell.element && (
-                              <Badge className="mt-1">{spell.element}</Badge>
-                            )}
-                            {spell.description && (
-                              <div className="text-sm text-muted-foreground mt-1">{spell.description}</div>
-                            )}
-                            {spell.damage && (
-                              <div className="text-xs text-muted-foreground mt-1">Damage: {spell.damage}</div>
-                            )}
-                          </Card>
-                        ))}
-                      </div>
-                    </TabsContent>
-                  </Tabs>
-                </DialogContent>
-              </Dialog>
+                    )}
+                  </div>
+                </SheetContent>
+              </Sheet>
             </div>
           </TabsContent>
 
