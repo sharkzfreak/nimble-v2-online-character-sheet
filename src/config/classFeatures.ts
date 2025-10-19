@@ -33,10 +33,12 @@ import { SHEPHERD_CLASS_FEATURES } from "./shepherdFeatures";
 import { SONGWEAVER_CLASS_FEATURES } from "./songweaverFeatures";
 import { STORMSHIFTER_CLASS_FEATURES } from "./stormshifterFeatures";
 import { ZEPHYR_CLASS_FEATURES } from "./zephyrFeatures";
+import { HEXBINDER_CLASS_FEATURES } from "./hexbinderFeatures";
 
 export const CLASS_FEATURES: ClassFeaturesData = {
   Cheat: CHEAT_CLASS_FEATURES,
   Commander: COMMANDER_CLASS_FEATURES,
+  Hexbinder: HEXBINDER_CLASS_FEATURES,
   Hunter: HUNTER_CLASS_FEATURES,
   Mage: MAGE_CLASS_FEATURES,
   Oathsworn: OATHSWORN_CLASS_FEATURES,
