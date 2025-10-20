@@ -29,6 +29,7 @@ import {
   Sigma,
   Star,
   Maximize2,
+  Moon,
 } from "lucide-react";
 import { ResizableCard } from "@/components/ResizableCard";
 import { D20Icon } from "@/components/icons/D20Icon";
@@ -888,7 +889,7 @@ const CharacterView = ({
             <div className="flex flex-col gap-6 mb-8">
               <div className="flex-1 flex flex-col justify-start gap-4">
                 <div>
-                  <div className="mb-3">
+                  <div className="mb-3 flex items-center justify-between">
                     <h1 
                       className="text-4xl md:text-5xl lg:text-6xl font-bold font-cinzel"
                       style={{
@@ -901,6 +902,27 @@ const CharacterView = ({
                     >
                       {formData.name || "Unnamed Character"}
                     </h1>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="hud-pill init"
+                        onClick={handleRollInitiative}
+                        title="Roll Initiative"
+                      >
+                        <D20Icon className="w-4 h-4" />
+                        <span>{formData.dex_mod >= 0 ? `+${formData.dex_mod}` : `${formData.dex_mod}`}</span>
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={handleRest}
+                        className="hud-pill rest"
+                      >
+                        <Moon className="w-4 h-4" />
+                        Rest
+                      </Button>
+                    </div>
                   </div>
                   
                   {/* Single Identity Line */}

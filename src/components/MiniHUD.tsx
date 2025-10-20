@@ -19,11 +19,14 @@ interface MiniHUDProps {
   dex_mod: number;
   hit_dice_remaining: number;
   hit_dice_total: number;
+  ap_current?: number;
+  ap_max?: number;
   onHPChange: (current: number, temp?: number) => void;
   onMaxHPChange?: (max: number) => void;
   onArmorChange?: (armor: number) => void;
   onSpeedChange?: (speed: number) => void;
   onHitDiceChange?: (remaining: number, total: number) => void;
+  onAPChange?: (ap: number) => void;
   onRest: () => void;
   onRollInitiative: () => void;
   onLevelUp?: () => void;
@@ -41,11 +44,14 @@ export const MiniHUD = ({
   dex_mod,
   hit_dice_remaining,
   hit_dice_total,
+  ap_current = 3,
+  ap_max = 3,
   onHPChange,
   onMaxHPChange,
   onArmorChange,
   onSpeedChange,
   onHitDiceChange,
+  onAPChange,
   onRest,
   onRollInitiative,
   onLevelUp,
@@ -122,8 +128,42 @@ export const MiniHUD = ({
     }
   }, [showSpeedEditor]);
 
+  const handleAPClick = (index: number) => {
+    if (onAPChange) {
+      // Click to set AP to this index (1-3)
+      onAPChange(index);
+    }
+  };
+
+  const handleAPContextMenu = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (onAPChange && ap_current < ap_max) {
+      // Right-click to refund 1 AP
+      onAPChange(Math.min(ap_max, ap_current + 1));
+    }
+  };
+
   return (
     <div className="mini-hud" role="region" aria-label="Character HUD">
+      {/* AP Capsules above HP Bar */}
+      <div 
+        className={`ap-capsules ${ap_current === 0 ? 't0' : ap_current === 1 ? 't1' : ''}`}
+        role="meter" 
+        aria-valuemin={0} 
+        aria-valuemax={ap_max} 
+        aria-valuenow={ap_current}
+        onContextMenu={handleAPContextMenu}
+      >
+        {Array.from({ length: ap_max }).map((_, i) => (
+          <button
+            key={i}
+            className={`capsule ${i < ap_current ? 'on' : ''}`}
+            onClick={() => handleAPClick(i + 1)}
+            aria-label={`Action Point ${i + 1}`}
+          />
+        ))}
+      </div>
+
       {/* HP Bar - Full Width */}
       <div className="hud-hp-section">
         <HPBar 
@@ -136,7 +176,7 @@ export const MiniHUD = ({
         />
       </div>
 
-      {/* Two Column Grid - Shield, Speed, Initiative, Rest */}
+      {/* Two Column Grid - Shield, Speed only */}
       <div className="hud-metrics-grid">
         <div className="relative">
           <Button
@@ -227,27 +267,6 @@ export const MiniHUD = ({
             </div>
           )}
         </div>
-
-        <Button
-          variant="ghost"
-          size="sm"
-          className="hud-pill init"
-          onClick={onRollInitiative}
-          title="Roll Initiative"
-        >
-          <D20Icon className="w-4 h-4" />
-          <span>{initMod}</span>
-        </Button>
-
-        <Button 
-          variant="outline" 
-          size="sm" 
-          onClick={() => setShowRestDialog(true)}
-          className="hud-pill rest"
-        >
-          <Moon className="w-4 h-4" />
-          Rest
-        </Button>
       </div>
 
       <RestDialog
