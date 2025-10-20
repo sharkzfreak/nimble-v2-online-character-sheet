@@ -888,7 +888,7 @@ const CharacterView = ({
             <div className="flex flex-col gap-6 mb-8">
               <div className="flex-1 flex flex-col justify-start gap-4">
                 <div>
-                  <div className="flex items-center gap-4 mb-3">
+                  <div className="mb-3">
                     <h1 
                       className="text-4xl md:text-5xl lg:text-6xl font-bold font-cinzel"
                       style={{
@@ -901,101 +901,6 @@ const CharacterView = ({
                     >
                       {formData.name || "Unnamed Character"}
                     </h1>
-                    
-                    {/* Action Tracker */}
-                    <div className="flex items-center gap-1.5 ml-4">
-                      {actionTracker.map((isActive, index) => {
-                        const handleClick = () => {
-                          const newTracker = [...actionTracker];
-                          // Find leftmost active pip and deactivate it
-                          const firstActive = newTracker.findIndex(val => val === true);
-                          if (firstActive !== -1) {
-                            newTracker[firstActive] = false;
-                            onActionTrackerChange?.(newTracker);
-                          }
-                        };
-
-                        const handleRightClick = (e: React.MouseEvent) => {
-                          e.preventDefault();
-                          const newTracker = [...actionTracker];
-                          // Find leftmost inactive pip and activate it
-                          const firstInactive = newTracker.findIndex(val => val === false);
-                          if (firstInactive !== -1) {
-                            newTracker[firstInactive] = true;
-                            onActionTrackerChange?.(newTracker);
-                          }
-                        };
-
-                        let holdTimeout: NodeJS.Timeout;
-                        let holdInterval: NodeJS.Timeout;
-
-                        const handleMouseDown = (e: React.MouseEvent) => {
-                          if (e.button === 0) { // Left click
-                            holdTimeout = setTimeout(() => {
-                              const newTracker = [false, false, false];
-                              onActionTrackerChange?.(newTracker);
-                            }, 500);
-                          } else if (e.button === 2) { // Right click
-                            holdTimeout = setTimeout(() => {
-                              const newTracker = [true, true, true];
-                              onActionTrackerChange?.(newTracker);
-                            }, 500);
-                          }
-                        };
-
-                        const handleMouseUp = () => {
-                          if (holdTimeout) clearTimeout(holdTimeout);
-                          if (holdInterval) clearInterval(holdInterval);
-                        };
-
-                        return (
-                          <button
-                            key={index}
-                            onClick={handleClick}
-                            onContextMenu={handleRightClick}
-                            onMouseDown={handleMouseDown}
-                            onMouseUp={handleMouseUp}
-                            onMouseLeave={handleMouseUp}
-                            className="group relative transition-all duration-500 hover:scale-110"
-                            style={{
-                              width: '28px',
-                              height: '28px',
-                            }}
-                          >
-                            {/* Arrow icon */}
-                            <div
-                              className="absolute inset-0 transition-all duration-300 flex items-center justify-center"
-                              style={{
-                                opacity: isActive ? 1 : 0.3,
-                                transform: isActive ? 'scale(1)' : 'scale(0.85)',
-                              }}
-                            >
-                              <svg 
-                                width="26" 
-                                height="26" 
-                                viewBox="0 0 24 24"
-                                style={{
-                                  fill: isActive ? '#3b82f6' : '#6b7280',
-                                }}
-                              >
-                                <path d="M5 3 L19 12 L5 21 L5 15 L13 12 L5 9 Z" />
-                              </svg>
-                            </div>
-                            
-                            {/* Border ring */}
-                            <div
-                              className="absolute inset-0 rounded-lg border-2 transition-all duration-500"
-                              style={{
-                                borderColor: isActive 
-                                  ? 'hsl(217 91% 60% / 0.3)' 
-                                  : 'hsl(0 0% 40% / 0.5)',
-                                opacity: isActive ? 0 : 1,
-                              }}
-                            />
-                          </button>
-                        );
-                      })}
-                    </div>
                   </div>
                   
                   {/* Single Identity Line */}
@@ -1202,17 +1107,88 @@ const CharacterView = ({
 
           {/* Actions Tab */}
           <TabsContent value="actions" className="mt-6 space-y-4">
-            {/* No tabs - combined actions and reactions */}
-              
-              {/* Combined Actions & Reactions */}
-              <div className="mt-4 space-y-4">
-                <ActionBar
-                  tiles={actionTiles}
-                  onRollAction={(binding, label, adv, sit) => executeRoll(binding, label, { advMode: adv, situational: sit })}
-                  onToggleFavorite={handleToggleFavorite}
-                  advMode={advMode}
-                  situational={situational}
-                />
+            {/* AP Rune Stones Header */}
+            <div className="flex items-center justify-center mb-4">
+              <div 
+                className={`ap-runes ${actionTracker.filter(Boolean).length > 0 ? 'ready' : ''} ${actionTracker.filter(Boolean).length === 0 ? 't0' : actionTracker.filter(Boolean).length === 1 ? 't1' : ''}`}
+                role="meter" 
+                aria-valuemin={0} 
+                aria-valuemax={3} 
+                aria-valuenow={actionTracker.filter(Boolean).length}
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    const newTracker = [...actionTracker];
+                    const firstActive = newTracker.findIndex(val => val === true);
+                    if (firstActive !== -1) {
+                      newTracker[firstActive] = false;
+                      onActionTrackerChange?.(newTracker);
+                    }
+                  }
+                  if (e.key === 'ArrowLeft') {
+                    e.preventDefault();
+                    const newTracker = [...actionTracker];
+                    const firstActive = newTracker.findIndex(val => val === true);
+                    if (firstActive !== -1) {
+                      newTracker[firstActive] = false;
+                      onActionTrackerChange?.(newTracker);
+                    }
+                  }
+                  if (e.key === 'ArrowRight') {
+                    e.preventDefault();
+                    const newTracker = [...actionTracker];
+                    const firstInactive = newTracker.findIndex(val => val === false);
+                    if (firstInactive !== -1) {
+                      newTracker[firstInactive] = true;
+                      onActionTrackerChange?.(newTracker);
+                    }
+                  }
+                }}
+              >
+                {actionTracker.map((isActive, index) => {
+                  const handleClick = () => {
+                    const newTracker = [...actionTracker];
+                    const firstActive = newTracker.findIndex(val => val === true);
+                    if (firstActive !== -1) {
+                      newTracker[firstActive] = false;
+                      onActionTrackerChange?.(newTracker);
+                    }
+                  };
+
+                  const handleRightClick = (e: React.MouseEvent) => {
+                    e.preventDefault();
+                    const newTracker = [...actionTracker];
+                    const firstInactive = newTracker.findIndex(val => val === false);
+                    if (firstInactive !== -1) {
+                      newTracker[firstInactive] = true;
+                      onActionTrackerChange?.(newTracker);
+                    }
+                  };
+
+                  return (
+                    <button
+                      key={index}
+                      className={`rune ${!isActive ? 'spent' : ''}`}
+                      data-idx={index + 1}
+                      aria-label={`Action Point ${index + 1}`}
+                      onClick={handleClick}
+                      onContextMenu={handleRightClick}
+                    />
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Combined Actions & Reactions */}
+            <div className="space-y-4">
+              <ActionBar
+                tiles={actionTiles}
+                onRollAction={(binding, label, adv, sit) => executeRoll(binding, label, { advMode: adv, situational: sit })}
+                onToggleFavorite={handleToggleFavorite}
+                advMode={advMode}
+                situational={situational}
+              />
                 
                 {/* Reactions Section */}
                 {heroicReactions.length > 0 && (

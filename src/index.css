@@ -934,3 +934,122 @@ All colors MUST be HSL.
     font-size: clamp(11px, 1.8cqw, 14px);
   }
 }
+
+/* AP Rune Stones */
+.ap-runes {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  --stone: 107 112 121; /* base granite */
+  --stone-hi: 154 161 173; /* highlight */
+  --stone-low: 62 65 71; /* shadow */
+  --on: hsl(var(--primary));
+  --warn: 246 178 107; /* 1 AP */
+  --low: 224 102 102; /* 0 AP */
+}
+
+.ap-runes .rune {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  position: relative;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: radial-gradient(120% 120% at 30% 25%, hsl(var(--stone-hi)), transparent 55%),
+    linear-gradient(180deg, hsl(var(--stone)) 0%, hsl(var(--stone-low)) 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 2px 0 rgba(0, 0, 0, 0.35);
+  cursor: pointer;
+  user-select: none;
+  transition: transform 0.08s ease, filter 0.15s ease, opacity 0.15s ease;
+}
+
+/* "Charged" rune glow */
+.ap-runes .rune::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  pointer-events: none;
+  background: radial-gradient(60% 60% at 50% 50%, var(--on), transparent 70%);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+/* Cracks overlay when spent */
+.ap-runes .rune.spent {
+  filter: grayscale(0.55) brightness(0.85);
+  opacity: 0.75;
+}
+
+.ap-runes .rune.spent::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><path d='M32 2 l0 16 -6 6 6 8 -8 6 6 6 -4 10' stroke='white' stroke-width='2' fill='none'/><path d='M20 18 l-6 6 8 4 -6 6 10 4' stroke='white' stroke-width='1.6' fill='none'/></svg>");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 90% 90%;
+  mix-blend-mode: overlay;
+  opacity: 0.55;
+}
+
+/* Hover pop */
+.ap-runes .rune:not(.spent):hover {
+  transform: translateY(-1px);
+}
+
+.ap-runes .rune:not(.spent):active {
+  transform: translateY(0);
+}
+
+/* Pulse when charged */
+.ap-runes.ready .rune::after {
+  opacity: 0.18;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .ap-runes.ready .rune::after {
+    animation: runeGlow 1.6s ease-in-out infinite;
+  }
+}
+
+@keyframes runeGlow {
+  0%,
+  100% {
+    opacity: 0.1;
+  }
+  50% {
+    opacity: 0.22;
+  }
+}
+
+/* Mend animation on reset */
+@media (prefers-reduced-motion: no-preference) {
+  .ap-runes .rune.mend {
+    animation: runeMend 0.45s ease;
+  }
+}
+
+@keyframes runeMend {
+  0% {
+    filter: grayscale(0.7) brightness(0.7);
+    opacity: 0.6;
+  }
+  60% {
+    filter: grayscale(0.2) brightness(1.15);
+    opacity: 1;
+  }
+  100% {
+    filter: none;
+  }
+}
+
+/* Low AP warning tint */
+.ap-runes.t0 .rune {
+  box-shadow: inset 0 0 0 1px hsl(var(--low) / 0.6), 0 2px 0 rgba(0, 0, 0, 0.35);
+}
+
+.ap-runes.t1 .rune {
+  box-shadow: inset 0 0 0 1px hsl(var(--warn) / 0.6), 0 2px 0 rgba(0, 0, 0, 0.35);
+}
