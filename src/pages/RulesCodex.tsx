@@ -52,6 +52,17 @@ const SUBCLASS_IMAGES: Record<string, string> = {
   "Oathbreaker": oathbreakerImg,
 };
 
+const ANCESTRY_IMAGES: Record<string, string> = {
+  "Human": "https://images.pexels.com/photos/1722198/pexels-photo-1722198.jpeg?auto=compress&cs=tinysrgb&w=400",
+  "Elf": "https://images.pexels.com/photos/1096554/pexels-photo-1096554.jpeg?auto=compress&cs=tinysrgb&w=400",
+  "Dwarf": "https://images.pexels.com/photos/1080213/pexels-photo-1080213.jpeg?auto=compress&cs=tinysrgb&w=400",
+  "Halfling": "https://images.pexels.com/photos/2078268/pexels-photo-2078268.jpeg?auto=compress&cs=tinysrgb&w=400",
+  "Orc": "https://images.pexels.com/photos/1516680/pexels-photo-1516680.jpeg?auto=compress&cs=tinysrgb&w=400",
+  "Tiefling": "https://images.pexels.com/photos/1065084/pexels-photo-1065084.jpeg?auto=compress&cs=tinysrgb&w=400",
+  "Dragonborn": "https://images.pexels.com/photos/1687341/pexels-photo-1687341.jpeg?auto=compress&cs=tinysrgb&w=400",
+  "Gnome": "https://images.pexels.com/photos/1933873/pexels-photo-1933873.jpeg?auto=compress&cs=tinysrgb&w=400",
+};
+
 // Custom/homebrew classes that should be marked
 const CUSTOM_CLASSES = ["Hexbinder"];
 
@@ -289,22 +300,35 @@ const RulesCodex = () => {
                       <CardContent>
                         <div className="grid md:grid-cols-2 gap-4">
                           {typeAncestries.map((ancestry: any) => (
-                            <Card key={ancestry.id} className="overflow-hidden">
-                              <CardHeader>
-                                <CardTitle className="text-lg">{ancestry.name}</CardTitle>
-                              </CardHeader>
-                              <CardContent className="space-y-2">
-                                <p className="text-sm text-muted-foreground">{ancestry.description}</p>
-                                {ancestry.traits && Object.entries(ancestry.traits as Record<string, string>).map(([traitName, traitDesc]) => (
-                                  <div key={traitName} className="bg-accent/50 p-3 rounded">
-                                    <h5 className="font-semibold text-sm mb-1">{traitName}</h5>
-                                    <p className="text-xs text-muted-foreground">{traitDesc}</p>
-                                  </div>
-                                ))}
-                                {ancestry.source_page && (
-                                  <span className="text-xs text-muted-foreground">Page {ancestry.source_page}</span>
-                                )}
-                              </CardContent>
+                            <Card key={ancestry.id} className="overflow-hidden hover:shadow-xl transition-all group bg-gradient-to-r from-card to-card/50">
+                              <div className="flex">
+                                <div className="w-32 h-32 flex-shrink-0 overflow-hidden relative">
+                                  <img
+                                    src={ANCESTRY_IMAGES[ancestry.name] || "https://images.pexels.com/photos/1722198/pexels-photo-1722198.jpeg?auto=compress&cs=tinysrgb&w=400"}
+                                    alt={ancestry.name}
+                                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                                  />
+                                  <div className="absolute inset-0 bg-gradient-to-r from-transparent to-card/30" />
+                                </div>
+
+                                <div className="flex-1">
+                                  <CardHeader>
+                                    <CardTitle className="text-lg">{ancestry.name}</CardTitle>
+                                  </CardHeader>
+                                  <CardContent className="space-y-2">
+                                    <p className="text-sm text-muted-foreground line-clamp-2">{ancestry.description}</p>
+                                    {ancestry.traits && Object.entries(ancestry.traits as Record<string, string>).slice(0, 2).map(([traitName, traitDesc]) => (
+                                      <div key={traitName} className="bg-accent/50 p-2 rounded">
+                                        <h5 className="font-semibold text-xs mb-1">{traitName}</h5>
+                                        <p className="text-xs text-muted-foreground line-clamp-2">{traitDesc}</p>
+                                      </div>
+                                    ))}
+                                    {ancestry.source_page && (
+                                      <span className="text-xs text-muted-foreground">Page {ancestry.source_page}</span>
+                                    )}
+                                  </CardContent>
+                                </div>
+                              </div>
                             </Card>
                           ))}
                         </div>
