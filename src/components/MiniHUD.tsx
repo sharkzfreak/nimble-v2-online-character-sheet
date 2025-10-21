@@ -130,8 +130,9 @@ export const MiniHUD = ({
 
   const handleAPClick = (index: number) => {
     if (onAPChange) {
-      // Click to set AP to this index (1-3)
-      onAPChange(index);
+      // Click to spend AP down to this capsule (spend 1)
+      const newAP = Math.max(0, ap_current - 1);
+      onAPChange(newAP);
     }
   };
 

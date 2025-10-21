@@ -902,26 +902,40 @@ const CharacterView = ({
                     >
                       {formData.name || "Unnamed Character"}
                     </h1>
-                    <div className="flex items-center gap-2">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="hud-pill init"
-                        onClick={handleRollInitiative}
-                        title="Roll Initiative"
-                      >
-                        <D20Icon className="w-4 h-4" />
-                        <span>{formData.dex_mod >= 0 ? `+${formData.dex_mod}` : `${formData.dex_mod}`}</span>
-                      </Button>
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        onClick={handleRest}
-                        className="hud-pill rest"
-                      >
-                        <Moon className="w-4 h-4" />
-                        Rest
-                      </Button>
+                    <div className="flex items-center gap-2 relative z-10">
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="hud-pill init cursor-pointer"
+                              onClick={handleRollInitiative}
+                              title="Roll Initiative"
+                            >
+                              <D20Icon className="w-4 h-4" />
+                              <span>{formData.dex_mod >= 0 ? `+${formData.dex_mod}` : `${formData.dex_mod}`}</span>
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>Roll Initiative</TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              onClick={handleRest}
+                              className="hud-pill rest cursor-pointer"
+                            >
+                              <Moon className="w-4 h-4" />
+                              Rest
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>Take a Rest</TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                     </div>
                   </div>
                   

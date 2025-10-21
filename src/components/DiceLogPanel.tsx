@@ -24,6 +24,7 @@ const diceTypes: DiceType[] = [
   { sides: 10, label: "d10" },
   { sides: 12, label: "d12" },
   { sides: 20, label: "d20" },
+  { sides: 100, label: "d100" },
 ];
 
 export const DiceLogPanel = () => {
@@ -45,6 +46,7 @@ export const DiceLogPanel = () => {
     d10: 0,
     d12: 0,
     d20: 0,
+    d100: 0,
   });
   const [isRolling, setIsRolling] = useState(false);
   const [showAnimation, setShowAnimation] = useState(false);
@@ -123,6 +125,7 @@ export const DiceLogPanel = () => {
       d10: 0,
       d12: 0,
       d20: 0,
+      d100: 0,
     });
     setModifier(0);
   };
@@ -288,6 +291,7 @@ export const DiceLogPanel = () => {
         '4': 'd10',
         '5': 'd12',
         '6': 'd20',
+        '7': 'd100',
       };
 
       if (diceMap[key]) {
@@ -467,6 +471,13 @@ export const DiceLogPanel = () => {
         return (
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={baseClass}>
             <path d="M12 2 L22 9 L19 18 L5 18 L2 9 Z M5 18 L12 22 M19 18 L12 22" />
+          </svg>
+        );
+      case 'd100':
+        return (
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={baseClass}>
+            <path d="M12 2 L20 7 L22 15 L17 22 L7 22 L2 15 L4 7 Z" />
+            <circle cx="12" cy="12" r="4" strokeWidth="1.5" />
           </svg>
         );
       default:
@@ -788,12 +799,12 @@ export const DiceLogPanel = () => {
                         e.preventDefault();
                         removeFromPool(dice.label);
                       }}
-                      className="relative w-8 h-8 inline-flex items-center justify-center text-primary hover:text-primary/80 transition-all hover:scale-110 active:scale-95 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-card"
+                      className="relative w-9 h-9 inline-flex items-center justify-center bg-background/80 hover:bg-primary/20 border border-border/50 hover:border-primary/50 rounded transition-all hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-primary/50"
                       aria-label={`Add ${dice.label}`}
                     >
                       <DiceIcon type={dice.label} />
                       {dicePool[dice.label] > 0 && (
-                        <span className="absolute -bottom-1 -right-1 h-3.5 w-3.5 rounded-full bg-accent text-primary-foreground text-[8px] flex items-center justify-center font-bold border border-background">
+                        <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-primary text-primary-foreground text-[9px] flex items-center justify-center font-bold shadow-md">
                           {dicePool[dice.label]}
                         </span>
                       )}
@@ -808,96 +819,64 @@ export const DiceLogPanel = () => {
           </div>
 
           {/* Row 2: Controls */}
-          <div className="controls-row flex items-center gap-2">
+          <div className="controls-row flex items-center gap-1.5">
             {/* Modifier */}
-            <div className="modifier flex items-center gap-1">
+            <div className="modifier flex items-center gap-0">
               <Button
                 size="icon"
                 variant="ghost"
                 onClick={() => adjustModifier(-1)}
-                className="h-6 w-6 rounded hover:bg-primary/20"
+                className="h-8 w-8 rounded-none bg-background/80 hover:bg-primary/20 border border-border/50 hover:border-primary/50 text-foreground font-bold"
                 id="modDec"
                 aria-label="Decrease modifier"
               >
-                <Minus className="h-3 w-3" />
+                −
               </Button>
               
               <div 
                 id="modVal"
-                className="mod-value w-10 px-2 py-0.5 rounded bg-primary/20 text-primary text-xs font-bold text-center"
+                className="mod-value h-8 w-10 px-2 flex items-center justify-center bg-background/80 border-y border-border/50 text-foreground text-sm font-bold"
               >
-                {modifier > 0 ? '+' : ''}{modifier}
+                {modifier === 0 ? '0' : modifier > 0 ? `+${modifier}` : modifier}
               </div>
               
               <Button
                 size="icon"
                 variant="ghost"
                 onClick={() => adjustModifier(1)}
-                className="h-6 w-6 rounded hover:bg-primary/20"
+                className="h-8 w-8 rounded-none bg-background/80 hover:bg-primary/20 border border-border/50 hover:border-primary/50 text-foreground font-bold"
                 id="modInc"
                 aria-label="Increase modifier"
               >
-                <Plus className="h-3 w-3" />
+                +
               </Button>
             </div>
 
             {/* Roll Mode Toggles */}
-            <div className="roll-mode flex items-center gap-0.5">
+            <div className="roll-mode flex items-center gap-0">
               <Button
                 size="sm"
-                variant={rollMode === 'normal' ? 'default' : 'ghost'}
-                onClick={() => setRollMode('normal')}
-                className="h-6 px-2 text-[10px] rounded"
-                data-mode="normal"
-                aria-pressed={rollMode === 'normal'}
-                aria-label="Normal roll mode"
-              >
-                Normal
-              </Button>
-              <Button
-                size="sm"
-                variant={rollMode === 'advantage' ? 'default' : 'ghost'}
+                variant="ghost"
                 onClick={() => setRollMode('advantage')}
-                className="h-6 px-2 text-[10px] rounded"
+                className={`h-8 px-3 rounded-none text-[10px] font-semibold bg-background/80 border border-border/50 hover:border-primary/50 ${rollMode === 'advantage' ? 'bg-primary/20 text-primary border-primary/50' : 'text-muted-foreground hover:bg-primary/10'}`}
                 data-mode="advantage"
                 aria-pressed={rollMode === 'advantage'}
                 aria-label="Advantage roll mode"
               >
-                Adv
+                KH
               </Button>
               <Button
                 size="sm"
-                variant={rollMode === 'disadvantage' ? 'default' : 'ghost'}
+                variant="ghost"
                 onClick={() => setRollMode('disadvantage')}
-                className="h-6 px-2 text-[10px] rounded"
+                className={`h-8 px-3 rounded-none text-[10px] font-semibold bg-background/80 border-y border-r border-border/50 hover:border-primary/50 ${rollMode === 'disadvantage' ? 'bg-primary/20 text-primary border-primary/50' : 'text-muted-foreground hover:bg-primary/10'}`}
                 data-mode="disadvantage"
                 aria-pressed={rollMode === 'disadvantage'}
                 aria-label="Disadvantage roll mode"
               >
-                Dis
+                KL
               </Button>
             </div>
-
-            {/* Pool Summary */}
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <div 
-                    id="dicePoolText"
-                    className="pool flex-1 truncate text-[10px] opacity-80 ml-1 cursor-pointer min-w-0"
-                    onContextMenu={(e) => {
-                      e.preventDefault();
-                      clearPool();
-                    }}
-                  >
-                    {poolText}
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p className="text-xs">Right-click to clear pool</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
 
             {/* ROLL Button */}
             <Button
@@ -905,10 +884,10 @@ export const DiceLogPanel = () => {
               onClick={rollPool}
               disabled={totalDiceInPool === 0 || isRolling}
               size="sm"
-              className="h-7 px-4 text-xs font-bold"
+              className="h-8 px-6 text-xs font-bold bg-background/80 hover:bg-primary/20 border border-border/50 hover:border-primary/50 rounded disabled:opacity-50 disabled:cursor-not-allowed"
               aria-label="Roll dice"
             >
-              ROLL
+              Roll
             </Button>
           </div>
         </footer>

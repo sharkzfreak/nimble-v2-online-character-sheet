@@ -289,27 +289,34 @@ All colors MUST be HSL.
     gap: 8px;
   }
 
-  .mini-hud-left .hud-pill {
+  .hud-pill {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 6px;
-    padding: 8px 10px;
-    border-radius: 999px;
-    background: hsl(var(--muted) / 0.06);
-    border: 1px solid hsl(var(--border) / 0.08);
+    padding: 8px 12px;
+    border-radius: 6px;
+    background: hsl(var(--background) / 0.8);
+    border: 1px solid hsl(var(--border) / 0.5);
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s;
+    position: relative;
+    z-index: 10;
   }
 
-  .mini-hud-left .hud-pill:hover {
-    background: hsl(var(--muted) / 0.12);
+  .hud-pill:hover {
+    background: hsl(var(--primary) / 0.1);
+    border-color: hsl(var(--primary) / 0.5);
     transform: translateY(-1px);
   }
 
-  .mini-hud-left .hud-pill.rest {
-    width: 100%;
+  .hud-pill.init {
+    background: hsl(var(--background) / 0.9);
+  }
+
+  .hud-pill.rest {
+    background: hsl(var(--background) / 0.9);
   }
 
   /* Stat Editor (for armor/speed) */
