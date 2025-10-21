@@ -15,7 +15,7 @@ const CodexContext = createContext<CodexContextType | undefined>(undefined);
 
 export function CodexProvider({ children }: { children: React.ReactNode }) {
   const [codex, setCodex] = useState<RulesCodex | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const { toast } = useToast();
   const hasShownToast = useRef(false);
 
