@@ -51,8 +51,10 @@ export function useFitToWindow({
       fitRoot.style.position = 'relative';
       fitRoot.style.overflow = 'visible';
       fitRoot.style.height = 'auto';
-      fitRoot.style.marginLeft = `${profileW + gutterLeft}px`;
-      fitRoot.style.marginRight = `${chatW + gutterRight}px`;
+      fitRoot.style.marginLeft = `0px`;
+      fitRoot.style.marginRight = `0px`;
+      fitRoot.style.paddingLeft = `${profileW + gutterLeft}px`;
+      fitRoot.style.paddingRight = `${chatW + gutterRight}px`;
 
       // Calculate scale to fit both width and height
       const scaleW = availW / designW;

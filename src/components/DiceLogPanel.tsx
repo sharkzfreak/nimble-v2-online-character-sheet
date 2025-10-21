@@ -24,7 +24,6 @@ const diceTypes: DiceType[] = [
   { sides: 10, label: "d10" },
   { sides: 12, label: "d12" },
   { sides: 20, label: "d20" },
-  { sides: 100, label: "d100" },
 ];
 
 export const DiceLogPanel = () => {
@@ -46,7 +45,6 @@ export const DiceLogPanel = () => {
     d10: 0,
     d12: 0,
     d20: 0,
-    d100: 0,
   });
   const [isRolling, setIsRolling] = useState(false);
   const [showAnimation, setShowAnimation] = useState(false);
@@ -125,7 +123,6 @@ export const DiceLogPanel = () => {
       d10: 0,
       d12: 0,
       d20: 0,
-      d100: 0,
     });
     setModifier(0);
   };
@@ -291,7 +288,6 @@ export const DiceLogPanel = () => {
         '4': 'd10',
         '5': 'd12',
         '6': 'd20',
-        '7': 'd100',
       };
 
       if (diceMap[key]) {
@@ -471,13 +467,6 @@ export const DiceLogPanel = () => {
         return (
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={baseClass}>
             <path d="M12 2 L22 9 L19 18 L5 18 L2 9 Z M5 18 L12 22 M19 18 L12 22" />
-          </svg>
-        );
-      case 'd100':
-        return (
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={baseClass}>
-            <path d="M12 2 L20 7 L22 15 L17 22 L7 22 L2 15 L4 7 Z" />
-            <circle cx="12" cy="12" r="4" strokeWidth="1.5" />
           </svg>
         );
       default:
@@ -863,7 +852,7 @@ export const DiceLogPanel = () => {
                 aria-pressed={rollMode === 'advantage'}
                 aria-label="Advantage roll mode"
               >
-                KH
+                ADV
               </Button>
               <Button
                 size="sm"
@@ -874,7 +863,7 @@ export const DiceLogPanel = () => {
                 aria-pressed={rollMode === 'disadvantage'}
                 aria-label="Disadvantage roll mode"
               >
-                KL
+                DIS
               </Button>
             </div>
 
